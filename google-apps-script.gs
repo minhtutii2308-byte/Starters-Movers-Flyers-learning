@@ -5,7 +5,7 @@
  * BƯỚC BẮT BUỘC: đổi mã bên dưới thành mã của riêng bạn.
  * Đây là mã giáo viên nhập trong app để XEM kết quả. Đừng chia sẻ mã này với học sinh.
  */
-const TEACHER_KEY = 'doi-ma-nay-thanh-ma-rieng';
+const TEACHER_KEY = 'Mrs Tee';
 
 const SHEET_HW = 'BaiTap';
 const SHEET_RESULTS = 'KetQua';
