@@ -228,6 +228,18 @@ table.t tr.clk{cursor:pointer}
 table.t tr.clk:hover{background:var(--soft)}
 .rank{font-family:var(--f-display);font-weight:800}
 
+/* pattern sentences in practice */
+.word .ps{color:var(--ink);font-weight:500}
+.fc-pat{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:12px;background:var(--soft);font-size:15px;text-align:center}
+.fc-pat b{font-family:var(--f-display);font-weight:600}
+.fc-pat span{font-size:13px;color:var(--muted)}
+.cap-vi{font-family:var(--f-body);font-size:14px;color:var(--muted);margin-top:6px}
+.bline{min-height:60px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px;border:2px dashed var(--lv);border-radius:14px;background:var(--card)}
+.tok{border:2px solid var(--ink);background:var(--card);border-radius:10px;padding:8px 12px;font-family:var(--f-display);font-size:18px;font-weight:600;box-shadow:0 2px 0 var(--ink)}
+.tok.on{border-color:var(--lv);color:var(--lv);box-shadow:none}
+.tok.no{border-color:var(--bad);color:var(--bad);animation:shake .3s}
+.tok[disabled]{opacity:.2;box-shadow:none}
+
 </style>
 </head>
 <body>
@@ -965,6 +977,254 @@ What should you do with your phone?|Turn it off.;I should turn it off.;~turn|B�
 Good luck! What do you say?|Thank you!;Thanks!|Chúc may mắn! Bạn nói gì nào?`)
 ]}};
 
+/* ===================== MẪU CÂU GẮN VỚI TỪNG TỪ =====================
+   Mỗi dòng: câu tiếng Anh | nghĩa tiếng Việt | các từ dùng được (cách nhau bằng dấu phẩy, * = tất cả)
+   {w} từ · {W} từ viết hoa · {a} a/an + từ · {p} số nhiều · {ing} dạng -ing · {ING} -ing viết hoa · {vi} nghĩa */
+const TPL={
+starters:{
+body:`This is my {w}.|Đây là {vi} của tớ.|arm,ear,eye,face,foot,hand,head,leg,mouth,nose
+Touch your {w}!|Chạm vào {vi} của bạn!|arm,ear,eye,face,feet,foot,hair,hand,head,leg,mouth,nose
+Look at my {w}!|Nhìn {vi} của tớ này!|feet,hair`,
+zoo:`What's this? – It's {a}.|Đây là con gì? – Đó là {vi}.|*
+There is {a} at the zoo.|Có {vi} ở sở thú.|*
+I love {p}. – So do I.|Tớ thích {vi}. – Tớ cũng vậy.|bird,cow,elephant,crocodile,dog,duck,frog,giraffe,goat,hippo,horse
+What a big {w}!|{vi} to quá!|elephant,hippo,horse,crocodile,giraffe,cow`,
+clothes:`Whose {w} is this? – It's mine!|{vi} này của ai? – Của tớ!|bag,handbag,hat,jacket,T-shirt,shirt
+These {w} are blue.|{vi} này màu xanh.|jeans,glasses,clothes,trousers
+I've got {a}.|Tớ có {vi}.|bag,handbag,hat,jacket,T-shirt,shirt,shoe,sock
+Put on your {w}!|Mang {vi} vào nào!|hat,jacket,T-shirt,shirt,jeans,glasses,trousers`,
+birthday:`Who is that? – It's my {w}.|Đó là ai? – Đó là {vi} của tớ.|brother,sister,cousin,dad,mum
+Can I have {a}?|Cho tớ {vi} được không?|balloon,robot
+Would you like {a}? – Yes, please.|Bạn có muốn {vi} không? – Có, cảm ơn.|balloon,robot
+Give the cake to the {w}.|Đưa bánh cho {vi}.|child,children,people
+This is Mrs Brown. She's my teacher.|Đây là cô Brown. Cô là giáo viên của tớ.|Mrs
+Give me the ball, please. – Here you are.|Đưa tớ quả bóng nhé. – Của bạn đây.|give`,
+food:`Would you like some {w}? – Yes, please.|Bạn có muốn một ít {vi} không? – Có, cảm ơn.|bread,cake,sweets,candy,chocolate,fish,fruit,ice cream,milk,rice,water,watermelon,pineapple,coconut
+I like {w}. – Me too!|Tớ thích {vi}. – Tớ cũng thế!|chocolate,ice cream,fish,fruit,rice,milk,watermelon,cake,bread,candy
+I don't like {p}.|Tớ không thích {vi}.|onion,tomato,carrot
+We have {w} at home.|Chúng tớ ăn {vi} ở nhà.|breakfast,lunch,dinner
+Can I have a {w}, please?|Cho tớ xin một {vi} nhé?|drink`,
+home:`Where is the {w}? – It's next to the door.|{vi} ở đâu? – Ở cạnh cửa ra vào.|armchair,box,bookcase,clock,cupboard,lamp,mat,mirror,painting,radio,sofa,TV
+There is {a} in my house.|Nhà tớ có {vi}.|armchair,bathroom,bedroom,bookcase,clock,cupboard,dining room,garden,kitchen,lamp,mirror,painting,radio,sofa,TV,living room,hall
+Put the ball in the {w}. – OK! What now?|Đặt quả bóng vào {vi}. – Được rồi! Giờ làm gì tiếp?|box,cupboard,bedroom,kitchen,garden,hall
+I live in {a}.|Tớ sống ở {vi}.|flat,house`,
+school:`Have you got {a}? – Yes, I have.|Bạn có {vi} không? – Có.|rubber,eraser,pen,pencil,ruler,computer
+Let's play {w}!|Cùng chơi {vi} nào!|basketball,football,hockey
+Can you draw a cat? – Yes, I can.|Bạn vẽ được con mèo không? – Được.|draw
+Open your book, please.|Mở sách ra nhé.|open
+Close the door, please.|Đóng cửa lại nhé.|close
+How do you spell "{w}"?|Bạn đánh vần chữ "{w}" thế nào?|*
+Look at the {w}.|Nhìn vào {vi} nào.|classroom,computer,page,mouse
+Tick the right {w}.|Đánh dấu vào câu đúng.|tick
+We have {w} on Monday.|Thứ Hai chúng tớ có giờ {vi}.|music
+There are ten girls in my {w}.|Lớp tớ có mười bạn gái.|class`,
+beach:`I like {ing}.|Tớ thích {vi}.|swim,jump,sing,walk,fishing
+Can you {w}? – Yes, I can.|Bạn có biết {vi} không? – Có.|jump,kick,sing,swim,walk
+{ING} is good.|{vi} rất tốt.|swim,walk
+Let's play {w}!|Cùng chơi {vi} nào!|badminton,baseball,table tennis,tennis
+Look! I've got {a}.|Nhìn này! Tớ có {vi}.|camera,shell,kite
+The {w} is hot today.|Hôm nay {vi} nóng quá.|sand,sun
+She can play the {w}.|Cô ấy biết chơi {vi}.|piano`,
+street:`How do you go to school? – By {w}.|Bạn đi học bằng gì? – Bằng {vi}.|bike,bus,car,motorbike,train
+There's {a} next to the park.|Có {vi} ở cạnh công viên.|bus,car,lorry,motorbike,shop,bookshop,tree,bike
+Where is Alex? – He's in the {w}.|Alex ở đâu? – Cậu ấy ở {vi}.|park,shop,bookshop,car,bus,train
+What are you doing? – I'm {ing}.|Bạn đang làm gì? – Tớ đang {vi}.|run
+Look! A {w}!|Nhìn kìa! {vi}!|helicopter,plane,lorry,train
+{W}! – OK!|{vi}! – Được!|stop,go`},
+movers:{
+today:`Put on your {w}. It's cold!|Mặc {vi} vào. Trời lạnh đấy!|coat,scarf,sweater
+Yesterday we went to the {w}.|Hôm qua chúng tớ đã đi {vi}.|hospital,countryside
+I think this {w} is great.|Tớ nghĩ {vi} này rất hay.|film,CD
+I want to visit my {w}.|Tớ muốn đi thăm {vi}.|grandparents
+Dad wants to drink some {w}.|Bố muốn uống chút {vi}.|coffee
+I found it on the {w}.|Tớ tìm thấy nó trên {vi}.|internet`,
+toyshop:`I want to buy the {w}.|Tớ muốn mua {vi}.|*
+Which toy do you like best? – I like the {w} best.|Bạn thích đồ chơi nào nhất? – Tớ thích {vi} nhất.|dolphin,panda,kangaroo,parrot,pirate,shark,whale,clown,rabbit
+The {w} is bigger than the rabbit.|{vi} to hơn con thỏ.|dolphin,panda,kangaroo,shark,whale,clown,pirate`,
+party:`Give the {w} to Grandma, please.|Đưa {vi} cho bà nhé.|bottle,bowl,cup,glass,plate,cheese
+Shall I wash the {p}?|Tớ rửa {vi} nhé?|bowl,cup,glass,plate,bottle
+This is Mrs Brown's {w}.|Đây là {vi} của bà Brown.|daughter,granddaughter,son,grandson
+Be {w}, please!|Làm ơn giữ {vi}!|quiet
+What about some {w}?|Ăn chút {vi} nhé?|cheese`,
+doctor:`What's the matter? – I've got {a}.|Bạn bị sao thế? – Tớ bị {vi}.|earache,headache,stomach-ache,cold,cough
+My {w} hurts.|{vi} của tớ bị đau.|shoulder,neck,tooth
+My teeth hurt.|Răng tớ bị đau.|teeth
+You must go to the {w}.|Bạn phải đi gặp {vi}.|doctor,nurse
+Does it {w}? – Yes, it does.|Có đau không? – Có.|hurt`,
+hotel:`Can I have {a}, please?|Cho tôi xin {vi} nhé?|blanket,towel
+Where's the {w}? – It's downstairs.|{vi} ở đâu? – Ở tầng dưới.|pool,lift,shower
+My room is {w}.|Phòng tôi ở {vi}.|upstairs,downstairs
+Shall I take the {w}?|Tôi đi {vi} nhé?|lift
+What's the {w} of the hotel?|{vi} của khách sạn là gì?|address
+Please sit in your {w}.|Mời ngồi vào {vi} của bạn.|seat`,
+jungle:`This is the {w} where the pirates live.|Đây là {vi} nơi bọn cướp biển sống.|forest,jungle,island
+I could see {a} from the window.|Tớ đã nhìn thấy {vi} từ cửa sổ.|lake,mountain,waterfall,rainbow
+Let's look for the {w}!|Cùng đi tìm {vi} nào!|treasure
+The {w} is higher than the tree.|{vi} cao hơn cái cây.|mountain,waterfall
+A {w} fell from the tree.|{vi} rơi từ trên cây xuống.|leaf
+The {w} are green and yellow.|{vi} có màu xanh và vàng.|leaves`,
+weather:`What was the weather like on Monday? – It was {w}.|Thứ Hai thời tiết thế nào? – Trời {vi}.|cloudy,sunny,windy
+There was {a} last night.|Tối qua có {vi}.|storm
+I don't like the {w}.|Tớ không thích {vi}.|rain,wind,snow
+There's a big {w} in the sky.|Có một {vi} lớn trên bầu trời.|cloud
+What day is it today? – It's {W}.|Hôm nay là thứ mấy? – Hôm nay là {vi}.|Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday
+On {W}s I play badminton.|Vào các ngày {vi}, tớ chơi cầu lông.|Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday`,
+town:`How about going to the {w} on Saturday?|Thứ Bảy mình đi {vi} nhé?|*
+We went to the {w} to buy fruit.|Chúng tớ đã đến {vi} để mua trái cây.|market,supermarket,shopping centre
+This is the {w} where I meet my friends.|Đây là {vi} nơi tớ gặp bạn bè.|café,library,square,sports centre
+Where is the {w}? – It's behind the bank.|{vi} ở đâu? – Ở phía sau ngân hàng.|*`,
+holidays:`What about {ing}?|{vi} nhé?|dress up,sail,fishing
+She's very good at {ing}.|Cô ấy {vi} rất giỏi.|sail,hop,kick,fishing
+I sent {a} to my friend.|Tớ đã gửi {vi} cho bạn tớ.|email,text,video
+Yesterday we went {ing}.|Hôm qua chúng tớ đã đi {vi}.|fishing,sail
+The clown made us {w}.|Chú hề làm chúng tớ {vi}.|laugh
+This {w} is about dolphins.|{vi} này nói về cá heo.|website`,
+numbers:`My birthday is on the {w} of May.|Sinh nhật tớ là ngày {vi} của tháng Năm.|first,second,third,fourteenth,fifteenth,twentieth
+He was {w} in the race.|Cậu ấy về {vi} trong cuộc đua.|first,second,third,twentieth
+How many pencils are there? – There are {w}.|Có bao nhiêu bút chì? – Có {vi} cái.|thirty-six,forty-three,fifty-five
+One {w} people came to the party.|Một trăm người đã đến bữa tiệc.|hundred
+How old is Grandpa? – He's {w}.|Ông bao nhiêu tuổi? – Ông {vi} tuổi.|forty-three,fifty-five`},
+flyers:{
+meet:`You like your {w}, don't you?|Bạn thích {vi} của mình, phải không?|rucksack,necklace,sunglasses,telephone,timetable,flag,group
+I'm going to join the {w}.|Tớ sẽ tham gia {vi}.|competition,group
+Shall we {w} tomorrow?|Ngày mai mình {vi} nhé?|meet
+Guess what's in my {w}!|Đoán xem trong {vi} của tớ có gì!|rucksack
+These {w} are too expensive.|{vi} này đắt quá.|sunglasses
+This necklace is {w}, isn't it?|Chiếc vòng cổ này {vi}, phải không?|expensive,lovely,wonderful
+How many {p} can you speak?|Bạn nói được bao nhiêu {vi}?|language
+The lesson is going to {w} soon.|Buổi học sắp {vi}.|begin
+Let's do our homework {w}.|Mình cùng làm bài tập {vi} nhé.|together
+I've got {w} friends in Japan.|Tớ có {vi} người bạn ở Nhật.|several
+{W} what's in my bag!|{vi} xem trong túi tớ có gì!|guess
+Would you like to {w} our team?|Bạn có muốn {vi} đội tớ không?|join
+I {w} my weekends with Grandma.|Tớ {vi} cuối tuần với bà.|spend
+There are twelve {p} in a year.|Một năm có mười hai {vi}.|month
+We're going to meet {w}, aren't we?|Mình sẽ gặp nhau {vi}, phải không?|tomorrow`,
+autumn:`Shall I prepare the {w}?|Tớ chuẩn bị {vi} nhé?|meal,pizza
+Let's {w} the meal together.|Mình cùng {vi} bữa ăn nhé.|prepare
+Put the {w} in the fridge, please.|Hãy cất {vi} vào tủ lạnh nhé.|jam,honey,pizza
+Can you pass the {w}, please?|Bạn đưa giúp tớ {vi} nhé?|salt,pepper,jam,honey,flour
+You should take this {w}.|Bạn nên uống {vi} này.|medicine
+If you {w} the pizza, it tastes bad.|Nếu bạn {vi} pizza, nó sẽ dở.|burn
+I was playing the {w} when it started to rain.|Tớ đang chơi {vi} thì trời bắt đầu mưa.|drum
+The {w} was singing when the lights went out.|{vi} đang hát thì đèn tắt.|singer
+I was {w}, so I went to a concert.|Tớ thấy {vi} nên đã đi xem hòa nhạc.|bored
+We were going to a {w} when it started to rain.|Chúng tớ đang đi xem {vi} thì trời mưa.|concert
+Would you like a {w} of pizza?|Bạn ăn một {vi} pizza nhé?|piece
+See you {w}!|Hẹn gặp lại {vi}!|later
+Let's {w} what to cook.|Mình cùng {vi} nấu gì nhé.|decide
+They always help {w}.|Họ luôn giúp đỡ {vi}.|each other
+Be careful! Don't {w}.|Cẩn thận! Đừng {vi}.|fall over
+Put the milk in the {w}.|Cất sữa vào {vi}.|fridge
+Talk to your {w}.|Nói chuyện với {vi} của bạn.|partner
+We had a long {w}.|Chúng tớ đã có {vi} dài.|conversation
+{W} the cake into eight pieces.|{vi} bánh thành tám miếng.|cut
+Mum went to the {w} to buy medicine.|Mẹ đến {vi} để mua thuốc.|chemist
+It's {w}. The leaves are falling.|Đang là {vi}. Lá đang rụng.|autumn`,
+funday:`Have you ever seen {a}?|Bạn đã bao giờ nhìn thấy {vi} chưa?|actor,artist,crown,king,octopus,queen,violin,journalist,photographer
+The {w} was singing when the lights went out.|{vi} đang hát thì đèn tắt.|actor,king,queen,artist
+Which {w} can you play? – The violin.|Bạn chơi được {vi} nào? – Đàn vi-ô-lông.|instrument
+Are you {w}? – Yes, I am!|Bạn có {vi} không? – Có!|excited,ready
+I read it in the {w}.|Tớ đọc được trong {vi}.|newspaper
+The singers are on the {w}.|Các ca sĩ đang ở trên {vi}.|stage
+Have you ever been to the {w}?|Bạn đã bao giờ đến {vi} chưa?|theatre`,
+winter:`If it snows, we make {a}.|Nếu tuyết rơi, chúng tớ làm {vi}.|snowman,snowball
+I prefer {p} to the news.|Tớ thích {vi} hơn tin tức.|cartoon
+You should {w}. The programme starts at six.|Bạn nên {vi}. Chương trình bắt đầu lúc sáu giờ.|hurry
+It might snow in {w}.|Có thể có tuyết vào {vi}.|winter
+Let's play {w}, shall we?|Mình chơi {vi} nhé?|chess
+Shall we go {ing}?|Mình đi {vi} nhé?|ski,snowboarding
+You {w} wear a warm coat.|Bạn {vi} mặc áo ấm.|should
+What's on the other {w}?|Kênh kia đang chiếu gì?|channel
+I'm reading a {w} about animals.|Tớ đang đọc {vi} về động vật.|magazine
+Football is very {w}, isn't it?|Bóng đá rất {vi}, phải không?|popular
+Let's {w} at home if it rains.|Nếu trời mưa thì mình {vi} nhà nhé.|stay
+{W} it rains, we stay at home.|{vi} trời mưa, chúng tớ ở nhà.|if
+I {w} cartoons to the news.|Tớ {vi} phim hoạt hình hơn tin tức.|prefer
+What's your favourite {w}?|{vi} yêu thích của bạn là gì?|programme
+Look at the {w}. It's December.|Nhìn {vi} kìa. Tháng Mười Hai rồi.|calendar
+My aunt is {w}, isn't she?|Cô tớ {vi} rồi, phải không?|married
+You're very {w}, aren't you?|Bạn rất {vi}, phải không?|kind
+I slept {w} the film.|Tớ đã ngủ {vi} bộ phim.|during`,
+partyf:`Have you ever eaten with {w}?|Bạn đã bao giờ ăn bằng {vi} chưa?|chopsticks
+Have you ever eaten with {a}?|Bạn đã bao giờ ăn bằng {vi} chưa?|fork,spoon,knife
+This {w} tastes delicious!|{vi} này ngon quá!|biscuit,butter
+Could you pass the {w}, please?|Bạn đưa giúp tớ {vi} được không?|sugar,butter,fork,knife,spoon,chopsticks
+The {w} will bring the spoons.|{vi} sẽ mang thìa tới.|waiter
+I feel {w} today!|Hôm nay tớ thấy mình {vi}!|lucky
+We had dinner at a {w}.|Chúng tớ đã ăn tối ở {vi}.|restaurant
+Have you {w} eaten pizza?|Bạn đã {vi} ăn pizza chưa?|ever
+This soup is {w}, isn't it?|Món súp này {vi}, phải không?|delicious
+How do you {w} today?|Hôm nay bạn {vi} thế nào?|feel
+It's {w} to wash your hands.|Rửa tay là việc {vi}.|important
+We're going to {w} at nine o'clock.|Chúng tớ sẽ {vi} lúc chín giờ.|leave
+Can I have a {w} sugar?|Cho tớ {vi} đường nhé?|little
+Today is a {w} day.|Hôm nay là một ngày {vi}.|special
+Are you {w}? – Yes, I am.|Bạn {vi} chứ? – Chắc chắn.|sure
+There are balloons {w}!|Có bóng bay ở {vi}!|everywhere
+The party was great {w}!|Bữa tiệc thật {vi}!|fun
+Walk {w} the door.|Đi {vi} cánh cửa.|through`,
+spring:`This {w} is made of metal.|{vi} này làm bằng kim loại.|gate,bridge
+This box is made of {w}.|Cái hộp này làm bằng {vi}.|glass,metal,plastic,wood
+Have you already seen the {p}?|Bạn đã xem {vi} chưa?|butterfly,swan,insect,nest
+That sounds like a {w}.|Nghe như tiếng {vi}.|swan
+We usually walk across the {w}.|Chúng tớ thường đi bộ qua {vi}.|bridge
+What {w} can you see?|Bạn còn thấy gì {vi}?|else
+I've {w} finished my homework.|Tớ {vi} làm xong bài tập.|already
+I {w} walk to school.|Tớ {vi} đi bộ đến trường.|usually
+Flowers grow in {w}.|Hoa nở vào {vi}.|spring
+I wrote a {w} to Grandma.|Tớ đã viết một {vi} cho bà.|letter
+The bird hurt its {w}.|Con chim bị đau {vi}.|wing
+We should keep our {w} clean.|Chúng ta nên giữ {vi} sạch sẽ.|environment
+I can hear a strange {w}.|Tớ nghe thấy một {vi} lạ.|sound`,
+adventure:`We're going to visit {a}.|Chúng tớ sẽ đi thăm {vi}.|castle,museum,pyramid,desert,cave
+It might be {w} in the cave.|Trong hang có thể {vi} lắm.|dark
+Is the {w} far from the hotel?|{vi} có xa khách sạn không?|airport,castle,museum,cave
+We were walking to the {w} when it started to rain.|Chúng tớ đang đi bộ đến {vi} thì trời mưa.|hotel,airport,museum,castle,tent
+Which way is {w}? – That way.|{vi} ở hướng nào? – Hướng kia.|north,south,east,west
+Put the map in your {w}.|Bỏ bản đồ vào {vi} của bạn.|backpack,suitcase
+The train is very {w}, isn't it?|Tàu chạy rất {vi}, phải không?|fast
+Is it {w}? – No, it isn't.|Có {vi} không? – Không.|far
+There's {w} to sit.|Không có chỗ nào để ngồi.|nowhere
+Why are you {w}?|Sao bạn {vi} thế?|unhappy
+There's a lot of {w} today.|Hôm nay {vi} đông quá.|traffic
+The {p} are waiting for the plane.|{vi} đang chờ máy bay.|passenger
+Let's {w} near the lake.|Mình {vi} gần hồ nhé.|camp
+Turn on the {w}, please.|Bật {vi} lên nhé.|light
+Let's {w} the castle tomorrow.|Mai mình {vi} lâu đài nhé.|visit
+The {w} goes through the mountains.|{vi} chạy xuyên qua núi.|railway`,
+summer:`When I grow up, I'm going to be {a}.|Khi lớn lên, tớ sẽ làm {vi}.|astronaut,engineer,firefighter,mechanic,pilot,police officer,secretary
+What's your job? – I'm {a}.|Bạn làm nghề gì? – Tôi là {vi}.|astronaut,engineer,firefighter,mechanic,pilot,police officer,secretary
+A firefighter works at the {w}.|Lính cứu hỏa làm việc ở {vi}.|fire station
+A police officer works at the {w}.|Cảnh sát làm việc ở {vi}.|police station
+My aunt works in a {w}.|Cô tớ làm việc ở {vi}.|factory
+If you send a {w}, you need a stamp.|Nếu gửi {vi}, bạn cần một con tem.|postcard
+She has already bought the {p}.|Cô ấy đã mua {vi} rồi.|stamp,envelope,postcard
+The {w} is going to the moon.|{vi} đang bay lên mặt trăng.|rocket
+Astronauts travel into {w}.|Phi hành gia bay vào {vi}.|space
+What's your dad's {w}?|{vi} của bố bạn là gì?|job
+We're going to the beach this {w}.|Mùa hè này chúng tớ sẽ đi biển.|summer`,
+exam:`Don't forget to {w} your phone.|Đừng quên {vi} điện thoại.|turn off
+Can you {w} the light, please?|Bạn {vi} đèn giúp tớ nhé?|turn on
+You should arrive {w}.|Bạn nên đến {vi}.|early
+Are you {w} about the exam? – No, I'm not.|Bạn có {vi} về bài thi không? – Không.|worried
+You've got {w} pencils, haven't you?|Bạn có {vi} bút chì rồi, phải không?|enough
+{W} is the exam? – One hour.|Bài thi kéo dài bao lâu? – Một tiếng.|how long
+Don't be {w}!|Đừng đến {vi} nhé!|late
+My pencil is {w}, isn't it?|Bút chì của tớ bị {vi}, phải không?|broken
+Don't go to the exam {w} a pencil.|Đừng đi thi mà {vi} bút chì.|without
+Please {w} at eight o'clock.|Hãy {vi} lúc tám giờ.|arrive
+The {w} was easy, wasn't it?|{vi} dễ, phải không?|exam
+Do you need {w} else?|Bạn có cần {vi} nữa không?|anything
+I've {w} finished!|Tớ {vi} làm xong!|just
+No {w}!|Không {vi} gì!|problem
+Put your bag on the {w}.|Đặt cặp lên {vi}.|shelf
+Sit in the {w}, please.|Hãy ngồi ở {vi}.|middle,front
+Read the {w} carefully.|Đọc kỹ {vi}.|information
+The last question was {w}, wasn't it?|Câu hỏi cuối {vi}, phải không?|hard
+Our teacher is very {w}.|Thầy cô của chúng tớ rất {vi}.|friendly
+Don't {w} your pencil!|Đừng {vi} bút chì nhé!|forget`}};
+
 /* ===================== STORAGE ===================== */
 const K_PROG='yle_prog_v1',K_CUSTOM='yle_custom_v1',K_STUDENT='yle_student_v1',K_OUTBOX='yle_outbox_v1',K_HWLIST='yle_hwlist_v1',K_TKEY='yle_tkey_v1';
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -993,10 +1253,11 @@ function buildData(){
     const topics=L.topics.map(t=>({id:t.id,name:t.name,vi:t.vi,icon:t.icon,words:parseWords(t.words,lid,t.id),pats:parsePats(t.pats),dlg:parseDlg(t.dlg),custom:false}));
     (MC.topics[lid]||[]).forEach(t=>topics.push({id:t.id,name:t.name,vi:t.vi||'',icon:t.icon||'📘',words:(t.words||[]).map(w=>({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})),pats:parsePats(t.pats),dlg:parseDlg(t.dlg),custom:true}));
     topics.forEach(t=>{(MC.extra[lid+'/'+t.id]||[]).forEach(w=>{if(!t.words.some(x=>x.w.toLowerCase()===w.w.toLowerCase()))t.words.push({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})});t.words.forEach(w=>WORDS[w.id]=w)});
+    topics.forEach(t=>{const tpl=String(((typeof TPL!=='undefined'&&TPL[lid])||{})[t.id]||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi,ws]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim(),ws:(ws||'*').split(',').map(x=>x.trim().toLowerCase())}});
+      t.words.forEach(w=>{w.ps=tpl.filter(p=>p.ws.includes('*')||p.ws.includes(w.w.toLowerCase())).map(p=>({en:fillTpl(p.en,w),vi:capVi(fillTpl(p.vi,w))})).filter(p=>hasWord(p.en,w.w))})});
     LEVELS.push({id:lid,name:L.name,cefr:L.cefr,color:L.color,topics});
   }
 }
-buildData();
 const lvOf=id=>LEVELS.find(l=>l.id===id)||LEVELS[0];
 const topicOf=(lid,tid)=>{const L=lvOf(lid);return L.topics.find(t=>t.id===tid)||null};
 
@@ -1011,13 +1272,25 @@ const DAY=864e5,INTERVAL=[0,1,2,4,7,15];
 const uid=(n=8)=>Array.from(crypto.getRandomValues(new Uint8Array(n)),b=>'abcdefghjkmnpqrstuvwxyz23456789'[b%31]).join('');
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 function setLv(lid){document.documentElement.style.setProperty('--lv',`var(${lvOf(lid).color})`)}
-const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\-]/g,'\\$&');
-function blankSentence(s,w){const re=new RegExp('(^|[^\\p{L}])('+reEsc(w)+'(?:s|es)?)(?![\\p{L}])','iu');return re.test(s)?s.replace(re,'$1[[[$2]]]'):s+' ([[['+w+']]])'}
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const PLURAL={child:'children',foot:'feet',tooth:'teeth',person:'people',leaf:'leaves',mouse:'mice',knife:'knives',shelf:'shelves',tomato:'tomatoes',potato:'potatoes'};
+function plural(w){const l=w.toLowerCase();if(PLURAL[l])return PLURAL[l];if(/(s|sh|ch|x|z)$/.test(l))return w+'es';if(/[^aeiou]y$/.test(l))return w.slice(0,-1)+'ies';return w+'s'}
+const INGF={swim:'swimming',run:'running',hop:'hopping',sit:'sitting',stop:'stopping',cut:'cutting',begin:'beginning',shop:'shopping',ski:'skiing'};
+function ing(p){const [f,...r]=p.split(' ');const l=f.toLowerCase();const g=/ing$/.test(l)?f:INGF[l]?INGF[l]:/[^e]e$/.test(l)?f.slice(0,-1)+'ing':f+'ing';return [g,...r].join(' ')}
+const capF=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+const art=w=>/^[aeiou]/i.test(w)?'an':'a';
+function fillTpl(t,w){return t.replace(/\{a\}/g,art(w.w)+' '+w.w).replace(/\{ING\}/g,capF(ing(w.w))).replace(/\{ing\}/g,ing(w.w)).replace(/\{p\}/g,plural(w.w)).replace(/\{W\}/g,capF(w.w)).replace(/\{w\}/g,w.w).replace(/\{vi\}/g,w.vi)}
+const capVi=v=>capF(v).replace(/([.!?] |– )(\p{Ll})/gu,(m,a,b)=>a+b.toUpperCase());
+function wordForms(w){const f=new Set([w,plural(w),ing(w),w+'s',w+'es',w+'ed',w+'d']);return [...f].sort((a,b)=>b.length-a.length)}
+function wordRe(w){return new RegExp('(^|[^\\p{L}])('+wordForms(w).map(reEsc).join('|')+')(?![\\p{L}])','iu')}
+const hasWord=(s,w)=>wordRe(w).test(s);
+buildData();
+function blankSentence(s,w){const re=wordRe(w);return re.test(s)?s.replace(re,'$1[[[$2]]]'):s+' ([[['+w+']]])'}
 function capHTML(cap,reveal){return esc(cap).replace(/\[\[\[(.*?)\]\]\]/g,(m,g)=>reveal?`<span class="hl">${g}</span>`:'<span class="blank">&nbsp;?&nbsp;</span>')}
 function distractors(word,n=2){const lv=lvOf(word.lv),t=topicOf(word.lv,word.tp);let pool=(t?t.words:[]).filter(x=>x.w!==word.w);if(pool.length<n)pool=pool.concat(lv.topics.flatMap(x=>x.words).filter(x=>x.w!==word.w&&!pool.includes(x)));return shuffle(pool).slice(0,n)}
 const fmtTime=ts=>{if(!ts)return '';const d=new Date(ts);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' '+d.getDate()+'/'+(d.getMonth()+1)};
 const fmtDur=s=>{s=Math.round(s||0);return s<60?s+' giây':Math.floor(s/60)+' phút '+(s%60)+' giây'};
-const GAME_NAME={cards:'🃏 Thẻ',listen:'🎧 Nghe',read:'📖 Đọc',speak:'🎙️ Nói',write:'✏️ Viết'};
+const GAME_NAME={cards:'🃏 Thẻ',listen:'🎧 Nghe',read:'📖 Đọc',build:'🧩 Câu',speak:'🎙️ Nói',write:'✏️ Viết'};
 
 /* ===================== GAMIFICATION ===================== */
 const PETS=[[0,'🥚','Trứng thần kỳ'],[15,'🐣','Pip vừa nở'],[50,'🐥','Pip gà con'],[120,'🦜','Pip biết nói'],[250,'🦚','Pip rực rỡ'],[500,'🐉','Pip rồng bay']];
@@ -1097,7 +1370,7 @@ window.addEventListener('online',()=>flushOutbox());
 async function getJSON(params){const u=CFG.resultsUrl+(CFG.resultsUrl.includes('?')?'&':'?')+new URLSearchParams(params).toString();const r=await fetch(u);return r.json()}
 
 /* ===================== ROUTER ===================== */
-const HW=(()=>{try{const q=new URLSearchParams(location.search);const id=q.get('hw');if(!id)return null;return {id:id.slice(0,24),lv:q.get('lv')||'starters',tp:q.get('tp')||'',n:+q.get('n')||0,g:(q.get('g')||'clrsw').replace(/[^clrsw]/g,'')||'lrsw',t:(q.get('t')||'').slice(0,80)}}catch(e){return null}})();
+const HW=(()=>{try{const q=new URLSearchParams(location.search);const id=q.get('hw');if(!id)return null;return {id:id.slice(0,24),lv:q.get('lv')||'starters',tp:q.get('tp')||'',n:+q.get('n')||0,g:(q.get('g')||'clrpsw').replace(/[^clrpsw]/g,'')||'lrpsw',t:(q.get('t')||'').slice(0,80)}}catch(e){return null}})();
 let route={tab:HW?'hw':'home',lv:'starters',tp:null,teacherLv:'starters',tview:'hw',hwView:null};
 function go(r){Object.assign(route,r);render();window.scrollTo(0,0)}
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{if(SESSION&&route.tab==='session'&&SESSION.hw&&!SESSION.finished){toast('Bé làm xong bài tập rồi hãy chuyển trang nhé');return}go({tab:b.dataset.tab,tp:null,hwView:null})});
@@ -1128,7 +1401,7 @@ function vHome(){
       <div><span class="tag">Hôm nay</span><h2>${due.length?`${due.length} từ đến hạn ôn`:'Không có từ nào cần ôn'}</h2></div>
       <span class="chip">📒 ${Object.keys(P.nb).length} từ trong sổ</span>
     </div>
-    <p class="muted" style="margin:0">Mỗi lượt gồm Thẻ từ → Nghe → Đọc → Nói → Viết. Từ nào bé đã biết thì bỏ qua. Trả lời đúng để nhận ⭐ nuôi Pip.</p>
+    <p class="muted" style="margin:0">Mỗi lượt gồm Thẻ từ → Nghe → Đọc → Ghép câu → Nói → Viết. Từ nào bé đã biết thì bỏ qua. Trả lời đúng để nhận ⭐ nuôi Pip.</p>
     <div class="row">${due.length?`<button class="btn sun big" id="go-review">▶ Ôn tập ngay</button>`:`<button class="btn pri big" id="go-learn">🎬 Học từ mới</button>`}<button class="btn big" id="go-chat">💬 Nói chuyện với Pip</button></div>
   </section>
   <section class="stack" style="gap:10px">
@@ -1170,7 +1443,7 @@ function vTopic(){
     <div class="words">${T.words.map(w=>`<article class="word">
       <div class="row" style="justify-content:space-between"><span class="em" aria-hidden="true">${w.e}</span><button class="btn sm ghost" data-say="${esc(w.id)}" aria-label="Nghe từ ${esc(w.w)}">🔊</button></div>
       <span class="w">${esc(w.w)}</span><span>${esc(w.vi)}</span>
-      <span class="s">${esc(w.s)}</span>
+      <span class="s">${esc(w.s)}</span>${w.ps&&w.ps.length?`<span class="s ps">💬 ${esc(w.ps[0].en)}</span>`:''}
       <div class="acts">${vidLink(w)}<button class="btn sm ${inNb(w.id)?'saved':''}" data-nb="${esc(w.id)}">${inNb(w.id)?'✓ Đã lưu':'＋ Sổ'}</button></div>
     </article>`).join('')}</div>
   </section>`;
@@ -1178,7 +1451,7 @@ function vTopic(){
   $('#practice').onclick=()=>startSession(T.words,T.name,12);
   $('#talk').onclick=()=>{CHAT.lv=L.id;CHAT.tp=T.id;CHAT.msgs=[];go({tab:'chat'});dlgStart()};
   bindPats(T);
-  document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>{const w=WORDS[b.dataset.say];speakSeq([w.w,w.s])});
+  document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>{const w=WORDS[b.dataset.say];speakSeq([w.w,w.ps&&w.ps.length?w.ps[0].en:w.s])});
   document.querySelectorAll('[data-nb]').forEach(b=>b.onclick=()=>{toggleNb(b.dataset.nb);const on=inNb(b.dataset.nb);b.classList.toggle('saved',on);b.textContent=on?'✓ Đã lưu':'＋ Sổ';if(on)toast('Đã lưu vào Sổ Từ Vựng')});
 }
 function vNotebook(){
@@ -1201,10 +1474,10 @@ function vNotebook(){
 
 /* ===================== SESSION: flashcards, then 4 mini-games ===================== */
 let SESSION=null;
-const STAGE_BY={c:['cards','🃏 Thẻ'],l:['listen','🎧 Nghe'],r:['read','📖 Đọc'],s:['speak','🎙️ Nói'],w:['write','✏️ Viết']};
+const STAGE_BY={c:['cards','🃏 Thẻ'],l:['listen','🎧 Nghe'],r:['read','📖 Đọc'],p:['build','🧩 Câu'],s:['speak','🎙️ Nói'],w:['write','✏️ Viết']};
 function startSession(words,label,max=8,opt={}){
   words=words.slice(0,max||words.length);if(!words.length)return toast('Chưa có từ để học');
-  const stages=(opt.games||'clrsw').split('').filter(k=>STAGE_BY[k]).map(k=>STAGE_BY[k]);if(!stages.length)stages.push(STAGE_BY.l);
+  const stages=(opt.games||'clrpsw').split('').filter(k=>STAGE_BY[k]).map(k=>STAGE_BY[k]);if(!stages.length)stages.push(STAGE_BY.l);
   SESSION={label,all:words,words:stages[0][0]==='cards'?[]:words.slice(),known:{},stages,stage:0,i:0,res:Object.fromEntries(words.map(w=>[w.id,0])),stars:0,streak:0,miss:0,items:[],hw:opt.hw||null,t0:Date.now(),finished:false};
   route.tab='session';setLv(words[0].lv);renderSession();window.scrollTo(0,0);
 }
@@ -1226,35 +1499,35 @@ function renderSession(){
   const st=SESSION.stages[SESSION.stage][0];
   $('#view').innerHTML=`<section class="stack">${sHeader()}<div id="game" class="stack"></div></section>`;
   $('#s-quit')&&($('#s-quit').onclick=()=>{SESSION=null;go({tab:'home'})});
-  ({cards:gCards,listen:gListen,read:gRead,speak:gSpeak,write:gWrite})[st]();
+  ({cards:gCards,listen:gListen,read:gRead,build:gBuild,speak:gSpeak,write:gWrite})[st]();
 }
 function gCards(){
-  const all=SESSION.all,w=all[SESSION.i];
+  const all=SESSION.all,w=all[SESSION.i];const pp=w.ps&&w.ps.length?w.ps[0]:null;const back=pp?pp.en:w.s;
   $('#game').innerHTML=`<h2>Học thẻ từ <span class="muted" style="font-size:14px">(${SESSION.i+1}/${all.length})</span></h2>
     <div class="dots" aria-hidden="true">${all.map((x,k)=>`<i class="${SESSION.known[x.id]?'k':k<SESSION.i?'l':''} ${k===SESSION.i?'c':''}"></i>`).join('')}</div>
     <button class="fc" id="fc" aria-label="Lật thẻ">
       <div class="fc-in">
         <div class="fc-face"><div class="fc-em" aria-hidden="true">${w.e}</div><div class="fc-word">${esc(w.w)}</div><div class="fc-hint">Chạm để lật thẻ xem nghĩa</div></div>
-        <div class="fc-face fc-back"><div class="fc-vi">${esc(w.vi)}</div><div class="fc-word" style="font-size:26px">${esc(w.w)}</div><div style="font-size:16px">${esc(w.s)}</div><div class="fc-hint">Chạm để lật lại</div></div>
+        <div class="fc-face fc-back"><div class="fc-vi">${esc(w.vi)}</div><div class="fc-word" style="font-size:26px">${esc(w.w)}</div>${pp?`<div class="fc-pat"><b>💬 ${esc(pp.en)}</b><span>${esc(pp.vi)}</span></div>`:`<div style="font-size:16px">${esc(w.s)}</div>`}<div class="fc-hint">Chạm để lật lại</div></div>
       </div>
     </button>
-    <div class="row" style="justify-content:center"><button class="btn sm" id="c-say">🔊 Nghe từ</button><button class="btn sm" id="c-sent">🔊 Nghe câu</button>${vidLink(w)}</div>
+    <div class="row" style="justify-content:center"><button class="btn sm" id="c-say">🔊 Nghe từ</button><button class="btn sm" id="c-sent">🔊 Nghe ${pp?'câu mẫu':'câu'}</button>${vidLink(w)}</div>
     <div class="row" style="justify-content:center">${SESSION.hw?'':'<button class="btn big" id="c-know">✓ Đã biết, bỏ qua</button>'}<button class="btn sun big" id="c-learn">${SESSION.hw?'Thẻ tiếp theo →':'Học từ này →'}</button></div>`;
-  const fc=$('#fc');fc.onclick=()=>{fc.classList.toggle('flip');if(fc.classList.contains('flip'))speak(w.s)};
-  $('#c-say').onclick=()=>speak(w.w,.75);$('#c-sent').onclick=()=>speak(w.s);setTimeout(()=>speak(w.w,.8),250);
+  const fc=$('#fc');fc.onclick=()=>{fc.classList.toggle('flip');if(fc.classList.contains('flip'))speak(back.replace(/ – /g,'. '))};
+  $('#c-say').onclick=()=>speak(w.w,.75);$('#c-sent').onclick=()=>speak(back.replace(/ – /g,'. '));setTimeout(()=>speak(w.w,.8),250);
   $('#c-know')&&($('#c-know').onclick=()=>{SESSION.known[w.id]=1;sNext()});
   $('#c-learn').onclick=()=>{delete SESSION.known[w.id];sNext()};
 }
 function qNo(){return `<span class="muted" style="font-size:14px">(${SESSION.i+1}/${SESSION.words.length})</span>`}
 function gListen(){
-  const w=SESSION.words[SESSION.i];const cap=blankSentence(w.s,w.w);const plain=cap.replace(/\[\[\[|\]\]\]/g,'');const opts=shuffle([w,...distractors(w,2)]);
+  const w=SESSION.words[SESSION.i];const src=w.ps&&w.ps.length&&Math.random()<.75?pick(w.ps):{en:w.s,vi:''};const cap=blankSentence(src.en,w.w);const plain=cap.replace(/\[\[\[|\]\]\]/g,'').replace(/ – /g,'. ');const opts=shuffle([w,...distractors(w,2)]);
   $('#game').innerHTML=`<h2>Nghe và chọn từ còn thiếu ${qNo()}</h2>
-    <div class="cap">${capHTML(cap,false)}</div>
+    <div class="cap">${capHTML(cap,false)}${src.vi?`<div class="cap-vi">${esc(src.vi)}</div>`:''}</div>
     <div class="row"><button class="btn" id="l-say">🔊 Nghe câu</button><button class="btn" id="l-slow">🐢 Chậm</button>${vidLink(w,'btn')}</div>
     <div class="choices">${opts.map(o=>`<button class="choice" data-c="${esc(o.w)}">${o.e} ${esc(o.w)}</button>`).join('')}</div><div id="after"></div>`;
   $('#l-say').onclick=()=>speak(plain);$('#l-slow').onclick=()=>speak(plain,.6);setTimeout(()=>speak(plain),250);
   let tries=0,done=false;
-  document.querySelectorAll('#game .choice').forEach(b=>b.onclick=()=>{if(done)return;if(b.dataset.c===w.w){done=true;b.classList.add('ok');document.querySelector('#game .cap').innerHTML=capHTML(cap,true);sRecord('listen',w,tries===0);speak(plain);$('#after').innerHTML=`<button class="btn sun big" id="nx">Tiếp →</button>`;$('#nx').onclick=sNext}else{tries++;sWrongFx();b.classList.add('no');setTimeout(()=>b.classList.remove('no'),400)}});
+  document.querySelectorAll('#game .choice').forEach(b=>b.onclick=()=>{if(done)return;if(b.dataset.c===w.w){done=true;b.classList.add('ok');document.querySelector('#game .cap').innerHTML=capHTML(cap,true)+(src.vi?`<div class="cap-vi">${esc(src.vi)}</div>`:'');sRecord('listen',w,tries===0);speak(plain);$('#after').innerHTML=`<button class="btn sun big" id="nx">Tiếp →</button>`;$('#nx').onclick=sNext}else{tries++;sWrongFx();b.classList.add('no');setTimeout(()=>b.classList.remove('no'),400)}});
 }
 function gRead(){
   const group=SESSION.words.slice(SESSION.i*4,SESSION.i*4+4);
@@ -1267,11 +1540,41 @@ function gRead(){
     if(b.dataset.r===sel){speak(WORDS[sel].w);document.querySelector(`[data-l="${CSS.escape(sel)}"]`).classList.add('gone');b.classList.add('gone');sRecord('read',WORDS[sel],!miss[sel]);sel=null;if(--left===0){$('#after').innerHTML=`<button class="btn sun big" id="nx">Tiếp →</button>`;$('#nx').onclick=sNext}}
     else{miss[sel]=1;sWrongFx();b.classList.add('no');setTimeout(()=>b.classList.remove('no'),400)}});
 }
+function buildTarget(w){
+  const cands=shuffle(w.ps||[]).concat([{en:w.s,vi:''}]);
+  for(const p of cands){const parts=p.en.split(' – ');let i=0,tgt=p.en,ctx='';
+    if(parts.length===2){i=hasWord(parts[1],w.w)?1:0;tgt=parts[i];ctx=parts[1-i]}
+    const n=tgt.split(' ').length;if(n>=3&&n<=9)return {full:p.en,tgt,ctx,ctxFirst:i===1,vi:p.vi}}
+  return {full:w.s,tgt:w.s,ctx:'',ctxFirst:true,vi:''}}
+function gBuild(){
+  const w=SESSION.words[SESSION.i];const B=buildTarget(w);const toks=B.tgt.split(' ');
+  const tiles=shuffle(toks.map((t,k)=>({t,k})));let used=[];let tries=0,done=false;
+  const ctxHTML=B.ctx?`<div class="msg ai" style="max-width:100%"><div class="en">${esc(B.ctx)}</div></div>`:'';
+  $('#game').innerHTML=`<h2>Ghép câu theo mẫu ${qNo()}</h2>
+    <div class="card stack" style="gap:8px">${B.vi?`<div><span class="tag">Nghĩa của câu</span><div style="font-size:16px">${esc(B.vi)}</div></div>`:''}
+    <div class="row"><button class="btn sm" id="b-say">🔊 Nghe câu</button><span class="muted" style="font-size:13px">${w.e} Từ khóa: <b>${esc(w.w)}</b></span></div></div>
+    ${B.ctxFirst?ctxHTML:''}<div class="bline" id="bline" aria-label="Câu của bé"></div>${B.ctxFirst?'':ctxHTML}
+    <div class="tiles" id="btiles"></div>
+    <div class="row" style="justify-content:center"><button class="btn sm ghost" id="b-undo">⌫ Bỏ từ cuối</button><button class="btn sm ghost" id="b-hint">💡 Gợi ý</button><button class="btn sm ghost" id="b-skip">⏭ Bỏ qua</button></div><div id="after"></div>`;
+  const say=()=>speak(B.full.replace(/ – /g,'. '),.8);$('#b-say').onclick=say;setTimeout(say,250);
+  const draw=(bad)=>{$('#bline').innerHTML=used.length?used.map((x,k)=>`<button class="tok on ${bad!==undefined&&k>=bad?'no':''}" data-u="${k}">${esc(x.t)}</button>`).join(''):'<span class="muted">Chạm các từ bên dưới theo đúng thứ tự</span>';
+    $('#btiles').innerHTML=tiles.map((x,k)=>`<button class="tok" data-k="${k}" ${used.includes(x)?'disabled':''}>${esc(x.t)}</button>`).join('');
+    document.querySelectorAll('#btiles .tok').forEach(b=>b.onclick=()=>{if(done)return;used.push(tiles[+b.dataset.k]);draw();check()});
+    document.querySelectorAll('#bline .tok').forEach(b=>b.onclick=()=>{if(done)return;used.splice(+b.dataset.u,1);draw()})};
+  const prefix=()=>{let k=0;while(k<used.length&&used[k].t===toks[k])k++;return k};
+  const check=()=>{if(used.length<toks.length)return;const k=prefix();
+    if(k===toks.length){done=true;sRecord('build',w,tries===0);say();$('#after').innerHTML=`<div class="card row" style="justify-content:space-between"><b>Đúng rồi! ${esc(B.tgt)}</b><button class="btn sun" id="nx">Tiếp →</button></div>`;$('#nx').onclick=sNext}
+    else{tries++;sWrongFx();draw(k);setTimeout(()=>{used=used.slice(0,k);draw()},700)}};
+  $('#b-undo').onclick=()=>{if(!done){used.pop();draw()}};
+  $('#b-hint').onclick=()=>{if(done)return;tries++;used=used.slice(0,prefix());const nx=tiles.find(x=>!used.includes(x)&&x.t===toks[used.length]);if(nx){used.push(nx);draw();check()}};
+  $('#b-skip').onclick=()=>{if(!done)sRecord('build',w,false,'bỏ qua');sNext()};
+  draw();
+}
 function gSpeak(){
-  const w=SESSION.words[SESSION.i];let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
+  const w=SESSION.words[SESSION.i];const SB=w.ps&&w.ps.length?buildTarget(w):null;let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
   $('#game').innerHTML=`<h2>Đọc to từ này ${qNo()}</h2>
     <div class="card stack" style="align-items:center;gap:8px"><div class="prompt-em">${w.e}</div><div class="letters" id="ltr">${esc(w.w)}</div><span class="muted">${esc(w.vi)}</span>
-    <button class="btn sm" id="sp-model">🔊 Nghe mẫu</button></div>
+    <button class="btn sm" id="sp-model">🔊 Nghe mẫu</button>${SB?`<div class="fc-pat" style="width:100%"><b>💬 ${esc(SB.tgt)}</b>${SB.vi?`<span>${esc(SB.vi)}</span>`:''}</div>`:''}</div>
     <div class="stack" style="align-items:center;gap:8px" id="sp-zone"><button class="mic" id="mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="sp-hint">Bấm micro rồi đọc to</span><span class="muted" style="font-size:12px;text-align:center">Giọng đọc được trình duyệt gửi đi để nhận dạng, app không lưu lại.</span></div>
     <div id="after"></div><div class="row" style="justify-content:center"><button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
   $('#sp-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
@@ -1284,7 +1587,8 @@ function gSpeak(){
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;const r=scoreSpeech(w.w,alts);
       $('#ltr').innerHTML=letterMarks(w.w,r.tok||norm(r.heard).replace(/ /g,''));
       const good=r.sc>=75;$('#sp-hint').textContent=`Máy nghe được: “${r.heard}”`;
-      $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${r.sc}</div><b>${good?'Phát âm tốt lắm!':'Gần đúng rồi, thử lại nhé!'}</b><span class="muted" style="font-size:13px">Chữ đỏ là phần máy chưa nghe rõ.</span><div class="row"><button class="btn" id="again">🔁 Thử lại</button><button class="btn sun" id="nx">Tiếp →</button></div></div>`;
+      $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${r.sc}</div><b>${good?'Phát âm tốt lắm!':'Gần đúng rồi, thử lại nhé!'}</b><span class="muted" style="font-size:13px">Chữ đỏ là phần máy chưa nghe rõ.</span><div class="row"><button class="btn" id="again">🔁 Thử lại</button>${good&&SB?'<button class="btn pri" id="sent">💬 Đọc cả câu</button>':''}<button class="btn sun" id="nx">Tiếp →</button></div><div id="sent-res" class="muted" style="text-align:center"></div></div>`;
+      $('#sent')&&($('#sent').onclick=async()=>{const sb=$('#sent');sb.disabled=true;sb.textContent='Đang nghe…';try{const a2=await listenOnce();const r2=matchAnswer(a2,[SB.tgt]);const ok2=r2.sc>=70;$('#sent-res').innerHTML=`Máy nghe được: “${esc(r2.heard)}” · <b style="color:var(${ok2?'--good':'--bad'})">${r2.sc}</b>${ok2?' · +1 ⭐ thưởng':''}`;if(ok2){SESSION.stars++;const c=$('#s-stars');if(c)c.textContent='⭐ +'+SESSION.stars}}catch(e2){$('#sent-res').textContent=micErrorText(e2)}sb.disabled=false;sb.textContent='💬 Đọc lại cả câu'});
       if(good){rec(attempts===1,'điểm '+r.sc);if(attempts===1){P.speakGood++;saveP()}}
       else sWrongFx();
       $('#again').onclick=()=>{$('#after').innerHTML='';$('#ltr').textContent=w.w;$('#sp-hint').textContent='Bấm micro rồi đọc to'};
@@ -1369,7 +1673,6 @@ function vHw(){
 const CHAT={lv:'starters',tp:'body',msgs:[],scene:'',busy:false,mode:null,turns:[],turn:0,tries:0,showVi:true,listening:false,hint:false,done:false,sugs:[],streak:0};
 let SAMPLE;
 async function getSample(){if(SAMPLE!==undefined)return SAMPLE;try{SAMPLE=(window.claude&&window.claude.use)?await window.claude.use('sample'):null}catch(e){SAMPLE=null}return SAMPLE}
-const art=w=>/^[aeiou]/i.test(w)?'an':'a';
 function dlgOf(T){if(T.dlg&&T.dlg.length)return T.dlg;const ws=shuffle(T.words).slice(0,5);return ws.map((w,k)=>k%2===0?{q:`Look! ${w.e} What's this?`,ans:[`It's ${art(w.w)} ${w.w}.`,w.w+'.'],vi:'Nhìn này! Đây là gì?'}:{q:`Do you like ${w.w}? ${w.e}`,ans:['Yes, I do.',"No, I don't."],vi:`Bạn có thích ${w.vi} không?`})}
 function vChat(){
   const L=lvOf(CHAT.lv);if(!L.topics.some(t=>t.id===CHAT.tp))CHAT.tp=L.topics[0].id;const T=topicOf(CHAT.lv,CHAT.tp);setLv(CHAT.lv);
