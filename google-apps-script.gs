@@ -7,7 +7,7 @@
  */
 const TEACHER_KEY = 'Mrs Tee';
 
-const SHEET_HW = 'BaiTap';
+const SHEET_HW = '123';
 const SHEET_RESULTS = 'KetQua';
 
 function doPost(e) {
