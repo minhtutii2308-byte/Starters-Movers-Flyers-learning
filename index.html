@@ -19,7 +19,7 @@ body{margin:0}
 /* Layout: one-column app shell like an exercise notebook, sticky top bar, tab bar fixed at the bottom; each level owns a colour */
 :root{
   --paper:#F1F6F2; --card:#FFFFFF; --ink:#1E2A25; --muted:#5B6962; --line:#D6E1D9;
-  --starters:#2B9A57; --movers:#2C7CCB; --flyers:#D9741A; --sun:#F2B52A; --sun-ink:#5A3D00;
+  --gs1:#B8336F; --starters:#2B9A57; --movers:#2C7CCB; --flyers:#D9741A; --sun:#F2B52A; --sun-ink:#5A3D00;
   --good:#2B9A57; --bad:#D04545; --soft:#E6EFE8; --shadow:0 2px 0 rgba(30,42,37,.08);
   --f-display:"Grandstander","Baloo 2","Comic Sans MS",system-ui,sans-serif;
   --f-meme:"Anton",Impact,"Arial Black",sans-serif;
@@ -28,11 +28,11 @@ body{margin:0}
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#131B17; --card:#1C2621; --ink:#E7EEE9; --muted:#9BA9A1; --line:#2D3A33;
-  --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
+  --gs1:#E7679F; --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
   --good:#4CC27D; --bad:#F06B6B; --soft:#24302A; --shadow:0 2px 0 rgba(0,0,0,.3); color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#131B17; --card:#1C2621; --ink:#E7EEE9; --muted:#9BA9A1; --line:#2D3A33;
-  --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
+  --gs1:#E7679F; --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
   --good:#4CC27D; --bad:#F06B6B; --soft:#24302A; --shadow:0 2px 0 rgba(0,0,0,.3); color-scheme:dark}
 [hidden]{display:none!important}
 html,body{height:100%}
@@ -306,12 +306,16 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 .cccover[hidden]{display:none}
 .vpart{justify-content:center;gap:8px;align-items:center}
 .vpart:empty{display:none}
+.ipa{font-family:"Segoe UI","Noto Sans","Lucida Sans Unicode","DejaVu Sans",Arial,sans-serif;font-size:17px;color:var(--muted,#6b6257);letter-spacing:.02em}
+.fc .ipa{font-size:19px;margin-top:-4px}
+.ipabox{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;background:var(--paper);border:1.5px dashed var(--line);border-radius:12px;padding:6px 12px}
+.ipabox>span{font-size:12px;color:var(--muted,#6b6257)}
 
 </style>
 </head>
 <body>
 <header class="top"><div class="in">
-  <div class="brand">YLE Video Words<small>Thẻ từ · Luyện 4 kỹ năng · Trò chuyện · Starters · Movers · Flyers</small></div>
+  <div class="brand">YLE Video Words<small>Thẻ từ · Luyện 4 kỹ năng · Trò chuyện · Global Success 1 · Starters · Movers · Flyers</small></div>
   <span class="chip" title="Sao"><span aria-hidden="true">⭐</span><span id="hdr-stars">0</span></span>
   <span class="chip" title="Chuỗi ngày học"><span aria-hidden="true">🔥</span><span id="hdr-streak">0</span></span>
 </div></header>
@@ -331,6 +335,230 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 /* ===================== DATA: từ vựng (từ|emoji|nghĩa|câu), mẫu câu (câu|nghĩa), hội thoại (thầy cô hỏi|đáp án 1;đáp án 2;~mở đầu chấp nhận|nghĩa câu hỏi) ===================== */
 function T(id,name,vi,icon,words,pats,dlg){return {id,name,vi,icon,words,pats,dlg}}
 const RAW={
+gs1:{name:'Global Success 1',cefr:'Lớp 1',color:'--gs1',topics:[
+T('u1','Unit 1: In the school playground','Ở sân trường','🛝',`ball|⚽|quả bóng|I have a ball.
+bike|🚲|xe đạp|This is my bike.
+book|📕|quyển sách|I have a book.
+school|🏫|trường học|This is my school.
+play|🤸|chơi|Let's play!
+bye|👋|tạm biệt|Bye, Mai!
+hi|🙋|xin chào|Hi, Nam!
+hello|👋|xin chào|Hello, I'm Ben.
+I|🙋|tôi, tớ, mình|I'm Lan.
+you|👉|bạn, các bạn|Nice to meet you.`,
+`Hello, I'm Ben.|Xin chào, tớ là Ben.
+Hi, Mai. – Hi, Nam.|Chào Mai. – Chào Nam.
+Bye, Mai. – Bye, Ben.|Tạm biệt Mai. – Tạm biệt Ben.
+What's your name? – My name's Lan.|Bạn tên là gì? – Tớ tên là Lan.
+How are you? – I'm fine, thank you.|Bạn khỏe không? – Tớ khỏe, cảm ơn bạn.`,
+`Hello! I'm {name}. What's your name?|~My name's;~I'm;~My name is|Xin chào! Cô là {name}. Con tên là gì?
+How are you today?|I'm fine, thank you.;Fine, thank you.;I'm fine.|Hôm nay con khỏe không?
+Look! ⚽ What's this?|It's a ball.;A ball.;Ball.|Nhìn này! Đây là gì?
+Is this your bike? 🚲|Yes, it is.;No, it isn't.|Đây có phải xe đạp của con không?`),
+T('u2','Unit 2: In the dining room','Trong phòng ăn','🍽️',`cake|🍰|bánh ngọt|I have a cake.
+car|🚗|xe ô tô|This is a red car.
+cat|🐱|con mèo|I see a cat.
+cup|☕|cái tách, cái chén|This is a cup.
+table|🪑|cái bàn|The cup is on the table.
+spoon|🥄|cái thìa|I have a spoon.
+chair|🪑|cái ghế|Sit on the chair, please.
+dining room|🍽️|phòng ăn|This is the dining room.
+mug|🥤|cái ca|I have a mug.
+napkin|🧻|khăn ăn|This is a napkin.`,
+`I have a cake.|Tớ có một cái bánh.
+This is a cup.|Đây là một cái tách.
+What's this? – It's a car.|Đây là gì? – Đó là một chiếc ô tô.
+Sit down, please.|Mời bạn ngồi xuống.`,
+`Look! 🍰 What's this?|It's a cake.;A cake.;Cake.|Nhìn này! Đây là gì?
+Do you have a cat? 🐱|Yes, I do.;No, I don't.|Con có nuôi mèo không?
+What do you have? ☕|I have a cup.;~I have|Con có gì?`),
+T('u3','Unit 3: At the street market','Ở chợ đường phố','🛒',`apple|🍎|quả táo|I have an apple.
+bag|👜|cái túi, cái cặp|This is my bag.
+hat|👒|cái mũ|I have a hat.
+my|🙋|của tôi|This is my apple.
+market|🛒|chợ|I'm at the market.`,
+`I have an apple.|Tớ có một quả táo.
+This is my bag.|Đây là cái cặp của tớ.
+Is this your hat? – Yes, it is.|Đây là mũ của bạn phải không? – Đúng vậy.`,
+`Look! 🍎 What's this?|It's an apple.;An apple.;Apple.|Nhìn này! Đây là gì?
+Is this your bag? 👜|Yes, it is.;No, it isn't.|Đây là cặp của con phải không?
+Do you like apples?|Yes, I do.;No, I don't.|Con có thích táo không?`),
+T('u4','Unit 4: In the bedroom','Trong phòng ngủ','🛏️',`desk|🖥️|cái bàn học|This is my desk.
+dog|🐶|con chó|I have a dog.
+door|🚪|cái cửa|Open the door, please.
+duck|🦆|con vịt|I see a duck.
+bedroom|🛏️|phòng ngủ|This is my bedroom.
+window|🪟|cửa sổ|Close the window, please.
+mirror|🪞|cái gương|This is a mirror.
+it|👉|nó|It's a dog.`,
+`This is my bedroom.|Đây là phòng ngủ của tớ.
+Open the door, please.|Làm ơn mở cửa ra.
+Close the window, please.|Làm ơn đóng cửa sổ lại.
+What's this? – It's a desk.|Đây là gì? – Đó là cái bàn học.`,
+`Look! 🐶 What's this?|It's a dog.;A dog.;Dog.|Nhìn này! Đây là con gì?
+Do you have a desk in your bedroom?|Yes, I do.;No, I don't.|Phòng ngủ của con có bàn học không?
+What can you see? 🦆|I can see a duck.;A duck.;~I see|Con nhìn thấy gì?`),
+T('u5','Unit 5: At the fish and chip shop','Ở cửa hàng cá và khoai tây chiên','🍟',`chicken|🍗|thịt gà, con gà|I like chicken.
+chips|🍟|khoai tây chiên|I like chips.
+fish|🐟|cá|I like fish.
+milk|🥛|sữa|I like milk.
+like|❤️|thích|I like chips.
+order|📝|gọi món|I want to order fish, please.
+pay|💵|trả tiền|I pay for the milk.`,
+`I like fish.|Tớ thích cá.
+I like chips.|Tớ thích khoai tây chiên.
+Do you like milk? – Yes, I do.|Bạn có thích sữa không? – Có.
+Fish and chips, please.|Cho tớ cá và khoai tây chiên.`,
+`Do you like chips? 🍟|Yes, I do.;No, I don't.|Con có thích khoai tây chiên không?
+What do you like? 🐟|I like fish.;~I like|Con thích gì?
+Do you like milk? 🥛|Yes, I do.;No, I don't.|Con có thích sữa không?`),
+T('u6','Unit 6: In the classroom','Trong lớp học','✏️',`bell|🔔|cái chuông|Listen! The bell is ringing.
+pen|🖊️|bút mực|I have a pen.
+pencil|✏️|bút chì|This is my pencil.
+red|🔴|màu đỏ|My pen is red.
+ruler|📏|cái thước|I have a ruler.
+eraser|🧽|cục tẩy|This is my eraser.
+notebook|📓|quyển vở|Open your notebook, please.`,
+`I have a pencil.|Tớ có một cây bút chì.
+My pen is red.|Bút của tớ màu đỏ.
+What colour is it? – It's red.|Nó màu gì? – Màu đỏ.
+Open your book, please.|Mở sách ra nào.`,
+`Look! ✏️ What's this?|It's a pencil.;A pencil.;Pencil.|Nhìn này! Đây là gì?
+What colour is your pen?|It's red.;~It's;Red.;Blue.|Bút của con màu gì?
+Do you have a ruler? 📏|Yes, I do.;No, I don't.|Con có thước kẻ không?`),
+T('u7','Unit 7: In the garden','Trong khu vườn','🌻',`garden|🏡|khu vườn|I play in the garden.
+gate|🚧|cái cổng|Open the gate, please.
+girl|👧|cô bé|The girl is in the garden.
+goat|🐐|con dê|I see a goat.
+flower|🌸|bông hoa|This is a flower.
+grass|🌱|cỏ|The goat likes grass.
+tree|🌳|cái cây|Look at the tree!`,
+`Look at the flowers!|Nhìn những bông hoa kìa!
+I see a goat.|Tớ thấy một con dê.
+The girl is in the garden.|Cô bé ở trong vườn.`,
+`Look! 🐐 What's this?|It's a goat.;A goat.;Goat.|Nhìn này! Đây là con gì?
+Do you like flowers? 🌸|Yes, I do.;No, I don't.|Con có thích hoa không?
+What can you see in the garden?|I can see a tree.;~I can see;~I see|Con nhìn thấy gì trong vườn?`),
+T('u8','Unit 8: In the park','Trong công viên','🌳',`hair|💇|tóc|My hair is long.
+hand|✋|bàn tay|Wash your hands.
+head|🙂|cái đầu|Touch your head.
+horse|🐴|con ngựa|I see a horse.
+lake|🏞️|cái hồ|The duck is on the lake.
+duck|🦆|con vịt|Look at the duck!
+bird|🐦|con chim|The bird is in the tree.`,
+`Touch your head.|Chạm vào đầu của bạn.
+Wave your hand.|Vẫy tay nào.
+Look at the bird!|Nhìn con chim kìa!
+I see a horse.|Tớ thấy một con ngựa.`,
+`Touch your head! What's this?|It's my head.;My head.;Head.|Chạm vào đầu nào! Đây là gì?
+Look! 🐴 What's this?|It's a horse.;A horse.;Horse.|Nhìn này! Đây là con gì?
+Where is the duck? 🦆|It's on the lake.;On the lake.|Con vịt ở đâu?`),
+T('u9','Unit 9: In the shop','Trong cửa hàng','🏪',`clock|🕐|đồng hồ|This is a clock.
+lock|🔒|cái khóa|I have a lock.
+mop|🧹|cây lau nhà|This is a mop.
+pot|🪴|cái bình, cái nồi|I see a pot.
+shop|🏪|cửa hàng|I'm in the shop.
+pan|🍳|cái chảo|This is a pan.`,
+`I'm in the shop.|Tớ đang ở trong cửa hàng.
+What's this? – It's a clock.|Đây là gì? – Đó là cái đồng hồ.
+I want a pan, please.|Cho tớ một cái chảo.`,
+`Look! 🕐 What's this?|It's a clock.;A clock.;Clock.|Nhìn này! Đây là gì?
+What do you want? 🍳|I want a pan.;~I want;A pan.|Con muốn mua gì?
+Is it a mop? 🧹|Yes, it is.;No, it isn't.|Đó có phải cây lau nhà không?`),
+T('u10','Unit 10: At the zoo','Ở sở thú','🦁',`mango|🥭|quả xoài|I like mangoes.
+monkey|🐒|con khỉ|The monkey likes mangoes.
+mother|👩|mẹ|This is my mother.
+mouse|🐭|con chuột|I see a mouse.
+zoo|🦁|sở thú|I'm at the zoo.
+panda|🐼|gấu trúc|Look at the panda!
+lion|🦁|sư tử|The lion is big.`,
+`I'm at the zoo.|Tớ đang ở sở thú.
+Look at the monkey!|Nhìn con khỉ kìa!
+This is my mother.|Đây là mẹ của tớ.
+I like pandas.|Tớ thích gấu trúc.`,
+`Look! 🐒 What's this?|It's a monkey.;A monkey.;Monkey.|Nhìn này! Đây là con gì?
+Do you like pandas? 🐼|Yes, I do.;No, I don't.|Con có thích gấu trúc không?
+Who is this? 👩|It's my mother.;My mother.;~It's my|Đây là ai?`),
+T('u11','Unit 11: At the bus stop','Ở trạm xe buýt','🚌',`bus|🚌|xe buýt|I see a bus.
+run|🏃|chạy|I can run.
+sun|☀️|mặt trời|Look at the sun!
+truck|🚚|xe tải|This is a big truck.
+move|➡️|di chuyển|The bus can move.
+boy|👦|cậu bé|The boy is at the bus stop.
+look|👀|nhìn|Look at the bus!`,
+`Look at the bus!|Nhìn xe buýt kìa!
+I can run.|Tớ có thể chạy.
+The boy is at the bus stop.|Cậu bé đang ở trạm xe buýt.`,
+`Look! 🚌 What's this?|It's a bus.;A bus.;Bus.|Nhìn này! Đây là gì?
+Can you run? 🏃|Yes, I can.;No, I can't.|Con có chạy được không?
+Is it a truck? 🚚|Yes, it is.;No, it isn't.|Đó có phải xe tải không?`),
+T('u12','Unit 12: At the lake','Ở bờ hồ','🏞️',`lake|🏞️|cái hồ|We have a picnic at the lake.
+leaf|🍃|chiếc lá|This is a leaf.
+lemon|🍋|quả chanh|I have a lemon.
+river|🏞️|dòng sông|Look at the river!
+hill|⛰️|quả đồi|I see a hill.
+picnic|🧺|buổi dã ngoại|Let's have a picnic!
+sky|🌤️|bầu trời|The sky is blue.
+ground|🟫|mặt đất|The leaf is on the ground.`,
+`Let's have a picnic!|Chúng ta đi dã ngoại nào!
+The sky is blue.|Bầu trời màu xanh.
+Look at the lake!|Nhìn cái hồ kìa!`,
+`Look! 🍋 What's this?|It's a lemon.;A lemon.;Lemon.|Nhìn này! Đây là gì?
+Do you like picnics? 🧺|Yes, I do.;No, I don't.|Con có thích đi dã ngoại không?
+What colour is the sky?|It's blue.;Blue.;~It's|Bầu trời màu gì?`),
+T('u13','Unit 13: In the school canteen','Trong nhà ăn của trường','🍜',`banana|🍌|quả chuối|I like bananas.
+noodles|🍜|mì|I like noodles.
+canteen|🏫|nhà ăn|We eat in the canteen.
+today|📅|hôm nay|I have fish today.
+fish|🐟|cá|I like fish.
+juice|🧃|nước ép|I like juice.
+cake|🍰|bánh ngọt|I have a cake today.`,
+`I like noodles.|Tớ thích mì.
+I have fish today.|Hôm nay tớ ăn cá.
+Do you like bananas? – Yes, I do.|Bạn có thích chuối không? – Có.`,
+`What do you have today? 🍜|I have noodles.;~I have|Hôm nay con ăn gì?
+Do you like juice? 🧃|Yes, I do.;No, I don't.|Con có thích nước ép không?
+Look! 🍌 What's this?|It's a banana.;A banana.;Banana.|Nhìn này! Đây là gì?`),
+T('u14','Unit 14: In the toy shop','Trong cửa hàng đồ chơi','🧸',`teddy bear|🧸|gấu bông|I like my teddy bear.
+tiger|🐯|con hổ|I see a tiger.
+top|🪀|con quay|I have a top.
+turtle|🐢|con rùa|This is a turtle.
+robot|🤖|người máy|I like robots.
+shelf|🗄️|cái kệ|The robot is on the shelf.
+see|👀|nhìn thấy|I can see a teddy bear.`,
+`I can see a robot.|Tớ thấy một con rô-bốt.
+I like my teddy bear.|Tớ thích gấu bông của tớ.
+The teddy bear is on the shelf.|Gấu bông ở trên kệ.`,
+`What can you see? 🧸|I can see a teddy bear.;~I can see;~I see|Con nhìn thấy gì?
+Do you like robots? 🤖|Yes, I do.;No, I don't.|Con có thích rô-bốt không?
+Look! 🐢 What's this?|It's a turtle.;A turtle.;Turtle.|Nhìn này! Đây là con gì?`),
+T('u15','Unit 15: At the football match','Ở trận bóng đá','⚽',`face|🙂|khuôn mặt|This is my face.
+father|👨|bố|This is my father.
+foot|🦶|bàn chân|I kick the ball with my foot.
+football|⚽|bóng đá|I like football.
+lovely|🥰|đáng yêu|What a lovely face!
+watch|📺|xem|I watch the football match.
+match|🏟️|trận đấu|Let's watch the match!`,
+`I like football.|Tớ thích bóng đá.
+This is my father.|Đây là bố của tớ.
+Let's watch the match!|Cùng xem trận đấu nào!`,
+`Do you like football? ⚽|Yes, I do.;No, I don't.|Con có thích bóng đá không?
+Who is this? 👨|It's my father.;My father.;~It's my|Đây là ai?
+Touch your face! What's this?|It's my face.;My face.;Face.|Chạm vào mặt nào! Đây là gì?`),
+T('u16','Unit 16: At home','Ở nhà','🏠',`wash|🧼|rửa, giặt|I wash my hands.
+water|💧|nước|I like water.
+window|🪟|cửa sổ|Open the window, please.
+bedroom|🛏️|phòng ngủ|This is my bedroom.
+bed|🛏️|cái giường|This is my bed.
+living room|🛋️|phòng khách|We watch TV in the living room.
+kitchen|🍳|phòng bếp|My mother is in the kitchen.`,
+`This is my house.|Đây là nhà của tớ.
+Where is your mother? – She's in the kitchen.|Mẹ bạn đâu? – Mẹ ở trong bếp.
+I wash my hands.|Tớ rửa tay.`,
+`Where is your bed? 🛏️|It's in my bedroom.;In my bedroom.;~It's in|Giường của con ở đâu?
+Do you wash your hands? 🧼|Yes, I do.;No, I don't.|Con có rửa tay không?
+Where is your mother?|She's in the kitchen.;~She's in;In the kitchen.|Mẹ con đang ở đâu?`)
+]},
 starters:{name:'Starters',cefr:'Pre-A1',color:'--starters',topics:[
 T('body','My Body','Cơ thể','🙂',`arm|💪|cánh tay|I've got two arms.
 ear|👂|lỗ tai|The rabbit has got long ears.
@@ -1439,6 +1667,36 @@ Yes, and listen carefully to the teacher. Good luck!|Đúng rồi, và nhớ ngh
 You're ready! I'm sure you'll do well!|Con sẵn sàng rồi! Cô chắc con sẽ làm tốt!`
 };
 
+/* ===================== PHIÊN ÂM IPA (giọng Anh – Anh) ===================== */
+const IPA_RAW=`actor ˈæktə|address əˈdres|airport ˈeəpɔːt|already ɔːlˈredi|anything ˈeniθɪŋ|arm ɑːm|armchair ˈɑːmtʃeə|arrive əˈraɪv|artist ˈɑːtɪst|astronaut ˈæstrənɔːt|autumn ˈɔːtəm
+backpack ˈbækpæk|badminton ˈbædmɪntən|bag bæɡ|balloon bəˈluːn|baseball ˈbeɪsbɔːl|basketball ˈbɑːskɪtbɔːl|bathroom ˈbɑːθruːm|bedroom ˈbedruːm|begin bɪˈɡɪn|bike baɪk|bird bɜːd|biscuit ˈbɪskɪt|blanket ˈblæŋkɪt|bookcase ˈbʊkkeɪs|bookshop ˈbʊkʃɒp|bored bɔːd|bottle ˈbɒtl|bowl bəʊl|box bɒks|bread bred|breakfast ˈbrekfəst|bridge brɪdʒ|broken ˈbrəʊkən|brother ˈbrʌðə|burn bɜːn|bus bʌs|butter ˈbʌtə|butterfly ˈbʌtəflaɪ
+café ˈkæfeɪ|cafe ˈkæfeɪ|cake keɪk|calendar ˈkælɪndə|camera ˈkæmərə|camp kæmp|candy ˈkændi|car kɑː|carrot ˈkærət|cartoon kɑːˈtuːn|castle ˈkɑːsl|cave keɪv|cd ˌsiːˈdiː|channel ˈtʃænl|cheese tʃiːz|chemist ˈkemɪst|chess tʃes|chicken ˈtʃɪkɪn|child tʃaɪld|children ˈtʃɪldrən|chocolate ˈtʃɒklət|chopsticks ˈtʃɒpstɪks|class klɑːs|classroom ˈklɑːsruːm|clock klɒk|close kləʊz|clothes kləʊðz|cloud klaʊd|cloudy ˈklaʊdi|clown klaʊn|coat kəʊt|coconut ˈkəʊkənʌt|coffee ˈkɒfi|cold kəʊld|competition ˌkɒmpəˈtɪʃn|computer kəmˈpjuːtə|concert ˈkɒnsət|conversation ˌkɒnvəˈseɪʃn|cough kɒf|countryside ˈkʌntrisaɪd|cousin ˈkʌzn|cow kaʊ|crocodile ˈkrɒkədaɪl|crown kraʊn|cup kʌp|cupboard ˈkʌbəd|cut kʌt
+dad dæd|dark dɑːk|daughter ˈdɔːtə|decide dɪˈsaɪd|delicious dɪˈlɪʃəs|desert ˈdezət|dining room ˈdaɪnɪŋ ruːm|dinner ˈdɪnə|doctor ˈdɒktə|dog dɒɡ|dolphin ˈdɒlfɪn|downstairs ˌdaʊnˈsteəz|draw drɔː|dress up ˌdres ˈʌp|drink drɪŋk|drum drʌm|duck dʌk|during ˈdjʊərɪŋ
+each other ˌiːtʃ ˈʌðə|ear ɪə|earache ˈɪəreɪk|early ˈɜːli|east iːst|elephant ˈelɪfənt|else els|email ˈiːmeɪl|engineer ˌendʒɪˈnɪə|enough ɪˈnʌf|envelope ˈenvələʊp|environment ɪnˈvaɪrənmənt|eraser ɪˈreɪzə|ever ˈevə|everywhere ˈevriweə|exam ɪɡˈzæm|excited ɪkˈsaɪtɪd|expensive ɪkˈspensɪv|eye aɪ
+face feɪs|factory ˈfæktəri|fall over ˌfɔːl ˈəʊvə|far fɑː|fast fɑːst|feel fiːl|feet fiːt|fifteenth ˌfɪfˈtiːnθ|fifty-five ˌfɪftiˈfaɪv|film fɪlm|fire station ˈfaɪə ˌsteɪʃn|firefighter ˈfaɪəfaɪtə|first fɜːst|fish fɪʃ|fishing ˈfɪʃɪŋ|flag flæɡ|flat flæt|flour ˈflaʊə|foot fʊt|football ˈfʊtbɔːl|forest ˈfɒrɪst|forget fəˈɡet|fork fɔːk|forty-three ˌfɔːtiˈθriː|fourteenth ˌfɔːˈtiːnθ|friday ˈfraɪdeɪ|fridge frɪdʒ|friendly ˈfrendli|frog frɒɡ|front frʌnt|fruit fruːt|fun fʌn
+garden ˈɡɑːdn|gate ɡeɪt|giraffe dʒəˈrɑːf|give ɡɪv|glass ɡlɑːs|glasses ˈɡlɑːsɪz|go ɡəʊ|goat ɡəʊt|granddaughter ˈɡrændɔːtə|grandparents ˈɡrænpeərənts|grandson ˈɡrænsʌn|group ɡruːp|guess ɡes
+hair heə|hall hɔːl|hand hænd|handbag ˈhændbæɡ|hard hɑːd|hat hæt|head hed|headache ˈhedeɪk|helicopter ˈhelɪkɒptə|hippo ˈhɪpəʊ|hockey ˈhɒki|honey ˈhʌni|hop hɒp|horse hɔːs|hospital ˈhɒspɪtl|hotel həʊˈtel|house haʊs|how long ˌhaʊ ˈlɒŋ|hundred ˈhʌndrəd|hurry ˈhʌri|hurt hɜːt
+ice cream ˌaɪs ˈkriːm|if ɪf|important ɪmˈpɔːtnt|information ˌɪnfəˈmeɪʃn|insect ˈɪnsekt|instrument ˈɪnstrəmənt|internet ˈɪntənet|island ˈaɪlənd
+jacket ˈdʒækɪt|jam dʒæm|jeans dʒiːnz|job dʒɒb|join dʒɔɪn|journalist ˈdʒɜːnəlɪst|jump dʒʌmp|jungle ˈdʒʌŋɡl|just dʒʌst
+kangaroo ˌkæŋɡəˈruː|kick kɪk|kind kaɪnd|king kɪŋ|kitchen ˈkɪtʃɪn|kite kaɪt|knife naɪf
+lake leɪk|lamp læmp|language ˈlæŋɡwɪdʒ|late leɪt|later ˈleɪtə|laugh lɑːf|leaf liːf|leave liːv|leaves liːvz|leg leɡ|letter ˈletə|library ˈlaɪbrəri|lift lɪft|light laɪt|little ˈlɪtl|living room ˈlɪvɪŋ ruːm|lorry ˈlɒri|lovely ˈlʌvli|lucky ˈlʌki|lunch lʌntʃ
+magazine ˌmæɡəˈziːn|market ˈmɑːkɪt|married ˈmærid|mat mæt|meal miːl|mechanic məˈkænɪk|medicine ˈmedsn|meet miːt|metal ˈmetl|middle ˈmɪdl|milk mɪlk|mirror ˈmɪrə|monday ˈmʌndeɪ|month mʌnθ|motorbike ˈməʊtəbaɪk|mountain ˈmaʊntən|mouse maʊs|mouth maʊθ|mrs ˈmɪsɪz|mum mʌm|museum mjuˈziːəm|music ˈmjuːzɪk
+neck nek|necklace ˈnekləs|nest nest|newspaper ˈnjuːzpeɪpə|north nɔːθ|nose nəʊz|nowhere ˈnəʊweə|nurse nɜːs
+octopus ˈɒktəpəs|onion ˈʌnjən|open ˈəʊpən
+page peɪdʒ|painting ˈpeɪntɪŋ|panda ˈpændə|park pɑːk|parrot ˈpærət|partner ˈpɑːtnə|passenger ˈpæsɪndʒə|pen pen|pencil ˈpensl|people ˈpiːpl|pepper ˈpepə|photographer fəˈtɒɡrəfə|piano piˈænəʊ|piece piːs|pilot ˈpaɪlət|pineapple ˈpaɪnæpl|pirate ˈpaɪrət|pizza ˈpiːtsə|plane pleɪn|plastic ˈplæstɪk|plate pleɪt|police officer pəˈliːs ˌɒfɪsə|police station pəˈliːs ˌsteɪʃn|pool puːl|popular ˈpɒpjələ|postcard ˈpəʊstkɑːd|prefer prɪˈfɜː|prepare prɪˈpeə|problem ˈprɒbləm|programme ˈprəʊɡræm|pyramid ˈpɪrəmɪd
+queen kwiːn|quiet ˈkwaɪət
+rabbit ˈræbɪt|radio ˈreɪdiəʊ|railway ˈreɪlweɪ|rain reɪn|rainbow ˈreɪnbəʊ|ready ˈredi|restaurant ˈrestrɒnt|rice raɪs|robot ˈrəʊbɒt|rocket ˈrɒkɪt|roller skates ˈrəʊlə skeɪts|rubber ˈrʌbə|rucksack ˈrʌksæk|ruler ˈruːlə|run rʌn
+sail seɪl|salt sɔːlt|sand sænd|saturday ˈsætədeɪ|scarf skɑːf|seat siːt|second ˈsekənd|secretary ˈsekrətri|several ˈsevrəl|shark ʃɑːk|shelf ʃelf|shell ʃel|shirt ʃɜːt|shoe ʃuː|shop ʃɒp|shopping centre ˈʃɒpɪŋ ˌsentə|should ʃʊd|shoulder ˈʃəʊldə|shower ˈʃaʊə|sing sɪŋ|singer ˈsɪŋə|sister ˈsɪstə|ski skiː|snow snəʊ|snowball ˈsnəʊbɔːl|snowboarding ˈsnəʊbɔːdɪŋ|snowman ˈsnəʊmæn|sock sɒk|sofa ˈsəʊfə|son sʌn|sound saʊnd|south saʊθ|space speɪs|special ˈspeʃl|spend spend|spoon spuːn|sports centre ˈspɔːts ˌsentə|spring sprɪŋ|square skweə|stage steɪdʒ|stamp stæmp|station ˈsteɪʃn|stay steɪ|stomach-ache ˈstʌməkeɪk|stop stɒp|storm stɔːm|sugar ˈʃʊɡə|suitcase ˈsuːtkeɪs|summer ˈsʌmə|sun sʌn|sunday ˈsʌndeɪ|sunglasses ˈsʌnɡlɑːsɪz|sunny ˈsʌni|supermarket ˈsuːpəmɑːkɪt|sure ʃɔː|swan swɒn|sweater ˈswetə|sweets swiːts|swim swɪm
+t-shirt ˈtiːʃɜːt|table tennis ˈteɪbl ˌtenɪs|teeth tiːθ|telephone ˈtelɪfəʊn|tennis ˈtenɪs|tent tent|text tekst|theatre ˈθɪətə|third θɜːd|thirty-six ˌθɜːtiˈsɪks|through θruː|thursday ˈθɜːzdeɪ|tick tɪk|timetable ˈtaɪmteɪbl|together təˈɡeðə|tomato təˈmɑːtəʊ|tomorrow təˈmɒrəʊ|tooth tuːθ|towel ˈtaʊəl|traffic ˈtræfɪk|train treɪn|treasure ˈtreʒə|tree triː|trousers ˈtraʊzəz|tuesday ˈtjuːzdeɪ|turn off ˌtɜːn ˈɒf|turn on ˌtɜːn ˈɒn|tv ˌtiːˈviː|twentieth ˈtwentiəθ
+unhappy ʌnˈhæpi|upstairs ˌʌpˈsteəz|usually ˈjuːʒuəli
+video ˈvɪdiəʊ|violin ˌvaɪəˈlɪn|visit ˈvɪzɪt
+waiter ˈweɪtə|walk wɔːk|water ˈwɔːtə|waterfall ˈwɔːtəfɔːl|watermelon ˈwɔːtəmelən|website ˈwebsaɪt|wednesday ˈwenzdeɪ|west west|whale weɪl|wind wɪnd|windy ˈwɪndi|wing wɪŋ|winter ˈwɪntə|without wɪˈðaʊt|wonderful ˈwʌndəfl|wood wʊd|worried ˈwʌrid
+ball bɔːl|book bʊk|school skuːl|play pleɪ|bye baɪ|hi haɪ|hello həˈləʊ|i aɪ|you juː|cat kæt|table ˈteɪbl|chair tʃeə|mug mʌɡ|napkin ˈnæpkɪn|apple ˈæpl|my maɪ|desk desk|door dɔː|window ˈwɪndəʊ|it ɪt|chips tʃɪps|like laɪk|order ˈɔːdə|pay peɪ|bell bel|red red|notebook ˈnəʊtbʊk|girl ɡɜːl|flower ˈflaʊə|grass ɡrɑːs|lock lɒk|mop mɒp|pot pɒt|pan pæn|mango ˈmæŋɡəʊ|monkey ˈmʌŋki|mother ˈmʌðə|zoo zuː|lion ˈlaɪən|truck trʌk|move muːv|boy bɔɪ|look lʊk|lemon ˈlemən|river ˈrɪvə|hill hɪl|picnic ˈpɪknɪk|sky skaɪ|ground ɡraʊnd|banana bəˈnɑːnə|noodle ˈnuːdl|noodles ˈnuːdlz|canteen kænˈtiːn|today təˈdeɪ|juice dʒuːs|teddy bear ˈtedi beə|tiger ˈtaɪɡə|top tɒp|turtle ˈtɜːtl|see siː|father ˈfɑːðə|watch wɒtʃ|match mætʃ|wash wɒʃ|bed bed`;
+const IPA={};IPA_RAW.split(/[|\n]/).forEach(x=>{const p=x.trim().split(' ');if(p.length<2||p.length%2)return;const n=p.length/2;IPA[p.slice(0,n).join(' ')]=p.slice(n).join(' ')});
+function ipaOf(w,extra){if(extra)return String(extra).replace(/^\/|\/$/g,'');const k=String(w||'').toLowerCase().trim().replace(/[.!?]+$/,'');if(IPA[k])return IPA[k];
+  const parts=k.split(/\s+/);if(parts.length>1&&parts.every(p=>IPA[p]))return parts.map(p=>IPA[p]).join(' ');
+  const sing=k.replace(/ies$/,'y').replace(/(?<=[sxz]|ch|sh)es$/,'').replace(/s$/,'');return IPA[sing]?IPA[sing]+(k.endsWith('s')&&!IPA[k]?(/[pkfθt]$/.test(IPA[sing])?'s':/[szʃʒ]$|tʃ$|dʒ$/.test(IPA[sing])?'ɪz':'z'):''):''}
+
 /* ===================== TỰ HOÀN THÀNH TỪ MỚI CỦA GIÁO VIÊN =====================
    Loại từ: n danh từ · u danh từ không đếm được · v động từ · adj tính từ · adv trạng từ · x khác
    Mẫu câu theo trình độ: câu tiếng Anh | nghĩa tiếng Việt  ({a} a/an + từ · {w} từ · {ing} -ing · {vi} nghĩa) */
@@ -1504,8 +1762,9 @@ Let's use "{w}" in a sentence.|Hãy dùng "{w}" trong một câu nhé.`}};
 const POS_LABEL={n:'danh từ',u:'danh từ',v:'động từ',adj:'tính từ',adv:'trạng từ',x:'cụm từ'};
 const POS_IN={'n':'n','noun':'n','danh từ':'n','dt':'n','u':'u','v':'v','verb':'v','động từ':'v','đt':'v','adj':'adj','adjective':'adj','tính từ':'adj','tt':'adj','adv':'adv','adverb':'adv','trạng từ':'adv','x':'x','cụm từ':'x','khác':'x'};
 const UNCOUNT=new Set('water milk bread rice juice music homework money weather snow rain food sugar cheese chocolate paper hair soup tea coffee butter meat fruit salt pasta honey ice sand grass air fire information furniture luggage news art science maths english history geography sport traffic weather jam yoghurt cereal pepper oil gold glass wood plastic smoke'.split(' '));
-const COMMON_V=new Set('go get take make have do play ride fly swim run jump climb read write draw paint sing dance cook eat drink sleep wash brush clean help catch throw kick hit open close look watch listen find buy sell carry wear put sit stand walk visit travel learn teach build grow plant feed tidy pick turn call send tell ask answer explain choose collect hide win lose ski skate skip hop shout laugh cry smile wait'.split(' '));
-const COMMON_ADJ=new Set('big small tall short long happy sad angry hungry thirsty tired hot cold old new young good bad beautiful ugly clean dirty fast slow loud quiet funny scary easy difficult heavy light dark wet dry rich poor strong weak brave kind'.split(' '));
+const FUNC_W=new Set('i you he she it we they my your his her our their me him us them hi hello bye goodbye today yes no please thanks'.split(' '));
+const COMMON_V=new Set('like love order pay move see go get take make have do play ride fly swim run jump climb read write draw paint sing dance cook eat drink sleep wash brush clean help catch throw kick hit open close look watch listen find buy sell carry wear put sit stand walk visit travel learn teach build grow plant feed tidy pick turn call send tell ask answer explain choose collect hide win lose ski skate skip hop shout laugh cry smile wait'.split(' '));
+const COMMON_ADJ=new Set('red blue green yellow pink purple orange black white brown grey lovely friendly lucky big small tall short long happy sad angry hungry thirsty tired hot cold old new young good bad beautiful ugly clean dirty fast slow loud quiet funny scary easy difficult heavy light dark wet dry rich poor strong weak brave kind'.split(' '));
 const EMOJI_KW={cat:'🐱',dog:'🐶',cow:'🐮',horse:'🐴',pig:'🐷',sheep:'🐑',goat:'🐐',duck:'🦆',chicken:'🐔',hen:'🐔',rabbit:'🐰',mouse:'🐭',bird:'🐦',fish:'🐟',frog:'🐸',bear:'🐻',lion:'🦁',tiger:'🐯',monkey:'🐒',elephant:'🐘',giraffe:'🦒',zebra:'🦓',snake:'🐍',crocodile:'🐊',hippo:'🦛',whale:'🐳',dolphin:'🐬',shark:'🦈',octopus:'🐙',crab:'🦀',turtle:'🐢',bee:'🐝',butterfly:'🦋',spider:'🕷️',ant:'🐜',owl:'🦉',penguin:'🐧',fox:'🦊',wolf:'🐺',kangaroo:'🦘',camel:'🐫',panda:'🐼',parrot:'🦜',dinosaur:'🦕',bat:'🦇',snail:'🐌',
 apple:'🍎',banana:'🍌',orange:'🍊',grape:'🍇',grapes:'🍇',lemon:'🍋',pear:'🍐',peach:'🍑',cherry:'🍒',strawberry:'🍓',watermelon:'🍉',pineapple:'🍍',mango:'🥭',coconut:'🥥',tomato:'🍅',potato:'🥔',carrot:'🥕',corn:'🌽',onion:'🧅',bread:'🍞',cheese:'🧀',egg:'🥚',milk:'🥛',water:'💧',juice:'🧃',tea:'🍵',coffee:'☕',cake:'🎂',cookie:'🍪',biscuit:'🍪',candy:'🍬',sweets:'🍬',chocolate:'🍫','ice cream':'🍦',pizza:'🍕',burger:'🍔',sandwich:'🥪',rice:'🍚',noodles:'🍜',soup:'🍲',salad:'🥗',meat:'🍖',sausage:'🌭',honey:'🍯',
 car:'🚗',bus:'🚌',train:'🚆',plane:'✈️',boat:'⛵',ship:'🚢',bike:'🚲',bicycle:'🚲',motorbike:'🏍️',truck:'🚚',lorry:'🚚',helicopter:'🚁',rocket:'🚀',taxi:'🚕',tractor:'🚜',
@@ -1523,7 +1782,7 @@ function hashStr(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>
 function firstVi(v){return String(v||'').split(/[,;/]/)[0].trim()}
 function guessPos(w){const l=String(w).toLowerCase().trim();const f=l.split(/\s+/)[0];
   if(/\s/.test(l))return COMMON_V.has(f)?'v':'n';
-  if(UNCOUNT.has(l))return 'u';if(COMMON_V.has(l))return 'v';if(COMMON_ADJ.has(l))return 'adj';
+  if(FUNC_W.has(l))return 'x';if(UNCOUNT.has(l))return 'u';if(COMMON_V.has(l))return 'v';if(COMMON_ADJ.has(l))return 'adj';
   if(/ly$/.test(l)&&l.length>4)return 'adv';if(/(ful|ous|ive|less|able|ible)$/.test(l))return 'adj';return 'n'}
 function normPos(p,w){const k=POS_IN[String(p||'').toLowerCase().trim()];const r=k||guessPos(w);return r==='n'&&UNCOUNT.has(String(w).toLowerCase())?'u':r}
 function emojiFor(w,pos){const l=String(w).toLowerCase().trim();const d=dictLookup(l);if(d&&d.e&&d.e!=='🔤')return d.e;
@@ -1535,8 +1794,10 @@ function autoSents(w,lv,pos){const L=AUTO_TPL[lv]||AUTO_TPL.starters;const t=(L[
   const o={w:w.w,vi:firstVi(w.vi)||w.w};const k=hashStr(w.w)%t.length;
   return t.slice(k).concat(t.slice(0,k)).map(p=>({en:fillTpl(p.en,o),vi:capVi(fillTpl(p.vi,o))}))}
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))])}
-async function netPos(w){try{const r=await withTimeout(fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(w)),7000);if(!r.ok)return '';const d=await r.json();
-  const ps=(d&&d[0]&&d[0].meanings||[]).map(m=>m.partOfSpeech);const m={noun:'n',verb:'v',adjective:'adj',adverb:'adv'};return m[ps[0]]||''}catch(e){return ''}}
+async function netPos(w){try{const r=await withTimeout(fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(w)),7000);if(!r.ok)return {};const d=await r.json();
+  const e=d&&d[0]||{};const ps=(e.meanings||[]).map(m=>m.partOfSpeech);const m={noun:'n',verb:'v',adjective:'adj',adverb:'adv'};
+  const ph=(e.phonetics||[]).map(x=>x.text).filter(Boolean);const ipa=String(ph.find(x=>/ə|ɪ|ʊ|ɒ/.test(x))||e.phonetic||ph[0]||'').replace(/^\/|\/$/g,'').replace(/^\[|\]$/g,'');
+  return {pos:m[ps[0]]||'',ipa}}catch(e){return {}}}
 async function netVi(w){try{const r=await withTimeout(fetch('https://api.mymemory.translated.net/get?langpair=en|vi&q='+encodeURIComponent(w)),8000);if(!r.ok)return '';const d=await r.json();
   let t=String(d&&d.responseData&&d.responseData.translatedText||'').trim();if(!t||/MYMEMORY|QUERY LENGTH|INVALID/i.test(t)||t.toLowerCase()===w.toLowerCase())return '';
   t=t.replace(/[.!]+$/,'');return t.length>40?'':t.charAt(0).toLowerCase()+t.slice(1)}catch(e){return ''}}
@@ -1545,7 +1806,8 @@ async function autoComplete(ws,lv,onStep){let net=0,netFail=0,done=0;const out=w
   const job=async w=>{const d=dictLookup(w.w);
     if(d){w.vi=w.vi||d.vi;w.e=w.e||d.e;if(!w.s)w.s=d.s;w.src=w.src||'dict'}
     let pos=w.p?normPos(w.p,w.w):'';
-    if(!pos&&!/\s/.test(w.w)){const np=await netPos(w.w);if(np)pos=np}
+    if(!w.ipa)w.ipa=ipaOf(w.w);
+    if((!pos||!w.ipa)&&!/\s/.test(w.w)){const np=await netPos(w.w);if(np.pos&&!pos)pos=np.pos;if(np.ipa&&!w.ipa)w.ipa=np.ipa}
     pos=pos?normPos(pos,w.w):guessPos(w.w);w.p=pos;
     if(!w.vi){const t=await netVi(w.w);if(t){w.vi=t;w.auto=1;net++}else netFail++}
     if(!w.e)w.e=emojiFor(w.w,pos);
@@ -1559,15 +1821,15 @@ const K_VRECV='yle_vrecv_v1',K_LIBRECV='yle_librecv_v1',K_HWPROG='yle_hwprog_v1'
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 let P=load(K_PROG,null)||{};P=Object.assign({lessons:{},nb:{},stars:0,streak:{last:'',n:0},seen:{},badges:[],reviews:0,speakGood:0,chats:0},P);P.streak=Object.assign({last:'',n:0,freeze:1,best:0,used:0},P.streak);if(P.streak.best<P.streak.n)P.streak.best=P.streak.n;
-let C=load(K_CUSTOM,null)||{};C=Object.assign({topics:{starters:[],movers:[],flyers:[]},extra:{},videos:{},lib:{},vlib:{},vhide:null},C);
-let SHARED={topics:{starters:[],movers:[],flyers:[]},extra:{},videos:{},vids:[],vhide:[]};
+let C=load(K_CUSTOM,null)||{};C=Object.assign({topics:{gs1:[],starters:[],movers:[],flyers:[]},extra:{},videos:{},lib:{},vlib:{},vhide:null},C);
+let SHARED={topics:{gs1:[],starters:[],movers:[],flyers:[]},extra:{},videos:{},vids:[],vhide:[]};
 const CFG=Object.assign({teacherPin:'2468',resultsUrl:'',mascotName:'Miss Tee',mascotIcon:'👩‍🏫'},window.APP_CONFIG||{});
 const NAME=String(CFG.mascotName||'Miss Tee').slice(0,30),MICON=String(CFG.mascotIcon||'👩‍🏫').slice(0,8);
 function saveP(){save(K_PROG,P);updHdr()}
 function saveC(){save(K_CUSTOM,C);buildData()}
 function mergedCustom(){
   const out={topics:{},extra:{},videos:Object.assign({},SHARED.videos||{},C.videos||{})};
-  for(const lv of ['starters','movers','flyers']){const m=new Map();((SHARED.topics||{})[lv]||[]).forEach(t=>m.set(t.id,t));((C.topics||{})[lv]||[]).forEach(t=>m.set(t.id,t));out.topics[lv]=[...m.values()]}
+  for(const lv of Object.keys(RAW)){const m=new Map();((SHARED.topics||{})[lv]||[]).forEach(t=>m.set(t.id,t));((C.topics||{})[lv]||[]).forEach(t=>m.set(t.id,t));out.topics[lv]=[...m.values()]}
   const keys=new Set([...Object.keys(SHARED.extra||{}),...Object.keys(C.extra||{})]);
   keys.forEach(k=>{const m=new Map();((SHARED.extra||{})[k]||[]).forEach(w=>m.set(w.w.toLowerCase(),w));((C.extra||{})[k]||[]).forEach(w=>m.set(w.w.toLowerCase(),w));out.extra[k]=[...m.values()]});
   const vm=new Map();(SHARED.vids||[]).forEach(v=>v&&v.id&&vm.set(v.id,v));Object.values(C.vlib||{}).filter(v=>v.pub&&v.checked).forEach(v=>vm.set(v.id,{id:v.id,yt:v.yt,title:v.title,ch:v.ch||'',lv:v.lv,start:v.start,end:v.end,lines:v.lines,checked:true}));out.vids=[...vm.values()];out.vhide=vHidden();
@@ -1585,7 +1847,8 @@ function buildData(){
     (MC.topics[lid]||[]).forEach(t=>topics.push({id:t.id,name:t.name,vi:t.vi||'',icon:t.icon||'📘',words:(t.words||[]).map(w=>({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})),pats:parsePats(t.pats),dlg:parseDlg(t.dlg),custom:true}));
     topics.forEach(t=>{(MC.extra[lid+'/'+t.id]||[]).forEach(w=>{if(!t.words.some(x=>x.w.toLowerCase()===w.w.toLowerCase()))t.words.push({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})});t.words.forEach(w=>WORDS[w.id]=w)});
     topics.forEach(t=>{const tpl=String(((typeof TPL!=='undefined'&&TPL[lid])||{})[t.id]||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi,ws]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim(),ws:(ws||'*').split(',').map(x=>x.trim().toLowerCase())}});
-      t.words.forEach(w=>{w.ps=tpl.filter(p=>p.ws.includes('*')||p.ws.includes(w.w.toLowerCase())).map(p=>({en:fillTpl(p.en,w),vi:capVi(fillTpl(p.vi,w))})).filter(p=>hasWord(p.en,w.w))})});
+      t.words.forEach(w=>{w.ps=tpl.filter(p=>p.ws.includes('*')||p.ws.includes(w.w.toLowerCase())).map(p=>({en:fillTpl(p.en,w),vi:capVi(fillTpl(p.vi,w))})).filter(p=>hasWord(p.en,w.w));
+        if(!w.ps.length){const own=t.pats.filter(p=>hasWord(p.en,w.w)&&p.en!==w.s);const pos=guessPos(w.w);w.ps=own.concat(pos==='x'?[]:autoSents(w,'starters',pos).filter(p=>p.en!==w.s)).slice(0,3)}})});
     LEVELS.push({id:lid,name:L.name,cefr:L.cefr,color:L.color,topics});
   }
   LIBT={};const recv=load(K_LIBRECV,{})||{};
@@ -1614,6 +1877,7 @@ const PLURAL={child:'children',foot:'feet',tooth:'teeth',person:'people',leaf:'l
 function plural(w){const l=w.toLowerCase();if(PLURAL[l])return PLURAL[l];if(/(s|sh|ch|x|z)$/.test(l))return w+'es';if(/[^aeiou]y$/.test(l))return w.slice(0,-1)+'ies';return w+'s'}
 const INGF={swim:'swimming',run:'running',hop:'hopping',sit:'sitting',stop:'stopping',cut:'cutting',begin:'beginning',shop:'shopping',ski:'skiing'};
 function ing(p){const [f,...r]=p.split(' ');const l=f.toLowerCase();const g=/ing$/.test(l)?f:INGF[l]?INGF[l]:/[^e]e$/.test(l)?f.slice(0,-1)+'ing':f+'ing';return [g,...r].join(' ')}
+function ipaHTML(w){const i=ipaOf(w.w,w.ipa);return i?`<div class="ipa" lang="en">/${esc(i)}/</div>`:''}
 const capF=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
 const art=w=>/^[aeiou]/i.test(w)?'an':'a';
 function fillTpl(t,w){return t.replace(/\{a\}/g,art(w.w)+' '+w.w).replace(/\{ING\}/g,capF(ing(w.w))).replace(/\{ing\}/g,ing(w.w)).replace(/\{p\}/g,plural(w.w)).replace(/\{W\}/g,capF(w.w)).replace(/\{w\}/g,w.w).replace(/\{vi\}/g,w.vi)}
@@ -1625,7 +1889,7 @@ const hasWord=(s,w)=>wordRe(w).test(s);
 function fillFrame(f,w,vi){return f.replace(/\b([Aa]n?) ___/g,(m,a)=>{const x=art(w);return (a[0]==='A'?capF(x):x)+' '+w}).replace(/___/g,w)}
 function libTopic(x){
   const lv=RAW[x.lv]?x.lv:'starters',tp=x.id;
-  const words=(x.words||[]).filter(w=>w&&w.w).map(w=>{const pos=normPos(w.p,w.w);const au=autoSents({w:String(w.w),vi:w.vi||''},lv,pos);return {id:lv+'/'+tp+'/'+String(w.w).toLowerCase(),w:String(w.w),e:w.e||emojiFor(w.w,pos),vi:w.vi||'',s:w.s||au[0].en,lv,tp,ps:[],au,pos}});
+  const words=(x.words||[]).filter(w=>w&&w.w).map(w=>{const pos=normPos(w.p,w.w);const au=autoSents({w:String(w.w),vi:w.vi||''},lv,pos);return {id:lv+'/'+tp+'/'+String(w.w).toLowerCase(),w:String(w.w),e:w.e||emojiFor(w.w,pos),vi:w.vi||'',s:w.s||au[0].en,ipa:w.ipa||'',lv,tp,ps:[],au,pos}});
   const pats=(x.pats||[]).filter(p=>p&&p.en);const frames=pats.filter(p=>p.en.includes('___')),plain=pats.filter(p=>!p.en.includes('___'));
   words.forEach(o=>{frames.forEach(f=>o.ps.push({en:fillFrame(f.en,o.w),vi:(f.vi||'').replace(/___/g,o.vi)}));plain.forEach(p=>{if(hasWord(p.en,o.w))o.ps.push({en:p.en,vi:p.vi||''})});o.ps.push(...o.au.filter(p=>p.en!==o.s).slice(0,frames.length?1:3));delete o.au});
   const show=plain.map(p=>({en:p.en,vi:p.vi||''})).concat(frames.map((f,k)=>{const o=words[k%Math.max(1,words.length)];return o?{en:fillFrame(f.en,o.w),vi:(f.vi||'').replace(/___/g,o.vi)}:null}).filter(Boolean));
@@ -1639,8 +1903,8 @@ function libTopic(x){
 function regLib(x){if(!x||!x.id)return null;const T=libTopic(x);LIBT[T.lv+'/'+T.id]=T;T.words.forEach(w=>WORDS[w.id]=w);return T}
 function b64e(str){const b=new TextEncoder().encode(str);let s='';for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64d(s){s=String(s).replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b)}
-function encLib(x){return b64e(JSON.stringify({i:x.id,n:x.name,v:x.vi,c:x.icon,l:x.lv,w:x.words.map(w=>[w.w,w.vi||'',w.e||'',w.s||'',w.p||'']),p:(x.pats||[]).map(p=>[p.en,p.vi||''])}))}
-function decLib(s){try{const o=JSON.parse(b64d(s));if(!o||!o.i||!Array.isArray(o.w))return null;const cl=v=>String(v==null?'':v).slice(0,200);return {id:String(o.i).replace(/[^A-Za-z0-9-]/g,'').slice(0,24),name:cl(o.n).slice(0,60),vi:cl(o.v).slice(0,60),icon:cl(o.c).slice(0,8)||'📘',lv:['starters','movers','flyers'].includes(o.l)?o.l:'starters',words:o.w.slice(0,40).map(a=>({w:cl(a[0]).slice(0,40),vi:cl(a[1]).slice(0,60),e:cl(a[2]).slice(0,8),s:cl(a[3]),p:POS_IN[cl(a[4])]||''})).filter(w=>w.w),pats:(o.p||[]).slice(0,12).map(a=>({en:cl(a[0]),vi:cl(a[1])})).filter(p=>p.en)}}catch(e){return null}}
+function encLib(x){return b64e(JSON.stringify({i:x.id,n:x.name,v:x.vi,c:x.icon,l:x.lv,w:x.words.map(w=>[w.w,w.vi||'',w.e||'',w.s||'',w.p||'',w.ipa||'']),p:(x.pats||[]).map(p=>[p.en,p.vi||''])}))}
+function decLib(s){try{const o=JSON.parse(b64d(s));if(!o||!o.i||!Array.isArray(o.w))return null;const cl=v=>String(v==null?'':v).slice(0,200);return {id:String(o.i).replace(/[^A-Za-z0-9-]/g,'').slice(0,24),name:cl(o.n).slice(0,60),vi:cl(o.v).slice(0,60),icon:cl(o.c).slice(0,8)||'📘',lv:RAW[o.l]?o.l:'starters',words:o.w.slice(0,40).map(a=>({w:cl(a[0]).slice(0,40),vi:cl(a[1]).slice(0,60),e:cl(a[2]).slice(0,8),s:cl(a[3]),p:POS_IN[cl(a[4])]||'',ipa:cl(a[5]).slice(0,60)})).filter(w=>w.w),pats:(o.p||[]).slice(0,12).map(a=>({en:cl(a[0]),vi:cl(a[1])})).filter(p=>p.en)}}catch(e){return null}}
 function dictLookup(word){const k=String(word).toLowerCase().trim();for(const w of Object.values(WORDS)){if(w.w.toLowerCase()===k&&!String(w.tp).startsWith('L'))return w}return null}
 buildData();
 function blankSentence(s,w){const re=wordRe(w);return re.test(s)?s.replace(re,'$1[[[$2]]]'):s+' ([[['+w+']]])'}
@@ -1988,8 +2252,8 @@ function gCards(){
     <div class="dots" aria-hidden="true">${all.map((x,k)=>`<i class="${SESSION.known[x.id]?'k':k<SESSION.i?'l':''} ${k===SESSION.i?'c':''}"></i>`).join('')}</div>
     <button class="fc" id="fc" aria-label="Lật thẻ">
       <div class="fc-in">
-        <div class="fc-face"><div class="fc-em" aria-hidden="true">${w.e}</div><div class="fc-word">${esc(w.w)}</div><div class="fc-hint">Chạm để lật thẻ xem nghĩa</div></div>
-        <div class="fc-face fc-back"><div class="fc-vi">${esc(w.vi)}</div><div class="fc-word" style="font-size:26px">${esc(w.w)}</div>${pp?`<div class="fc-pat"><b>💬 ${esc(pp.en)}</b><span>${esc(pp.vi)}</span></div>`:`<div style="font-size:16px">${esc(w.s)}</div>`}<div class="fc-hint">Chạm để lật lại</div></div>
+        <div class="fc-face"><div class="fc-em" aria-hidden="true">${w.e}</div><div class="fc-word">${esc(w.w)}</div>${ipaHTML(w)}<div class="fc-hint">Chạm để lật thẻ xem nghĩa</div></div>
+        <div class="fc-face fc-back"><div class="fc-vi">${esc(w.vi)}</div><div class="fc-word" style="font-size:26px">${esc(w.w)}</div>${ipaHTML(w)}${pp?`<div class="fc-pat"><b>💬 ${esc(pp.en)}</b><span>${esc(pp.vi)}</span></div>`:`<div style="font-size:16px">${esc(w.s)}</div>`}<div class="fc-hint">Chạm để lật lại</div></div>
       </div>
     </button>
     <div class="row" style="justify-content:center"><button class="btn sm" id="c-say">🔊 Nghe từ</button><button class="btn sm" id="c-sent">🔊 Nghe ${pp?'câu mẫu':'câu'}</button>${pp?`<button class="btn sm ${inPats(patKey(w.lv,w.tp,pp.en))?'saved':''}" id="c-psave">${inPats(patKey(w.lv,w.tp,pp.en))?'✓ Đã lưu câu':'＋ Lưu câu mẫu'}</button>`:''}${vidLink(w)}</div>
@@ -2056,7 +2320,7 @@ function gBuild(){
 function gSpeak(){
   const w=SESSION.words[SESSION.i];const SB=w.ps&&w.ps.length?buildTarget(w):null;let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
   $('#game').innerHTML=`<h2>Đọc to từ này ${qNo()}</h2>
-    <div class="card stack" style="align-items:center;gap:8px"><div class="prompt-em">${w.e}</div><div class="letters" id="ltr">${esc(w.w)}</div><span class="muted">${esc(w.vi)}</span>
+    <div class="card stack" style="align-items:center;gap:8px"><div class="prompt-em">${w.e}</div><div class="letters" id="ltr">${esc(w.w)}</div>${ipaHTML(w)}<span class="muted">${esc(w.vi)}</span>
     <button class="btn sm" id="sp-model">🔊 Nghe mẫu</button>${SB?`<div class="fc-pat" style="width:100%"><b>💬 ${esc(SB.tgt)}</b>${SB.vi?`<span>${esc(SB.vi)}</span>`:''}</div>`:''}</div>
     <div class="stack" style="align-items:center;gap:8px" id="sp-zone"><button class="mic" id="mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="sp-hint">Bấm micro rồi đọc to</span><span class="muted" style="font-size:12px;text-align:center">Giọng đọc được trình duyệt gửi đi để nhận dạng, app không lưu lại.</span></div>
     <div id="after"></div><div class="row" style="justify-content:center"><button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
@@ -2070,10 +2334,11 @@ function gSpeak(){
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;const r=scoreSpeech(w.w,alts);
       $('#ltr').innerHTML=letterMarks(w.w,r.tok||norm(r.heard).replace(/ /g,''));
       const good=r.sc>=75;$('#sp-hint').textContent=`Máy nghe được: “${r.heard}”`;
-      $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${r.sc}</div><b>${good?'Phát âm tốt lắm!':'Gần đúng rồi, thử lại nhé!'}</b><span class="muted" style="font-size:13px">Chữ đỏ là phần máy chưa nghe rõ.</span><div class="row"><button class="btn" id="again">🔁 Thử lại</button>${good&&SB?'<button class="btn pri" id="sent">💬 Đọc cả câu</button>':''}<button class="btn sun" id="nx">Tiếp →</button></div><div id="sent-res" class="muted" style="text-align:center"></div></div>`;
+      $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${r.sc}</div><b>${good?'Phát âm tốt lắm!':'Gần đúng rồi, thử lại nhé!'}</b><span class="muted" style="font-size:13px">Chữ đỏ là phần máy chưa nghe rõ.</span>${ipaOf(w.w,w.ipa)?`<div class="ipabox"><span>Phiên âm chuẩn</span>${ipaHTML(w)}${good?'':'<button class="btn sm" id="slowm">🐢 Nghe chậm từng âm</button>'}</div>`:''}<div class="row"><button class="btn" id="again">🔁 Thử lại</button>${good&&SB?'<button class="btn pri" id="sent">💬 Đọc cả câu</button>':''}<button class="btn sun" id="nx">Tiếp →</button></div><div id="sent-res" class="muted" style="text-align:center"></div></div>`;
       $('#sent')&&($('#sent').onclick=async()=>{const sb=$('#sent');sb.disabled=true;sb.textContent='Đang nghe…';try{const a2=await listenOnce();const r2=matchAnswer(a2,[SB.tgt]);const ok2=r2.sc>=70;$('#sent-res').innerHTML=`Máy nghe được: “${esc(r2.heard)}” · <b style="color:var(${ok2?'--good':'--bad'})">${r2.sc}</b>${ok2?' · +1 ⭐ thưởng':''}`;if(ok2){SESSION.stars++;const c=$('#s-stars');if(c)c.textContent='⭐ +'+SESSION.stars}}catch(e2){$('#sent-res').textContent=micErrorText(e2)}sb.disabled=false;sb.textContent='💬 Đọc lại cả câu'});
       if(good){rec(attempts===1,'điểm '+r.sc);if(attempts===1){P.speakGood++;saveP()}}
       else sWrongFx();
+      $('#slowm')&&($('#slowm').onclick=()=>speak(w.w,.55));
       $('#again').onclick=()=>{$('#after').innerHTML='';$('#ltr').textContent=w.w;$('#sp-hint').textContent='Bấm micro rồi đọc to'};
       $('#nx').onclick=()=>{rec(false,'điểm '+r.sc);sNext()};
     }catch(e){m.classList.remove('rec');if(micBlocked||e==='unsupported')selfCheck(micErrorText(e));else $('#sp-hint').textContent=micErrorText(e)}};
@@ -2378,7 +2643,7 @@ function tHomework(){
     ${levelSeg(route.teacherLv,'data-tl')}
     <div class="grid2"><div><label for="h-topic">Chủ đề</label><select id="h-topic">${(()=>{const mine=Object.values(C.lib||{}).filter(x=>x.lv===L.id).map(x=>topicOf(L.id,x.id)).filter(Boolean);return (mine.length?`<optgroup label="📚 Thư viện của tôi">${mine.map(t=>`<option value="${esc(t.id)}" ${route.preTopic===t.id?'selected':''}>${t.icon} ${esc(t.name)} (${t.words.length} từ)</option>`).join('')}</optgroup><optgroup label="Chủ đề có sẵn">`:'')+L.topics.map(t=>`<option value="${esc(t.id)}">${t.icon} ${esc(t.name)} (${t.words.length} từ)</option>`).join('')+(mine.length?'</optgroup>':'')})()}</select></div>
     <div><label for="h-b">Phần từ vựng</label><select id="h-b"></select></div></div>
-    <div><label>Các phần trong bài</label><div class="games">${Object.entries(STAGE_BY).map(([k,s])=>`<label><input type="checkbox" id="g-${k}" value="${k}" ${k==='w'&&L.id==='starters'?'':'checked'}> ${s[1]}</label>`).join('')}</div></div>
+    <div><label>Các phần trong bài</label><div class="games">${Object.entries(STAGE_BY).map(([k,s])=>`<label><input type="checkbox" id="g-${k}" value="${k}" ${k==='w'&&(L.id==='starters'||L.id==='gs1')?'':'checked'}> ${s[1]}</label>`).join('')}</div></div>
     <div class="grid2"><div><label for="h-title">Tên bài</label><input type="text" id="h-title" maxlength="60" placeholder="Ví dụ: BTVN tuần 3"></div><div><label for="h-due">Hạn nộp (không bắt buộc)</label><input type="text" id="h-due" maxlength="30" placeholder="Ví dụ: Thứ Sáu 14/11"></div></div>
     <div><button class="btn sun" id="h-make">📮 Tạo link bài tập</button></div>
     <div id="h-out"></div>
@@ -2497,8 +2762,8 @@ Return JSON only: [{"word":"...","meaning_vi":"...","emoji":"...","sentence_en":
     }catch(x){toast(x&&x.code==='not_granted'?'Bạn chưa cho phép dùng AI':'AI chưa trả lời được, thử lại sau')}
     btn.disabled=false;btn.textContent='✨ AI viết câu cho dòng thiếu câu'};
 }
-function libParseWords(txt){return String(txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [w,vi,e,s,p]=l.split('|').map(x=>(x||'').trim());return {w,vi,e,s,p:POS_IN[(p||'').toLowerCase()]||''}}).filter(x=>x.w)}
-function libLine(w){return [w.w,w.vi||'',w.e||'',w.s||'',w.p?POS_LABEL[w.p]:''].join(' | ').replace(/( \| )+$/,'')}
+function libParseWords(txt){return String(txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [w,vi,e,s,p,ipa]=l.split('|').map(x=>(x||'').trim());return {w,vi,e,s,p:POS_IN[(p||'').toLowerCase()]||'',ipa:(ipa||'').replace(/^\/|\/$/g,'')}}).filter(x=>x.w)}
+function libLine(w){const i=w.ipa||ipaOf(w.w);return [w.w,w.vi||'',w.e||'',w.s||'',w.p?POS_LABEL[w.p]:'',i?'/'+i+'/':''].join(' | ').replace(/( \| )+$/,'')}
 function libParsePats(txt){return String(txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi]=l.split('|').map(x=>(x||'').trim());return {en,vi}}).filter(x=>x.en)}
 function libAutoFill(ws){return ws.map(w=>{const d=dictLookup(w.w);return {w:w.w,p:w.p,vi:w.vi||(d?d.vi:''),e:w.e||(d?d.e:''),s:w.s||(d?d.s:''),src:d?'dict':''}})}
 function tCreate(){
@@ -2512,7 +2777,7 @@ function tCreate(){
     <div><label for="lb-icon">Biểu tượng (emoji)</label><input type="text" id="lb-icon" maxlength="8" value="${esc(ed?ed.icon:'')}" placeholder="🚜"></div>
     <div><label for="lb-words">Từ vựng mới – mỗi dòng một từ hoặc cụm từ</label>
       <textarea id="lb-words" style="min-height:170px" placeholder="cow&#10;tractor&#10;feed the animals&#10;muddy">${esc(ed?ed.words.map(libLine).join('\n'):'')}</textarea>
-      <p class="muted" style="margin:4px 0 0;font-size:13px">Chỉ cần gõ từ rồi bấm <b>✨ Tự hoàn thành</b>. App tự nhận ra từ có sẵn (427 từ YLE), tra loại từ, dịch nghĩa, chọn emoji và đặt câu theo trình độ. Mỗi dòng sẽ thành <code>từ | nghĩa | emoji | câu ví dụ | loại từ</code>; bạn sửa được bất kỳ phần nào (ví dụ đổi "danh từ" thành "động từ" để app đặt câu lại).</p></div>
+      <p class="muted" style="margin:4px 0 0;font-size:13px">Chỉ cần gõ từ rồi bấm <b>✨ Tự hoàn thành</b>. App tự nhận ra từ có sẵn (427 từ YLE), tra loại từ, dịch nghĩa, chọn emoji và đặt câu theo trình độ. Mỗi dòng sẽ thành <code>từ | nghĩa | emoji | câu ví dụ | loại từ | /phiên âm/</code>; bạn sửa được bất kỳ phần nào (ví dụ đổi "danh từ" thành "động từ" để app đặt câu lại).</p></div>
     <div><label for="lb-pats">Mẫu câu của bài (không bắt buộc) – mỗi dòng: <code>câu | nghĩa</code></label>
       <textarea id="lb-pats" style="min-height:110px" placeholder="What's this? – It's a ___. | Đây là gì? – Đó là ___.&#10;I like ___. | Tớ thích ___.&#10;Let's go to the farm! | Cùng đi nông trại nào!">${esc(ed?(ed.pats||[]).map(p=>p.vi?p.en+' | '+p.vi:p.en).join('\n'):'')}</textarea>
       <p class="muted" style="margin:4px 0 0;font-size:13px">Dùng <b>___</b> (3 dấu gạch dưới) cho chỗ điền từ: app sẽ ghép từng từ vào để tạo câu luyện Nghe, Ghép câu, Nói và câu hỏi hội thoại. Câu hỏi có dạng <code>Hỏi? – Đáp.</code> sẽ thành câu hỏi của ${esc(NAME)}.</p></div>
@@ -2529,7 +2794,7 @@ function tCreate(){
     $('#lb-prev').innerHTML=`<div class="stack" style="gap:8px"><h3>Xem trước</h3>
       <div class="row" style="gap:6px"><span class="pill">${x.words.length} từ</span><span class="pill">${LS.length} bài nhỏ</span><span class="pill">${T.pats.length} mẫu câu</span><span class="pill">${T.dlg.length} câu hội thoại</span>${miss?`<span class="pill no">${miss} từ thiếu nghĩa</span>`:'<span class="pill ok">Đủ thông tin</span>'}</div>
       ${[...autoSet].some(k=>k.startsWith('vi:'))?'<p class="note" style="margin:0;font-size:13px">Nghĩa có nhãn <b>dịch máy</b> là do app dịch tự động: bạn xem lại cho đúng nghĩa trong bài nhé.</p>':''}
-      <div class="tbl"><table class="t"><tr><th></th><th>Từ</th><th>Loại</th><th>Nghĩa</th><th>Câu ví dụ</th><th>Câu luyện thêm</th></tr>${T.words.map((w,i)=>{const r=x.words[i];const k=r.w.toLowerCase();return `<tr><td>${w.e}</td><td><b>${esc(w.w)}</b></td><td class="muted">${POS_LABEL[w.pos]||''}</td><td>${r.vi?esc(r.vi)+(autoSet.has('vi:'+k)?' <span class="pill">dịch máy</span>':''):'<span class="pill no">thiếu</span>'}</td><td>${esc(w.s)}${r.s?'':' <span class="pill">tự đặt</span>'}</td><td class="muted">${w.ps.slice(0,2).map(p=>esc(p.en)).join('<br>')||'—'}</td></tr>`}).join('')}</table></div>
+      <div class="tbl"><table class="t"><tr><th></th><th>Từ</th><th>Loại</th><th>Nghĩa</th><th>Câu ví dụ</th><th>Câu luyện thêm</th></tr>${T.words.map((w,i)=>{const r=x.words[i];const k=r.w.toLowerCase();return `<tr><td>${w.e}</td><td><b>${esc(w.w)}</b></td><td class="muted">${POS_LABEL[w.pos]||''}${ipaOf(w.w,w.ipa)?`<br>/${esc(ipaOf(w.w,w.ipa))}/`:''}</td><td>${r.vi?esc(r.vi)+(autoSet.has('vi:'+k)?' <span class="pill">dịch máy</span>':''):'<span class="pill no">thiếu</span>'}</td><td>${esc(w.s)}${r.s?'':' <span class="pill">tự đặt</span>'}</td><td class="muted">${w.ps.slice(0,2).map(p=>esc(p.en)).join('<br>')||'—'}</td></tr>`}).join('')}</table></div>
       ${x.words.length<3?'<p class="note" style="margin:0">Cần ít nhất 3 từ để tạo bài.</p>':''}</div>`};
   $('#lb-words').oninput=$('#lb-pats').oninput=()=>{clearTimeout(tCreate.t);tCreate.t=setTimeout(preview,400)};preview();
   const fill=async()=>{const ws=libParseWords($('#lb-words').value);if(!ws.length){toast('Gõ từ vựng trước nhé');return null}
@@ -2583,7 +2848,7 @@ function tData(){
       <textarea id="x-box" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây. Để nhập, dán JSON vào rồi bấm Nhập dữ liệu." hidden></textarea>
     </div>`;
   $('#x-dl').onclick=()=>{const data=JSON.stringify(mergedCustom(),null,1);try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download='content.json';document.body.appendChild(a);a.click();a.remove();toast('Đã tải content.json')}catch(x){}const box=$('#x-box');box.hidden=false;box.value=data};
-  $('#x-clear').onclick=e=>{if(!e.target.dataset.armed){e.target.dataset.armed=1;e.target.textContent='Bấm lần nữa để xóa bản nháp';return}C={topics:{starters:[],movers:[],flyers:[]},extra:{},videos:{},lib:C.lib||{},vlib:C.vlib||{},vhide:C.vhide||null};saveC();toast('Đã xóa bản nháp trên máy này');tData()};
+  $('#x-clear').onclick=e=>{if(!e.target.dataset.armed){e.target.dataset.armed=1;e.target.textContent='Bấm lần nữa để xóa bản nháp';return}C={topics:{gs1:[],starters:[],movers:[],flyers:[]},extra:{},videos:{},lib:C.lib||{},vlib:C.vlib||{},vhide:C.vhide||null};saveC();toast('Đã xóa bản nháp trên máy này');tData()};
   $('#x-key').onclick=()=>{save(K_TKEY,'');go({hwView:'__key'})};
   $('#x-exp').onclick=async()=>{const box=$('#x-box');box.hidden=false;box.value=JSON.stringify({...mergedCustom(),lib:C.lib||{},vlib:C.vlib||{}},null,1);box.select();try{await navigator.clipboard.writeText(box.value);toast('Đã chép dữ liệu')}catch(x){toast('Đã chọn sẵn, nhấn Ctrl+C để chép')}};
   $('#x-imp').onclick=()=>{const box=$('#x-box');if(box.hidden||!box.value.trim()){box.hidden=false;box.value='';box.focus();return toast('Dán JSON vào ô rồi bấm lại')}try{const d=JSON.parse(box.value);if(!d.topics)throw 0;C={topics:{starters:[],movers:[],flyers:[],...d.topics},extra:d.extra||{},videos:d.videos||{},lib:Object.assign({},C.lib||{},d.lib||{}),vlib:Object.assign({},C.vlib||{},d.vlib||{}),vhide:Array.isArray(d.vhide)?d.vhide:(C.vhide||null)};saveC();toast('Đã nhập dữ liệu');tData()}catch(x){toast('JSON không hợp lệ')}};
@@ -2899,7 +3164,7 @@ render();
 if(me().name)ping(true);
 getSample().then(s=>{if(s&&route.tab==='chat'&&!CHAT.msgs.length)vChat()});
 flushOutbox();
-if(location.protocol.startsWith('http')&&!IN_FRAME){fetch('content.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.topics){SHARED={topics:Object.assign({starters:[],movers:[],flyers:[]},d.topics),extra:d.extra||{},videos:d.videos||{},vids:Array.isArray(d.vids)?d.vids:[],vhide:Array.isArray(d.vhide)?d.vhide:[]};buildData()}}).catch(()=>{}).finally(()=>{if(!SESSION&&(route.tab!=='chat'||!CHAT.msgs.length)&&!(route.tab==='video'&&route.vid)&&!(route.tab==='teacher'&&route.tview==='video'))render()})}
+if(location.protocol.startsWith('http')&&!IN_FRAME){fetch('content.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.topics){SHARED={topics:Object.assign({gs1:[],starters:[],movers:[],flyers:[]},d.topics),extra:d.extra||{},videos:d.videos||{},vids:Array.isArray(d.vids)?d.vids:[],vhide:Array.isArray(d.vhide)?d.vhide:[]};buildData()}}).catch(()=>{}).finally(()=>{if(!SESSION&&(route.tab!=='chat'||!CHAT.msgs.length)&&!(route.tab==='video'&&route.vid)&&!(route.tab==='teacher'&&route.tview==='video'))render()})}
 
 </script>
 <script>
