@@ -1439,6 +1439,121 @@ Yes, and listen carefully to the teacher. Good luck!|Đúng rồi, và nhớ ngh
 You're ready! I'm sure you'll do well!|Con sẵn sàng rồi! Cô chắc con sẽ làm tốt!`
 };
 
+/* ===================== TỰ HOÀN THÀNH TỪ MỚI CỦA GIÁO VIÊN =====================
+   Loại từ: n danh từ · u danh từ không đếm được · v động từ · adj tính từ · adv trạng từ · x khác
+   Mẫu câu theo trình độ: câu tiếng Anh | nghĩa tiếng Việt  ({a} a/an + từ · {w} từ · {ing} -ing · {vi} nghĩa) */
+const AUTO_TPL={
+starters:{
+n:`I can see {a}.|Tớ nhìn thấy {vi}.
+This is my {w}.|Đây là {vi} của tớ.
+Look at the {w}!|Nhìn {vi} kìa!
+I've got {a}.|Tớ có {vi}.
+Where is the {w}? – It's here!|{vi} ở đâu? – Ở đây nè!`,
+u:`I like {w}.|Tớ thích {vi}.
+Can I have some {w}, please?|Cho tớ một ít {vi} được không?
+Look at the {w}!|Nhìn {vi} kìa!`,
+v:`I can {w}.|Tớ biết {vi}.
+Let's {w}!|Cùng {vi} nào!
+I like {ing}.|Tớ thích {vi}.
+Can you {w}? – Yes, I can.|Bạn có biết {vi} không? – Có, tớ biết.`,
+adj:`It's {w}.|Nó {vi}.
+My cat is very {w}.|Con mèo của tớ rất {vi}.
+Is it {w}? – Yes, it is.|Nó có {vi} không? – Có.`,
+adv:`Do it {w}, please.|Hãy làm {vi} nhé.
+She can run {w}.|Bạn ấy chạy {vi}.`,
+x:`Say "{w}" with me!|Nói "{w}" cùng tớ nào!
+I know "{w}".|Tớ biết "{w}".`},
+movers:{
+n:`Can you see {a} in this picture?|Bạn có thấy {vi} trong bức tranh này không?
+Yesterday I saw {a}.|Hôm qua tớ đã nhìn thấy {vi}.
+My friend has got {a}.|Bạn tớ có {vi}.
+I'd like to draw {a}.|Tớ muốn vẽ {vi}.`,
+u:`There isn't any {w} left.|Không còn chút {vi} nào.
+Do you like {w}? – Yes, I do.|Bạn có thích {vi} không? – Có.
+We need some {w}.|Chúng ta cần một ít {vi}.`,
+v:`I like {ing} after school.|Tớ thích {vi} sau giờ học.
+My brother is {ing} now.|Anh trai tớ đang {vi}.
+Do you want to {w} with me?|Bạn có muốn {vi} cùng tớ không?
+We have to {w} today.|Hôm nay chúng tớ phải {vi}.`,
+adj:`It looks very {w}.|Nó trông rất {vi}.
+Why is it so {w}?|Sao nó {vi} thế?
+It was very {w} yesterday.|Hôm qua nó rất {vi}.`,
+adv:`Please do it {w}.|Hãy làm việc đó {vi} nhé.
+Can you say it {w}?|Bạn nói lại {vi} được không?`,
+x:`We learnt "{w}" today.|Hôm nay chúng tớ học "{w}".
+Can you say "{w}"?|Bạn nói được "{w}" không?`},
+flyers:{
+n:`Have you ever seen {a}?|Bạn đã bao giờ thấy {vi} chưa?
+I'm going to draw {a} for my project.|Tớ sẽ vẽ {vi} cho dự án của tớ.
+If I had {a}, I would be very happy.|Nếu tớ có {vi}, tớ sẽ rất vui.
+This is the {w} which I told you about.|Đây là {vi} mà tớ đã kể với bạn.`,
+u:`We haven't got enough {w}.|Chúng ta không có đủ {vi}.
+How much {w} do we need?|Chúng ta cần bao nhiêu {vi}?
+There was a lot of {w} everywhere.|Ở đâu cũng có rất nhiều {vi}.`,
+v:`I'm going to {w} this weekend.|Cuối tuần này tớ sẽ {vi}.
+Have you ever tried to {w}?|Bạn đã bao giờ thử {vi} chưa?
+I would like to {w} one day.|Một ngày nào đó tớ muốn {vi}.
+We should {w} more often.|Chúng ta nên {vi} thường xuyên hơn.`,
+adj:`It isn't as {w} as I thought.|Nó không {vi} như tớ nghĩ.
+I think it will be {w} tomorrow.|Tớ nghĩ ngày mai nó sẽ {vi}.
+It was really {w}, wasn't it?|Nó thật sự rất {vi}, phải không?`,
+adv:`Try to do it more {w} next time.|Lần sau hãy cố làm {vi} hơn nhé.
+I think she did it {w}.|Tớ nghĩ bạn ấy đã làm việc đó {vi}.`,
+x:`Have you heard "{w}" before?|Bạn đã từng nghe "{w}" chưa?
+Let's use "{w}" in a sentence.|Hãy dùng "{w}" trong một câu nhé.`}};
+const POS_LABEL={n:'danh từ',u:'danh từ',v:'động từ',adj:'tính từ',adv:'trạng từ',x:'cụm từ'};
+const POS_IN={'n':'n','noun':'n','danh từ':'n','dt':'n','u':'u','v':'v','verb':'v','động từ':'v','đt':'v','adj':'adj','adjective':'adj','tính từ':'adj','tt':'adj','adv':'adv','adverb':'adv','trạng từ':'adv','x':'x','cụm từ':'x','khác':'x'};
+const UNCOUNT=new Set('water milk bread rice juice music homework money weather snow rain food sugar cheese chocolate paper hair soup tea coffee butter meat fruit salt pasta honey ice sand grass air fire information furniture luggage news art science maths english history geography sport traffic weather jam yoghurt cereal pepper oil gold glass wood plastic smoke'.split(' '));
+const COMMON_V=new Set('go get take make have do play ride fly swim run jump climb read write draw paint sing dance cook eat drink sleep wash brush clean help catch throw kick hit open close look watch listen find buy sell carry wear put sit stand walk visit travel learn teach build grow plant feed tidy pick turn call send tell ask answer explain choose collect hide win lose ski skate skip hop shout laugh cry smile wait'.split(' '));
+const COMMON_ADJ=new Set('big small tall short long happy sad angry hungry thirsty tired hot cold old new young good bad beautiful ugly clean dirty fast slow loud quiet funny scary easy difficult heavy light dark wet dry rich poor strong weak brave kind'.split(' '));
+const EMOJI_KW={cat:'🐱',dog:'🐶',cow:'🐮',horse:'🐴',pig:'🐷',sheep:'🐑',goat:'🐐',duck:'🦆',chicken:'🐔',hen:'🐔',rabbit:'🐰',mouse:'🐭',bird:'🐦',fish:'🐟',frog:'🐸',bear:'🐻',lion:'🦁',tiger:'🐯',monkey:'🐒',elephant:'🐘',giraffe:'🦒',zebra:'🦓',snake:'🐍',crocodile:'🐊',hippo:'🦛',whale:'🐳',dolphin:'🐬',shark:'🦈',octopus:'🐙',crab:'🦀',turtle:'🐢',bee:'🐝',butterfly:'🦋',spider:'🕷️',ant:'🐜',owl:'🦉',penguin:'🐧',fox:'🦊',wolf:'🐺',kangaroo:'🦘',camel:'🐫',panda:'🐼',parrot:'🦜',dinosaur:'🦕',bat:'🦇',snail:'🐌',
+apple:'🍎',banana:'🍌',orange:'🍊',grape:'🍇',grapes:'🍇',lemon:'🍋',pear:'🍐',peach:'🍑',cherry:'🍒',strawberry:'🍓',watermelon:'🍉',pineapple:'🍍',mango:'🥭',coconut:'🥥',tomato:'🍅',potato:'🥔',carrot:'🥕',corn:'🌽',onion:'🧅',bread:'🍞',cheese:'🧀',egg:'🥚',milk:'🥛',water:'💧',juice:'🧃',tea:'🍵',coffee:'☕',cake:'🎂',cookie:'🍪',biscuit:'🍪',candy:'🍬',sweets:'🍬',chocolate:'🍫','ice cream':'🍦',pizza:'🍕',burger:'🍔',sandwich:'🥪',rice:'🍚',noodles:'🍜',soup:'🍲',salad:'🥗',meat:'🍖',sausage:'🌭',honey:'🍯',
+car:'🚗',bus:'🚌',train:'🚆',plane:'✈️',boat:'⛵',ship:'🚢',bike:'🚲',bicycle:'🚲',motorbike:'🏍️',truck:'🚚',lorry:'🚚',helicopter:'🚁',rocket:'🚀',taxi:'🚕',tractor:'🚜',
+sun:'☀️',moon:'🌙',star:'⭐',cloud:'☁️',rain:'🌧️',snow:'❄️',wind:'💨',rainbow:'🌈',tree:'🌳',flower:'🌸',leaf:'🍃',grass:'🌱',mountain:'⛰️',river:'🏞️',sea:'🌊',beach:'🏖️',island:'🏝️',forest:'🌲',desert:'🏜️',fire:'🔥',earth:'🌍',planet:'🪐',
+house:'🏠',home:'🏠',school:'🏫',hospital:'🏥',shop:'🏪',park:'🏞️',farm:'🚜',zoo:'🦁',library:'📚',castle:'🏰',bridge:'🌉',church:'⛪',
+book:'📕',pen:'🖊️',pencil:'✏️',ruler:'📏',bag:'🎒',schoolbag:'🎒',computer:'💻',phone:'📱',clock:'🕐',watch:'⌚',camera:'📷',key:'🔑',door:'🚪',window:'🪟',bed:'🛏️',chair:'🪑',table:'🍽️',lamp:'💡',box:'📦',ball:'⚽',kite:'🪁',doll:'🪆',robot:'🤖',teddy:'🧸',balloon:'🎈',gift:'🎁',present:'🎁',guitar:'🎸',piano:'🎹',drum:'🥁',map:'🗺️',letter:'✉️',umbrella:'☂️',scissors:'✂️',glasses:'👓',
+hat:'👒',cap:'🧢',shirt:'👕','t-shirt':'👕',dress:'👗',skirt:'👗',jeans:'👖',trousers:'👖',shoe:'👟',shoes:'👟',boot:'👢',boots:'👢',sock:'🧦',socks:'🧦',jacket:'🧥',coat:'🧥',scarf:'🧣',glove:'🧤',gloves:'🧤',
+eye:'👁️',ear:'👂',nose:'👃',mouth:'👄',hand:'✋',foot:'🦶',leg:'🦵',arm:'💪',tooth:'🦷',teeth:'🦷',hair:'💇',head:'🙂',
+mother:'👩',mum:'👩',father:'👨',dad:'👨',baby:'👶',boy:'👦',girl:'👧',grandmother:'👵',grandma:'👵',grandfather:'👴',grandpa:'👴',family:'👪',friend:'🧑‍🤝‍🧑',teacher:'🧑‍🏫',doctor:'🧑‍⚕️',nurse:'🧑‍⚕️',farmer:'🧑‍🌾',cook:'🧑‍🍳',police:'👮',pilot:'🧑‍✈️',king:'🤴',queen:'👸',princess:'👸',prince:'🤴',
+football:'⚽',basketball:'🏀',tennis:'🎾',badminton:'🏸',swim:'🏊',run:'🏃',jump:'🤸',dance:'💃',sing:'🎤',read:'📖',write:'✍️',draw:'🎨',paint:'🎨',cook_v:'🍳',sleep:'😴',eat:'🍽️',drink:'🥤',play:'🎮',ride:'🚴',fly:'🕊️',climb:'🧗',walk:'🚶',laugh:'😂',cry:'😢',smile:'😊',listen:'👂',watch_v:'👀',
+happy:'😊',sad:'😢',angry:'😠',hungry:'😋',tired:'😴',scared:'😨',surprised:'😮',hot:'🥵',cold:'🥶',big:'🐘',small:'🐜',fast:'⚡',slow:'🐢',beautiful:'🌸',funny:'😂',
+red:'🔴',blue:'🔵',green:'🟢',yellow:'🟡',orange_c:'🟠',purple:'🟣',black:'⚫',white:'⚪',brown:'🟤',pink:'🩷',
+birthday:'🎂',party:'🎉',music:'🎵',song:'🎶',film:'🎬',movie:'🎬',game:'🎲',holiday:'🏖️',picnic:'🧺',money:'💰',time:'⏰',morning:'🌅',night:'🌙',summer:'☀️',winter:'⛄',spring:'🌷',autumn:'🍂'};
+function hashStr(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h}
+function firstVi(v){return String(v||'').split(/[,;/]/)[0].trim()}
+function guessPos(w){const l=String(w).toLowerCase().trim();const f=l.split(/\s+/)[0];
+  if(/\s/.test(l))return COMMON_V.has(f)?'v':'n';
+  if(UNCOUNT.has(l))return 'u';if(COMMON_V.has(l))return 'v';if(COMMON_ADJ.has(l))return 'adj';
+  if(/ly$/.test(l)&&l.length>4)return 'adv';if(/(ful|ous|ive|less|able|ible)$/.test(l))return 'adj';return 'n'}
+function normPos(p,w){const k=POS_IN[String(p||'').toLowerCase().trim()];const r=k||guessPos(w);return r==='n'&&UNCOUNT.has(String(w).toLowerCase())?'u':r}
+function emojiFor(w,pos){const l=String(w).toLowerCase().trim();const d=dictLookup(l);if(d&&d.e&&d.e!=='🔤')return d.e;
+  if(EMOJI_KW[l])return EMOJI_KW[l];if(pos==='v'&&EMOJI_KW[l+'_v'])return EMOJI_KW[l+'_v'];
+  const sing=l.replace(/(ies)$/,'y').replace(/(es|s)$/,'');if(EMOJI_KW[sing])return EMOJI_KW[sing];
+  for(const p of l.split(/\s+/).reverse())if(EMOJI_KW[p])return EMOJI_KW[p];
+  return {v:'🏃',adj:'✨',adv:'💬',x:'💬'}[pos]||'📘'}
+function autoSents(w,lv,pos){const L=AUTO_TPL[lv]||AUTO_TPL.starters;const t=(L[pos]||L.n).split('\n').map(l=>{const [en,vi]=l.split('|');return {en,vi}});
+  const o={w:w.w,vi:firstVi(w.vi)||w.w};const k=hashStr(w.w)%t.length;
+  return t.slice(k).concat(t.slice(0,k)).map(p=>({en:fillTpl(p.en,o),vi:capVi(fillTpl(p.vi,o))}))}
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))])}
+async function netPos(w){try{const r=await withTimeout(fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(w)),7000);if(!r.ok)return '';const d=await r.json();
+  const ps=(d&&d[0]&&d[0].meanings||[]).map(m=>m.partOfSpeech);const m={noun:'n',verb:'v',adjective:'adj',adverb:'adv'};return m[ps[0]]||''}catch(e){return ''}}
+async function netVi(w){try{const r=await withTimeout(fetch('https://api.mymemory.translated.net/get?langpair=en|vi&q='+encodeURIComponent(w)),8000);if(!r.ok)return '';const d=await r.json();
+  let t=String(d&&d.responseData&&d.responseData.translatedText||'').trim();if(!t||/MYMEMORY|QUERY LENGTH|INVALID/i.test(t)||t.toLowerCase()===w.toLowerCase())return '';
+  t=t.replace(/[.!]+$/,'');return t.length>40?'':t.charAt(0).toLowerCase()+t.slice(1)}catch(e){return ''}}
+/* Điền những gì còn thiếu cho danh sách từ: nghĩa, loại từ, emoji, câu ví dụ theo trình độ. onStep(i,n) báo tiến độ. */
+async function autoComplete(ws,lv,onStep){let net=0,netFail=0,done=0;const out=ws.map(w=>({...w}));
+  const job=async w=>{const d=dictLookup(w.w);
+    if(d){w.vi=w.vi||d.vi;w.e=w.e||d.e;if(!w.s)w.s=d.s;w.src=w.src||'dict'}
+    let pos=w.p?normPos(w.p,w.w):'';
+    if(!pos&&!/\s/.test(w.w)){const np=await netPos(w.w);if(np)pos=np}
+    pos=pos?normPos(pos,w.w):guessPos(w.w);w.p=pos;
+    if(!w.vi){const t=await netVi(w.w);if(t){w.vi=t;w.auto=1;net++}else netFail++}
+    if(!w.e)w.e=emojiFor(w.w,pos);
+    if(!w.s){w.s=autoSents(w,lv,pos)[0].en;w.autoS=1}
+    onStep&&onStep(++done,out.length)};
+  const q=out.slice();await Promise.all([0,1,2,3].map(async()=>{while(q.length)await job(q.shift())}));
+  return {ws:out,net,netFail}}
+
 /* ===================== STORAGE ===================== */
 const K_VRECV='yle_vrecv_v1',K_LIBRECV='yle_librecv_v1',K_HWPROG='yle_hwprog_v1',K_PROG='yle_prog_v1',K_CUSTOM='yle_custom_v1',K_STUDENT='yle_student_v1',K_OUTBOX='yle_outbox_v1',K_HWLIST='yle_hwlist_v1',K_TKEY='yle_tkey_v1';
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -1510,9 +1625,9 @@ const hasWord=(s,w)=>wordRe(w).test(s);
 function fillFrame(f,w,vi){return f.replace(/\b([Aa]n?) ___/g,(m,a)=>{const x=art(w);return (a[0]==='A'?capF(x):x)+' '+w}).replace(/___/g,w)}
 function libTopic(x){
   const lv=RAW[x.lv]?x.lv:'starters',tp=x.id;
-  const words=(x.words||[]).filter(w=>w&&w.w).map(w=>({id:lv+'/'+tp+'/'+String(w.w).toLowerCase(),w:String(w.w),e:w.e||'🔤',vi:w.vi||'',s:w.s||`Can you say "${w.w}"?`,lv,tp,ps:[]}));
+  const words=(x.words||[]).filter(w=>w&&w.w).map(w=>{const pos=normPos(w.p,w.w);const au=autoSents({w:String(w.w),vi:w.vi||''},lv,pos);return {id:lv+'/'+tp+'/'+String(w.w).toLowerCase(),w:String(w.w),e:w.e||emojiFor(w.w,pos),vi:w.vi||'',s:w.s||au[0].en,lv,tp,ps:[],au,pos}});
   const pats=(x.pats||[]).filter(p=>p&&p.en);const frames=pats.filter(p=>p.en.includes('___')),plain=pats.filter(p=>!p.en.includes('___'));
-  words.forEach(o=>{frames.forEach(f=>o.ps.push({en:fillFrame(f.en,o.w),vi:(f.vi||'').replace(/___/g,o.vi)}));plain.forEach(p=>{if(hasWord(p.en,o.w))o.ps.push({en:p.en,vi:p.vi||''})})});
+  words.forEach(o=>{frames.forEach(f=>o.ps.push({en:fillFrame(f.en,o.w),vi:(f.vi||'').replace(/___/g,o.vi)}));plain.forEach(p=>{if(hasWord(p.en,o.w))o.ps.push({en:p.en,vi:p.vi||''})});o.ps.push(...o.au.filter(p=>p.en!==o.s).slice(0,frames.length?1:3));delete o.au});
   const show=plain.map(p=>({en:p.en,vi:p.vi||''})).concat(frames.map((f,k)=>{const o=words[k%Math.max(1,words.length)];return o?{en:fillFrame(f.en,o.w),vi:(f.vi||'').replace(/___/g,o.vi)}:null}).filter(Boolean));
   const dlg=[];const qf=frames.filter(f=>f.en.split(' – ')[0].trim().endsWith('?'));
   shuffle(words).forEach((o,k)=>{if(dlg.length>=5)return;const f=qf[k%Math.max(1,qf.length)];
@@ -1524,8 +1639,8 @@ function libTopic(x){
 function regLib(x){if(!x||!x.id)return null;const T=libTopic(x);LIBT[T.lv+'/'+T.id]=T;T.words.forEach(w=>WORDS[w.id]=w);return T}
 function b64e(str){const b=new TextEncoder().encode(str);let s='';for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64d(s){s=String(s).replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b)}
-function encLib(x){return b64e(JSON.stringify({i:x.id,n:x.name,v:x.vi,c:x.icon,l:x.lv,w:x.words.map(w=>[w.w,w.vi||'',w.e||'',w.s||'']),p:(x.pats||[]).map(p=>[p.en,p.vi||''])}))}
-function decLib(s){try{const o=JSON.parse(b64d(s));if(!o||!o.i||!Array.isArray(o.w))return null;const cl=v=>String(v==null?'':v).slice(0,200);return {id:String(o.i).replace(/[^A-Za-z0-9-]/g,'').slice(0,24),name:cl(o.n).slice(0,60),vi:cl(o.v).slice(0,60),icon:cl(o.c).slice(0,8)||'📘',lv:['starters','movers','flyers'].includes(o.l)?o.l:'starters',words:o.w.slice(0,40).map(a=>({w:cl(a[0]).slice(0,40),vi:cl(a[1]).slice(0,60),e:cl(a[2]).slice(0,8),s:cl(a[3])})).filter(w=>w.w),pats:(o.p||[]).slice(0,12).map(a=>({en:cl(a[0]),vi:cl(a[1])})).filter(p=>p.en)}}catch(e){return null}}
+function encLib(x){return b64e(JSON.stringify({i:x.id,n:x.name,v:x.vi,c:x.icon,l:x.lv,w:x.words.map(w=>[w.w,w.vi||'',w.e||'',w.s||'',w.p||'']),p:(x.pats||[]).map(p=>[p.en,p.vi||''])}))}
+function decLib(s){try{const o=JSON.parse(b64d(s));if(!o||!o.i||!Array.isArray(o.w))return null;const cl=v=>String(v==null?'':v).slice(0,200);return {id:String(o.i).replace(/[^A-Za-z0-9-]/g,'').slice(0,24),name:cl(o.n).slice(0,60),vi:cl(o.v).slice(0,60),icon:cl(o.c).slice(0,8)||'📘',lv:['starters','movers','flyers'].includes(o.l)?o.l:'starters',words:o.w.slice(0,40).map(a=>({w:cl(a[0]).slice(0,40),vi:cl(a[1]).slice(0,60),e:cl(a[2]).slice(0,8),s:cl(a[3]),p:POS_IN[cl(a[4])]||''})).filter(w=>w.w),pats:(o.p||[]).slice(0,12).map(a=>({en:cl(a[0]),vi:cl(a[1])})).filter(p=>p.en)}}catch(e){return null}}
 function dictLookup(word){const k=String(word).toLowerCase().trim();for(const w of Object.values(WORDS)){if(w.w.toLowerCase()===k&&!String(w.tp).startsWith('L'))return w}return null}
 buildData();
 function blankSentence(s,w){const re=wordRe(w);return re.test(s)?s.replace(re,'$1[[[$2]]]'):s+' ([[['+w+']]])'}
@@ -2382,47 +2497,58 @@ Return JSON only: [{"word":"...","meaning_vi":"...","emoji":"...","sentence_en":
     }catch(x){toast(x&&x.code==='not_granted'?'Bạn chưa cho phép dùng AI':'AI chưa trả lời được, thử lại sau')}
     btn.disabled=false;btn.textContent='✨ AI viết câu cho dòng thiếu câu'};
 }
-function libParseWords(txt){return String(txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [w,vi,e,s]=l.split('|').map(x=>(x||'').trim());return {w,vi,e,s}}).filter(x=>x.w)}
+function libParseWords(txt){return String(txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [w,vi,e,s,p]=l.split('|').map(x=>(x||'').trim());return {w,vi,e,s,p:POS_IN[(p||'').toLowerCase()]||''}}).filter(x=>x.w)}
+function libLine(w){return [w.w,w.vi||'',w.e||'',w.s||'',w.p?POS_LABEL[w.p]:''].join(' | ').replace(/( \| )+$/,'')}
 function libParsePats(txt){return String(txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi]=l.split('|').map(x=>(x||'').trim());return {en,vi}}).filter(x=>x.en)}
-function libAutoFill(ws){return ws.map(w=>{const d=dictLookup(w.w);return {w:w.w,vi:w.vi||(d?d.vi:''),e:w.e||(d?d.e:''),s:w.s||(d?d.s:''),src:d?'dict':''}})}
+function libAutoFill(ws){return ws.map(w=>{const d=dictLookup(w.w);return {w:w.w,p:w.p,vi:w.vi||(d?d.vi:''),e:w.e||(d?d.e:''),s:w.s||(d?d.s:''),src:d?'dict':''}})}
 function tCreate(){
   const ed=route.editLib&&C.lib[route.editLib]?C.lib[route.editLib]:null;const lv=ed?ed.lv:(route.createLv||route.teacherLv);
   $('#tbody').innerHTML=`
   <div class="card stack">
     <h3>${ed?'✏️ Sửa bài học':'✨ Tạo bài học mới từ từ vựng của bạn'}</h3>
     <p class="muted" style="margin:0;font-size:13px">App sẽ tạo bài học đầy đủ như các chủ đề có sẵn: thẻ từ, Nghe, Đọc, Ghép câu, Nói, Viết và hội thoại với ${esc(NAME)}. Bài được lưu vào <b>📚 Thư viện</b>, chỉ giáo viên thấy. Học sinh chỉ mở được khi bạn giao bài.</p>
-    <div><label>Trình độ</label>${levelSeg(lv,'data-clv')}</div>
+    <div><label>Trình độ chung cho tất cả từ vựng</label>${levelSeg(lv,'data-clv')}<p class="muted" style="margin:4px 0 0;font-size:13px">App đặt câu ví dụ và mẫu câu theo đúng trình độ này.</p></div>
     <div class="grid2"><div><label for="lb-name">Tên bài (tiếng Anh)</label><input type="text" id="lb-name" maxlength="60" value="${esc(ed?ed.name:'')}" placeholder="Unit 3: At the farm"></div><div><label for="lb-vi">Tên tiếng Việt</label><input type="text" id="lb-vi" maxlength="60" value="${esc(ed?ed.vi:'')}" placeholder="Ở nông trại"></div></div>
     <div><label for="lb-icon">Biểu tượng (emoji)</label><input type="text" id="lb-icon" maxlength="8" value="${esc(ed?ed.icon:'')}" placeholder="🚜"></div>
-    <div><label for="lb-words">Từ vựng – mỗi dòng: <code>từ | nghĩa | emoji | câu ví dụ</code></label>
-      <textarea id="lb-words" style="min-height:170px" placeholder="cow | con bò | 🐮 | The cow is in the field.&#10;horse&#10;duck | con vịt">${esc(ed?ed.words.map(w=>[w.w,w.vi,w.e,w.s].join(' | ').replace(/( \| )+$/,'')).join('\n'):'')}</textarea>
-      <p class="muted" style="margin:4px 0 0;font-size:13px">Chỉ cần gõ từ. Bấm <b>🔍 Điền tự động</b>: những từ có sẵn trong app (427 từ YLE) sẽ được điền nghĩa, emoji và câu ví dụ.</p></div>
+    <div><label for="lb-words">Từ vựng mới – mỗi dòng một từ hoặc cụm từ</label>
+      <textarea id="lb-words" style="min-height:170px" placeholder="cow&#10;tractor&#10;feed the animals&#10;muddy">${esc(ed?ed.words.map(libLine).join('\n'):'')}</textarea>
+      <p class="muted" style="margin:4px 0 0;font-size:13px">Chỉ cần gõ từ rồi bấm <b>✨ Tự hoàn thành</b>. App tự nhận ra từ có sẵn (427 từ YLE), tra loại từ, dịch nghĩa, chọn emoji và đặt câu theo trình độ. Mỗi dòng sẽ thành <code>từ | nghĩa | emoji | câu ví dụ | loại từ</code>; bạn sửa được bất kỳ phần nào (ví dụ đổi "danh từ" thành "động từ" để app đặt câu lại).</p></div>
     <div><label for="lb-pats">Mẫu câu của bài (không bắt buộc) – mỗi dòng: <code>câu | nghĩa</code></label>
       <textarea id="lb-pats" style="min-height:110px" placeholder="What's this? – It's a ___. | Đây là gì? – Đó là ___.&#10;I like ___. | Tớ thích ___.&#10;Let's go to the farm! | Cùng đi nông trại nào!">${esc(ed?(ed.pats||[]).map(p=>p.vi?p.en+' | '+p.vi:p.en).join('\n'):'')}</textarea>
       <p class="muted" style="margin:4px 0 0;font-size:13px">Dùng <b>___</b> (3 dấu gạch dưới) cho chỗ điền từ: app sẽ ghép từng từ vào để tạo câu luyện Nghe, Ghép câu, Nói và câu hỏi hội thoại. Câu hỏi có dạng <code>Hỏi? – Đáp.</code> sẽ thành câu hỏi của ${esc(NAME)}.</p></div>
-    <div class="row"><button class="btn" id="lb-fill">🔍 Điền tự động</button>${SAMPLE?'<button class="btn" id="lb-ai">✨ AI điền phần còn thiếu</button>':''}<button class="btn sun" id="lb-save">💾 Lưu vào Thư viện</button>${ed?'<button class="btn ghost" id="lb-cancel">Hủy sửa</button>':''}</div>
+    <div id="lb-status" class="muted" style="font-size:13px"></div>
+    <div class="row"><button class="btn sun" id="lb-fill">✨ Tự hoàn thành</button>${SAMPLE?'<button class="btn" id="lb-ai">✨ AI điền phần còn thiếu</button>':''}<button class="btn pri" id="lb-save">💾 Lưu vào Thư viện</button>${ed?'<button class="btn ghost" id="lb-cancel">Hủy sửa</button>':''}</div>
     <div id="lb-prev"></div>
   </div>`;
-  let curLv=lv;
-  document.querySelectorAll('[data-clv]').forEach(b=>b.onclick=()=>{curLv=b.dataset.clv;route.createLv=curLv;document.querySelectorAll('[data-clv]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.clv===curLv));setLv(curLv)});
+  let curLv=lv;const autoSet=new Set();
+  document.querySelectorAll('[data-clv]').forEach(b=>b.onclick=()=>{curLv=b.dataset.clv;route.createLv=curLv;document.querySelectorAll('[data-clv]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.clv===curLv));setLv(curLv);
+    const ws=libParseWords($('#lb-words').value);const ch=ws.filter(w=>w.s&&autoSet.has('s:'+w.w.toLowerCase()));if(ch.length){ws.forEach(w=>{if(autoSet.has('s:'+w.w.toLowerCase()))w.s=autoSents(w,curLv,normPos(w.p,w.w))[0].en});$('#lb-words').value=ws.map(libLine).join('\n');toast('Đã đặt lại câu ví dụ theo trình độ '+lvOf(curLv).name)}preview()});
   const collect=()=>({id:ed?ed.id:'L'+uid(8),name:$('#lb-name').value.trim(),vi:$('#lb-vi').value.trim(),icon:$('#lb-icon').value.trim()||'📘',lv:curLv,words:libParseWords($('#lb-words').value),pats:libParsePats($('#lb-pats').value),created:ed?ed.created:Date.now(),updated:Date.now()});
   const preview=()=>{if(!$('#lb-words')||!$('#lb-prev'))return;const x=collect();if(!x.words.length){$('#lb-prev').innerHTML='';return}const T=libTopic(x);const LS=lessonsOf(T);
-    const miss=x.words.filter(w=>!w.vi||!w.s).length;
+    const miss=x.words.filter(w=>!w.vi).length;
     $('#lb-prev').innerHTML=`<div class="stack" style="gap:8px"><h3>Xem trước</h3>
-      <div class="row" style="gap:6px"><span class="pill">${x.words.length} từ</span><span class="pill">${LS.length} bài nhỏ</span><span class="pill">${T.pats.length} mẫu câu</span><span class="pill">${T.dlg.length} câu hội thoại</span>${miss?`<span class="pill no">${miss} từ thiếu nghĩa hoặc câu</span>`:'<span class="pill ok">Đủ thông tin</span>'}</div>
-      <div class="tbl"><table class="t"><tr><th></th><th>Từ</th><th>Nghĩa</th><th>Câu ví dụ</th><th>Câu theo mẫu</th></tr>${T.words.map((w,i)=>{const r=x.words[i];return `<tr><td>${w.e}</td><td><b>${esc(w.w)}</b></td><td>${r.vi?esc(r.vi):'<span class="pill no">thiếu</span>'}</td><td>${r.s?esc(r.s):'<span class="pill no">thiếu – app sẽ dùng câu tạm</span>'}</td><td class="muted">${w.ps[0]?esc(w.ps[0].en):'—'}</td></tr>`}).join('')}</table></div>
+      <div class="row" style="gap:6px"><span class="pill">${x.words.length} từ</span><span class="pill">${LS.length} bài nhỏ</span><span class="pill">${T.pats.length} mẫu câu</span><span class="pill">${T.dlg.length} câu hội thoại</span>${miss?`<span class="pill no">${miss} từ thiếu nghĩa</span>`:'<span class="pill ok">Đủ thông tin</span>'}</div>
+      ${[...autoSet].some(k=>k.startsWith('vi:'))?'<p class="note" style="margin:0;font-size:13px">Nghĩa có nhãn <b>dịch máy</b> là do app dịch tự động: bạn xem lại cho đúng nghĩa trong bài nhé.</p>':''}
+      <div class="tbl"><table class="t"><tr><th></th><th>Từ</th><th>Loại</th><th>Nghĩa</th><th>Câu ví dụ</th><th>Câu luyện thêm</th></tr>${T.words.map((w,i)=>{const r=x.words[i];const k=r.w.toLowerCase();return `<tr><td>${w.e}</td><td><b>${esc(w.w)}</b></td><td class="muted">${POS_LABEL[w.pos]||''}</td><td>${r.vi?esc(r.vi)+(autoSet.has('vi:'+k)?' <span class="pill">dịch máy</span>':''):'<span class="pill no">thiếu</span>'}</td><td>${esc(w.s)}${r.s?'':' <span class="pill">tự đặt</span>'}</td><td class="muted">${w.ps.slice(0,2).map(p=>esc(p.en)).join('<br>')||'—'}</td></tr>`}).join('')}</table></div>
       ${x.words.length<3?'<p class="note" style="margin:0">Cần ít nhất 3 từ để tạo bài.</p>':''}</div>`};
   $('#lb-words').oninput=$('#lb-pats').oninput=()=>{clearTimeout(tCreate.t);tCreate.t=setTimeout(preview,400)};preview();
-  $('#lb-fill').onclick=()=>{const ws=libAutoFill(libParseWords($('#lb-words').value));const n=ws.filter(w=>w.src).length;$('#lb-words').value=ws.map(w=>[w.w,w.vi,w.e,w.s].join(' | ').replace(/( \| )+$/,'')).join('\n');preview();toast(n?`Đã điền tự động ${n} từ có sẵn trong app`:'Không có từ nào trùng với từ có sẵn. Bạn tự điền nghĩa và câu nhé.')};
+  const fill=async()=>{const ws=libParseWords($('#lb-words').value);if(!ws.length){toast('Gõ từ vựng trước nhé');return null}
+    const btn=$('#lb-fill'),st=$('#lb-status');btn.disabled=true;$('#lb-save').disabled=true;st.textContent=`Đang tra ${ws.length} từ…`;
+    const r=await autoComplete(ws,curLv,(i,n)=>{if(st)st.textContent=`Đang tra từ ${i}/${n}…`});
+    r.ws.forEach(w=>{const k=w.w.toLowerCase();if(w.auto)autoSet.add('vi:'+k);if(w.autoS)autoSet.add('s:'+k)});
+    if(!$('#lb-words'))return null;$('#lb-words').value=r.ws.map(libLine).join('\n');btn.disabled=false;$('#lb-save').disabled=false;
+    const known=r.ws.filter(w=>w.src).length;st.innerHTML=`✓ Xong ${r.ws.length} từ: ${known} từ có sẵn trong app, ${r.net} từ dịch tự động.${r.netFail?` <b style="color:var(--bad)">${r.netFail} từ chưa dịch được</b> (mất mạng hoặc từ hiếm), bạn gõ nghĩa vào sau dấu | thứ nhất nhé.`:''}`;
+    preview();return r};
+  $('#lb-fill').onclick=()=>fill();
   $('#lb-ai')&&($('#lb-ai').onclick=async e=>{const ws=libAutoFill(libParseWords($('#lb-words').value));const need=ws.filter(w=>!w.vi||!w.s||!w.e);if(!need.length)return toast('Từ nào cũng đã đủ thông tin');const L2=lvOf(curLv);const btn=e.target;btn.disabled=true;btn.textContent='AI đang điền…';
     try{const out=await SAMPLE.json(`For Vietnamese primary-school children learning English at Cambridge YLE ${L2.name} (CEFR ${L2.cefr}). For each word give: a short natural Vietnamese meaning, one fitting emoji, and ONE short example sentence (max 9 words) containing the word exactly, using only ${L2.name}-level grammar and vocabulary, safe and friendly for children.
 Words: ${JSON.stringify(need.map(w=>w.w))}
 Return JSON only: [{"word":"...","meaning_vi":"...","emoji":"...","sentence_en":"..."}]`,{modelTier:'quick'});
       const m=Object.fromEntries((Array.isArray(out)?out:[]).map(o=>[String(o.word).toLowerCase(),o]));
-      $('#lb-words').value=ws.map(w=>{const o=m[w.w.toLowerCase()];if(o){w.vi=w.vi||String(o.meaning_vi||'');w.e=w.e||String(o.emoji||'');w.s=w.s||String(o.sentence_en||'')}return [w.w,w.vi,w.e,w.s].join(' | ').replace(/( \| )+$/,'')}).join('\n');preview();toast('AI đã điền. Bạn xem lại rồi bấm Lưu.')}
+      $('#lb-words').value=ws.map(w=>{const o=m[w.w.toLowerCase()];if(o){w.vi=w.vi||String(o.meaning_vi||'');w.e=w.e||String(o.emoji||'');w.s=w.s||String(o.sentence_en||'')}return libLine(w)}).join('\n');preview();toast('AI đã điền. Bạn xem lại rồi bấm Lưu.')}
     catch(x){toast('AI chưa trả lời được, thử lại sau')}btn.disabled=false;btn.textContent='✨ AI điền phần còn thiếu'});
   $('#lb-cancel')&&($('#lb-cancel').onclick=()=>{route.editLib=null;go({tview:'lib'})});
-  $('#lb-save').onclick=()=>{const x=collect();if(!x.name)return toast('Nhập tên bài');if(x.words.length<3)return toast('Cần ít nhất 3 từ');if(x.words.length>40)return toast('Tối đa 40 từ cho một bài');
+  $('#lb-save').onclick=async()=>{if(libParseWords($('#lb-words').value).some(w=>!w.vi||!w.p)){if(!await fill())return}const x=collect();if(!x.name)return toast('Nhập tên bài');if(x.words.length<3)return toast('Cần ít nhất 3 từ');if(x.words.length>40)return toast('Tối đa 40 từ cho một bài');
     const seen=new Set();x.words=x.words.filter(w=>{const k=w.w.toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
     C.lib=C.lib||{};C.lib[x.id]=x;saveC();route.editLib=null;toast(ed?'Đã cập nhật bài trong Thư viện':'Đã lưu bài vào Thư viện');go({tview:'lib',libNew:x.id})};
 }
