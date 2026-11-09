@@ -247,6 +247,35 @@ table.t tr.clk:hover{background:var(--soft)}
 .lesson .les-em{font-size:24px;letter-spacing:2px;overflow-wrap:anywhere}
 .lesson.next{border-color:var(--sun);box-shadow:0 4px 0 var(--sun)}
 .lesson.done{border-color:color-mix(in srgb,var(--good) 50%,var(--line))}
+/* profile, feedback, saved patterns */
+.wface{font-size:64px;line-height:1;width:96px;height:96px;display:grid;place-items:center;border-radius:28px;background:var(--soft)}
+.wface.sm{font-size:28px;width:44px;height:44px;border-radius:14px}
+.pat{grid-template-columns:auto 1fr auto!important}
+.skills{display:flex;flex-direction:column;gap:6px}
+.skrow{display:grid;grid-template-columns:minmax(110px,150px) 1fr 44px;gap:8px;align-items:center;font-size:14px}
+.skrow b{text-align:right;font-variant-numeric:tabular-nums}
+.skbar{height:12px;border-radius:99px;background:var(--soft);overflow:hidden;border:1px solid var(--line)}
+.skbar i{display:block;height:100%;background:var(--sun);border-radius:99px}
+.skbar i.hi{background:var(--good)}
+.skbar i.lo{background:var(--bad)}
+.fbl{margin:4px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.fb p,.fb li{line-height:1.5}
+.fixrow{padding:8px 10px;border-radius:12px;background:var(--soft);display:flex;flex-direction:column;gap:2px}
+.fixrow .better{color:var(--ink)}
+/* streak + leaderboard + visits */
+.streak{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.streak .flame{font-size:48px;width:76px;height:76px;display:grid;place-items:center;border-radius:24px;background:color-mix(in srgb,var(--sun) 25%,var(--card))}
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lb li{display:grid;grid-template-columns:36px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--soft)}
+.lb li.you{outline:2px solid var(--sun);background:color-mix(in srgb,var(--sun) 18%,var(--card))}
+.lb .rk{font-family:var(--f-display);font-weight:800;font-size:18px;text-align:center}
+.lb b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .st{font-variant-numeric:tabular-nums;font-weight:600}
+.vbars{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;align-items:end;height:140px;overflow-x:auto}
+.vb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px;min-width:18px}
+.vb i{display:block;width:70%;min-height:2px;background:var(--lv);border-radius:4px 4px 0 0}
+.vb .vn{font-size:11px;font-variant-numeric:tabular-nums}
+.vb .vd{font-size:10px;color:var(--muted);white-space:nowrap}
 
 </style>
 </head>
@@ -1233,11 +1262,157 @@ The last question was {w}, wasn't it?|Câu hỏi cuối {vi}, phải không?|har
 Our teacher is very {w}.|Thầy cô của chúng tớ rất {vi}.|friendly
 Don't {w} your pencil!|Đừng {vi} bút chì nhé!|forget`}};
 
+/* ===================== LỜI NỐI TIẾP HỘI THOẠI =====================
+   Mỗi dòng ứng với một câu hỏi trong phần hội thoại (cùng thứ tự): câu tiếng Anh | nghĩa.
+   Câu nối tiếp phải hợp với mọi câu trả lời của học sinh và dẫn sang câu hỏi sau. */
+const REACT={
+'starters/body':`Your nose helps you smell flowers. Mmm, lovely!|Mũi giúp con ngửi hoa. Thơm quá!
+Eyes help us see. Now look at my hair!|Mắt giúp ta nhìn. Giờ nhìn tóc cô này!
+My hair is long and brown. Now let's move!|Tóc cô dài và nâu. Giờ mình vận động nhé!
+Let's jump together! One, two, three!|Mình cùng nhảy nào! Một, hai, ba!
+Spiders have got lots of legs. Thank you for playing!|Nhện có rất nhiều chân. Cảm ơn con đã chơi!`,
+'starters/zoo':`Yes, it's a big grey hippo. It's in the water!|Đúng, đó là con hà mã xám to. Nó đang ở dưới nước!
+Hippos are big and funny. Now look up at the tree!|Hà mã to và ngộ nghĩnh. Giờ nhìn lên cây kìa!
+The bird is singing a song. Now look at the lake!|Con chim đang hót. Giờ nhìn ra hồ nào!
+Look, the ducks are swimming in the lake. Quack, quack!|Nhìn kìa, đàn vịt đang bơi trên hồ. Cạp cạp!
+The frog is jumping into the water. Splash! What a fun day!|Con ếch nhảy xuống nước. Tõm! Một ngày thật vui!`,
+'starters/clothes':`That's a nice colour! Look at all these hats.|Màu đẹp quá! Nhìn những chiếc mũ này nào.
+OK! Now, look at my glasses.|Được rồi! Giờ nhìn kính của cô nhé.
+My glasses are blue. Oh, there's a bag on the chair!|Kính của cô màu xanh. Ồ, có cái túi trên ghế kìa!
+I'll put the bag here. Now, let's count some socks!|Cô để cái túi ở đây. Giờ mình đếm tất nào!
+Thank you for shopping with me. Goodbye!|Cảm ơn con đã đi mua sắm với cô. Tạm biệt!`,
+'starters/birthday':`Wow! Let's sing Happy Birthday together!|Ồ! Mình cùng hát Chúc mừng sinh nhật nhé!
+This cake is chocolate. It's yummy!|Bánh này vị sô-cô-la. Ngon lắm!
+Good manners! Look, there's a boy at the door.|Lễ phép quá! Nhìn kìa, có cậu bé ở cửa.
+He's got a present for you. Look at the balloons!|Cậu ấy có quà cho con. Nhìn những quả bóng bay kìa!
+Thank you! What a great party!|Cảm ơn con! Bữa tiệc thật tuyệt!`,
+'starters/food':`Yummy! I'd like rice and fish. Now, onions!|Ngon quá! Cô thích cơm và cá. Giờ đến hành tây!
+I don't like onions very much. But I love chocolate!|Cô không thích hành tây lắm. Nhưng cô mê sô-cô-la!
+Chocolate is sweet. Now let's have a drink.|Sô-cô-la ngọt lắm. Giờ mình uống gì đó nhé.
+Here's some water. Look, a big watermelon!|Nước đây. Nhìn kìa, một quả dưa hấu to!
+Watermelons are great on hot days. Thank you!|Dưa hấu rất tuyệt vào ngày nóng. Cảm ơn con!`,
+'starters/home':`I live in a flat. Now, let's go to the bedroom.|Cô sống ở căn hộ. Giờ mình vào phòng ngủ nhé.
+My bed is very soft. Now, the living room!|Giường cô rất êm. Giờ đến phòng khách!
+In my living room there's a big sofa. Oh, where's the cat?|Phòng khách cô có ghế sô-pha to. Ồ, con mèo đâu rồi?
+The cat is sleeping. Shh! Let's go outside.|Con mèo đang ngủ. Suỵt! Mình ra ngoài nhé.
+I've got a small garden with flowers. Thank you for visiting!|Cô có một khu vườn nhỏ trồng hoa. Cảm ơn con đã ghé thăm!`,
+'starters/school':`Good! I've got a red pencil. What are you doing now?|Tốt! Cô có bút chì đỏ. Giờ con đang làm gì?
+Great! I'm drawing a cat. Now, let's spell!|Hay quá! Cô đang vẽ con mèo. Giờ mình đánh vần nhé!
+P-E-N, pen! Now let's sing a song.|P-E-N, pen! Giờ mình hát một bài nhé.
+La la la! Music is fun. Now, let's play sports!|La la la! Âm nhạc thật vui. Giờ mình chơi thể thao nào!
+I can play basketball too. See you in class!|Cô cũng chơi bóng rổ. Hẹn gặp con ở lớp nhé!`,
+'starters/beach':`I like swimming in the sea. What do you like doing?|Cô thích bơi ở biển. Con thích làm gì?
+That's fun! Oh, look at this on the sand!|Vui quá! Ồ, nhìn cái này trên cát kìa!
+It's a pink shell. Oh, it's windy now!|Đó là vỏ sò màu hồng. Ồ, giờ có gió rồi!
+Look, the kite is in the sky! Now, walk on the sand.|Nhìn kìa, con diều bay trên trời! Giờ đi trên cát nhé.
+Let's put on our shoes. What a great day at the beach!|Mình đi giày vào nhé. Một ngày ở biển thật tuyệt!`,
+'starters/street':`I go to school by bus. Oh, look at that tree!|Cô đi học bằng xe buýt. Ồ, nhìn cái cây kia!
+The bird is in the tree. Listen! What's that noise?|Con chim ở trên cây. Nghe kìa! Tiếng gì thế?
+It's a helicopter in the sky! Now, look at my bike.|Đó là trực thăng trên trời! Giờ nhìn xe đạp của cô nhé.
+I ride my bike every day. Let's go somewhere!|Ngày nào cô cũng đạp xe. Mình đi đâu đó nhé!
+Let's run and play. See you in the park!|Mình chạy và chơi thôi. Hẹn gặp con ở công viên!`,
+'movers/today':`Sounds fun! It's cold today, isn't it?|Nghe vui quá! Hôm nay trời lạnh nhỉ?
+I'm wearing my scarf. Let's talk about your grandparents.|Cô đang quàng khăn. Mình nói về ông bà con nhé.
+My grandparents live in the countryside. What about the weekend?|Ông bà cô sống ở nông thôn. Còn cuối tuần thì sao?
+That's a good plan! I'm drinking coffee now.|Kế hoạch hay đấy! Cô đang uống cà phê.
+Coffee is for grown-ups. Milk is better for children! Bye!|Cà phê dành cho người lớn. Trẻ em uống sữa tốt hơn! Tạm biệt!`,
+'movers/toyshop':`Good choice! I like the panda best. Look at the whale!|Lựa chọn hay! Cô thích gấu trúc nhất. Nhìn cá voi kìa!
+A whale is bigger than a bus! Now look at the parrot.|Cá voi còn to hơn xe buýt! Giờ nhìn con vẹt nhé.
+My parrot can say "Hello!". Look at these roller skates.|Con vẹt của cô biết nói "Hello!". Nhìn đôi giày trượt này nào.
+They're the best skates in the shop. Oh, here's a clown!|Đó là đôi giày trượt đẹp nhất cửa hàng. Ồ, có chú hề kìa!
+The clown is laughing loudly. Thank you for coming!|Chú hề đang cười rất to. Cảm ơn con đã ghé!`,
+'movers/party':`Here's a glass for you. Now, the plates!|Ly của con đây. Giờ đến mấy cái đĩa!
+Thank you! The table looks great. Now, some food.|Cảm ơn con! Bàn ăn đẹp quá. Giờ đến đồ ăn.
+This cheese is from France. Shh, listen!|Phô mai này từ Pháp đó. Suỵt, nghe này!
+The baby is sleeping quietly now. Let's give Grandma some cake.|Em bé đang ngủ ngon rồi. Mình mang bánh cho bà nhé.
+Grandma is very happy. What a lovely party!|Bà vui lắm. Bữa tiệc thật dễ thương!`,
+'movers/doctor':`Oh dear! Let me look at your teeth.|Ôi! Để bác sĩ xem răng của con nhé.
+I can see your teeth are white. You must rest.|Răng con trắng lắm. Con phải nghỉ ngơi nhé.
+Good! Drink lots of water too. Now, about your teeth.|Tốt! Uống nhiều nước nữa nhé. Giờ nói về răng của con.
+Brush your teeth after breakfast and before bed. Tell me more.|Đánh răng sau bữa sáng và trước khi ngủ nhé. Kể thêm cho cô nghe.
+I hope you feel better soon! Goodbye!|Mong con mau khỏe! Tạm biệt!`,
+'movers/hotel':`The pool is very big and blue. Let's go to your room.|Hồ bơi rất to và xanh. Mình lên phòng của con nhé.
+Your room is on the third floor. It's cold tonight!|Phòng con ở tầng ba. Tối nay lạnh đấy!
+Here's a warm blanket. Your bathroom has got a shower.|Chăn ấm đây. Phòng tắm của con có vòi sen.
+The towels are in the bathroom. Is there anything else?|Khăn tắm ở trong phòng tắm. Con cần gì nữa không?
+Enjoy your stay at our hotel! Good night!|Chúc con ở khách sạn vui vẻ! Chúc ngủ ngon!`,
+'movers/jungle':`It's beautiful! Now look at that mountain.|Đẹp quá! Giờ nhìn ngọn núi kia nào.
+The mountain is very high. Listen, monkeys!|Ngọn núi rất cao. Nghe kìa, tiếng khỉ!
+The monkeys are jumping in the trees. Look, a map!|Lũ khỉ đang nhảy trên cây. Nhìn kìa, một tấm bản đồ!
+We found the treasure! Now, let's swim in the lake.|Mình tìm thấy kho báu rồi! Giờ đi bơi ở hồ nhé.
+The water is cool. What an adventure! Goodbye!|Nước mát quá. Một chuyến phiêu lưu tuyệt vời! Tạm biệt!`,
+'movers/weather':`Thank you! Yesterday was different, wasn't it?|Cảm ơn con! Hôm qua thời tiết khác nhỉ?
+I remember! Now, let's look at the calendar.|Cô nhớ rồi! Giờ mình xem lịch nhé.
+Good! Oh, the wind is very strong now.|Tốt lắm! Ồ, giờ gió mạnh quá.
+Look, my kite is flying high! What about Saturdays?|Nhìn kìa, diều của cô bay cao quá! Còn thứ Bảy thì sao?
+On Saturdays I play badminton. See you next week!|Thứ Bảy cô chơi cầu lông. Hẹn gặp con tuần sau!`,
+'movers/town':`Great! We can play basketball there. Now, books!|Tuyệt! Mình chơi bóng rổ ở đó nhé. Giờ đến sách!
+I buy books at the shopping centre. Tell me about the market.|Cô mua sách ở trung tâm mua sắm. Kể cô nghe về chợ nhé.
+I went to the market to buy fruit. Let's read now!|Cô đi chợ để mua trái cây. Giờ mình đọc sách nhé!
+The library is next to the square. Listen, a train!|Thư viện ở cạnh quảng trường. Nghe kìa, tiếng tàu!
+The train is leaving now. Thank you for showing me the town!|Đoàn tàu đang rời đi. Cảm ơn con đã dẫn cô đi dạo phố!`,
+'movers/holidays':`That sounds wonderful! Do you like water?|Nghe tuyệt quá! Con có thích nước không?
+I'm good at swimming too. Let's dress up!|Cô cũng bơi giỏi. Mình hóa trang nhé!
+I'm wearing a pirate hat! Yo ho ho! Let's sail.|Cô đội mũ cướp biển! Yo ho ho! Mình ra khơi nào.
+I caught a big fish last summer! Now, let's play a game.|Hè năm ngoái cô câu được con cá to! Giờ mình chơi trò chơi nhé.
+Hop, hop, hop! You're very good at games. Bye!|Lò cò, lò cò! Con chơi giỏi lắm. Tạm biệt!`,
+'movers/numbers':`I'll write it on my calendar! Now, your mum.|Cô sẽ ghi vào lịch! Giờ đến mẹ của con.
+Thank you! Now let's do some maths.|Cảm ơn con! Giờ mình làm toán nhé.
+Fifty-five, well done! Here's another question.|Năm mươi lăm, giỏi lắm! Câu hỏi tiếp theo đây.
+Seven days! Now, there was a race yesterday.|Bảy ngày! Hôm qua có một cuộc đua đấy.
+Anna was first and Ben was second. Thank you for counting with me!|Anna về nhất và Ben về nhì. Cảm ơn con đã đếm cùng cô!`,
+'flyers/meet':`That's great! Languages are fun to learn, aren't they?|Tuyệt quá! Học ngôn ngữ thật thú vị nhỉ?
+I love English too. Let's plan something!|Cô cũng yêu tiếng Anh. Mình lên kế hoạch nhé!
+I'll bring my rucksack. There's a competition next month!|Cô sẽ mang ba lô. Tháng sau có một cuộc thi đấy!
+I'm sure it will be wonderful. Let's talk about the calendar.|Cô chắc chắn sẽ rất tuyệt. Mình nói về lịch nhé.
+Twelve months, and each one is special! See you soon!|Mười hai tháng, tháng nào cũng đặc biệt! Hẹn sớm gặp lại!`,
+'flyers/autumn':`Let's make a pizza! It's delicious in autumn.|Mình làm pizza nhé! Mùa thu ăn pizza ngon lắm.
+I've got flour and cheese. Would you like something sweet?|Cô có bột và phô mai rồi. Con có muốn ăn gì ngọt không?
+Honey is made by bees. Oh, the milk is on the table!|Mật ong do ong làm ra. Ồ, sữa đang để trên bàn!
+Thank you! The pizza is ready. Let's talk about last night.|Cảm ơn con! Pizza xong rồi. Mình nói về tối qua nhé.
+I was reading a book last night. What a lovely autumn day!|Tối qua cô đang đọc sách. Một ngày thu thật đẹp!`,
+'flyers/funday':`The show is starting soon! Have you been to one before?|Buổi diễn sắp bắt đầu rồi! Con đã từng đi xem chưa?
+I went to a concert last year. It was amazing! Look, instruments!|Năm ngoái cô đi xem hòa nhạc. Tuyệt lắm! Nhìn kìa, nhạc cụ!
+I can play the violin a little. Now, the stage!|Cô chơi được chút đàn vi-ô-lông. Giờ đến sân khấu!
+That would be wonderful! The photographer is ready.|Như vậy thì tuyệt lắm! Nhiếp ảnh gia sẵn sàng rồi.
+Let's go on stage! You were wonderful today!|Mình lên sân khấu nào! Hôm nay con thật tuyệt!`,
+'flyers/winter':`It's snowing outside! What should we do?|Ngoài trời đang có tuyết! Mình nên làm gì nhỉ?
+Let's make a snowman! Then let's play a game inside.|Mình làm người tuyết nhé! Rồi chơi trò chơi trong nhà.
+I'm not very good at chess. Let's watch TV instead.|Cô chơi cờ vua không giỏi lắm. Mình xem ti vi nhé.
+I prefer cartoons to the news! Brr, it's cold.|Cô thích phim hoạt hình hơn tin tức! Brr, lạnh quá.
+Good idea! I'll wear my warm coat. Stay warm!|Ý hay! Cô sẽ mặc áo ấm. Giữ ấm nhé!`,
+'flyers/partyf':`Chopsticks are fun! How are you feeling at the party?|Đũa thú vị lắm! Con thấy bữa tiệc thế nào?
+I feel happy and lucky today. Look at these biscuits!|Hôm nay cô thấy vui và may mắn. Nhìn bánh quy này nào!
+These biscuits are delicious! Now, my tea needs sugar.|Bánh quy ngon quá! Giờ trà của cô cần chút đường.
+Thank you! Now the waiter is bringing soup.|Cảm ơn con! Giờ bồi bàn đang mang súp tới.
+I eat soup with a spoon too. What a special party!|Cô cũng ăn súp bằng thìa. Bữa tiệc thật đặc biệt!`,
+'flyers/spring':`I can see butterflies and flowers! Look at this table.|Cô thấy bươm bướm và hoa! Nhìn cái bàn này nào.
+This table is made of wood. Look in the tree!|Cái bàn làm bằng gỗ. Nhìn lên cây kìa!
+There's a nest with three eggs! Let's talk about school.|Có một tổ chim với ba quả trứng! Mình nói về trường học nhé.
+I usually walk across the bridge. One more question!|Cô thường đi bộ qua cây cầu. Thêm một câu hỏi nữa!
+Good! Let's protect the environment together. Happy spring!|Tốt lắm! Mình cùng bảo vệ môi trường nhé. Chúc mùa xuân vui vẻ!`,
+'flyers/adventure':`That sounds exciting! Let's pack our backpack.|Nghe hấp dẫn quá! Mình xếp ba lô nhé.
+I'll put a torch in it too. Look, a cave!|Cô sẽ bỏ thêm đèn pin. Nhìn kìa, một hang động!
+Let's turn on the torch. Now, let's look at the map.|Mình bật đèn pin nhé. Giờ xem bản đồ nào.
+We're going to travel south! It's night now.|Mình sẽ đi về phía Nam! Giờ trời tối rồi.
+Let's put up our tent. What a great adventure!|Mình dựng lều thôi. Một chuyến phiêu lưu tuyệt vời!`,
+'flyers/summer':`That's a wonderful job! Firefighters are brave too.|Nghề đó tuyệt quá! Lính cứu hỏa cũng rất dũng cảm.
+They're always ready to help. Look, a plane!|Họ luôn sẵn sàng giúp đỡ. Nhìn kìa, máy bay!
+The pilot is flying to Hanoi. I want to send a postcard.|Phi công đang bay ra Hà Nội. Cô muốn gửi một tấm bưu thiếp.
+I bought a stamp at the post office. Summer is fun!|Cô đã mua tem ở bưu điện. Mùa hè vui quá!
+I usually go to the beach. Have a great summer!|Cô thường đi biển. Chúc con mùa hè thật vui!`,
+'flyers/exam':`It's OK. You've studied hard! Let's plan for tomorrow.|Không sao đâu. Con đã học chăm rồi! Mình chuẩn bị cho ngày mai nhé.
+Good idea! Now let's check your pencil case.|Ý hay! Giờ kiểm tra hộp bút của con nhé.
+Put an eraser in your bag too. One more thing!|Bỏ thêm cục tẩy vào cặp nhé. Thêm một việc nữa!
+Yes, and listen carefully to the teacher. Good luck!|Đúng rồi, và nhớ nghe kỹ thầy cô nói nhé. Chúc may mắn!
+You're ready! I'm sure you'll do well!|Con sẵn sàng rồi! Cô chắc con sẽ làm tốt!`
+};
+
 /* ===================== STORAGE ===================== */
 const K_HWPROG='yle_hwprog_v1',K_PROG='yle_prog_v1',K_CUSTOM='yle_custom_v1',K_STUDENT='yle_student_v1',K_OUTBOX='yle_outbox_v1',K_HWLIST='yle_hwlist_v1',K_TKEY='yle_tkey_v1';
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-let P=load(K_PROG,null)||{};P=Object.assign({lessons:{},nb:{},stars:0,streak:{last:'',n:0},seen:{},badges:[],reviews:0,speakGood:0,chats:0},P);
+let P=load(K_PROG,null)||{};P=Object.assign({lessons:{},nb:{},stars:0,streak:{last:'',n:0},seen:{},badges:[],reviews:0,speakGood:0,chats:0},P);P.streak=Object.assign({last:'',n:0,freeze:1,best:0,used:0},P.streak);if(P.streak.best<P.streak.n)P.streak.best=P.streak.n;
 let C=load(K_CUSTOM,null)||{};C=Object.assign({topics:{starters:[],movers:[],flyers:[]},extra:{},videos:{}},C);
 let SHARED={topics:{starters:[],movers:[],flyers:[]},extra:{},videos:{}};
 const CFG=Object.assign({teacherPin:'2468',resultsUrl:'',mascotName:'Miss Tee',mascotIcon:'👩‍🏫'},window.APP_CONFIG||{});
@@ -1255,11 +1430,11 @@ function mergedCustom(){
 let LEVELS=[],WORDS={};
 function parseWords(text,lv,tp){return String(text||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [w,e,vi,s]=l.split('|').map(x=>(x||'').trim());return {id:lv+'/'+tp+'/'+w.toLowerCase(),w,e:e||'🔤',vi:vi||'',s:s||'',lv,tp}}).filter(x=>x.w)}
 function parsePats(t){return String(t||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim()}}).filter(p=>p.en)}
-function parseDlg(t){return String(t||'').replace(/\{name\}/g,NAME).split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [q,a,vi]=l.split('|');return {q:(q||'').trim(),ans:(a||'').split(';').map(x=>x.trim()).filter(Boolean),vi:(vi||'').trim()}}).filter(d=>d.q&&d.ans.length)}
+function parseDlg(t,rx){const R=String(rx||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim()}});return String(t||'').replace(/\{name\}/g,NAME).split('\n').map(l=>l.trim()).filter(Boolean).map((l,i)=>{const [q,a,vi]=l.split('|');return {q:(q||'').trim(),ans:(a||'').split(';').map(x=>x.trim()).filter(Boolean),vi:(vi||'').trim(),re:R[i]||null}}).filter(d=>d.q&&d.ans.length)}
 function buildData(){
   LEVELS=[];WORDS={};const MC=mergedCustom();
   for(const [lid,L] of Object.entries(RAW)){
-    const topics=L.topics.map(t=>({id:t.id,name:t.name,vi:t.vi,icon:t.icon,words:parseWords(t.words,lid,t.id),pats:parsePats(t.pats),dlg:parseDlg(t.dlg),custom:false}));
+    const topics=L.topics.map(t=>({id:t.id,name:t.name,vi:t.vi,icon:t.icon,words:parseWords(t.words,lid,t.id),pats:parsePats(t.pats),dlg:parseDlg(t.dlg,typeof REACT!=='undefined'?REACT[lid+'/'+t.id]:''),custom:false}));
     (MC.topics[lid]||[]).forEach(t=>topics.push({id:t.id,name:t.name,vi:t.vi||'',icon:t.icon||'📘',words:(t.words||[]).map(w=>({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})),pats:parsePats(t.pats),dlg:parseDlg(t.dlg),custom:true}));
     topics.forEach(t=>{(MC.extra[lid+'/'+t.id]||[]).forEach(w=>{if(!t.words.some(x=>x.w.toLowerCase()===w.w.toLowerCase()))t.words.push({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})});t.words.forEach(w=>WORDS[w.id]=w)});
     topics.forEach(t=>{const tpl=String(((typeof TPL!=='undefined'&&TPL[lid])||{})[t.id]||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi,ws]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim(),ws:(ws||'*').split(',').map(x=>x.trim().toLowerCase())}});
@@ -1302,7 +1477,87 @@ function capHTML(cap,reveal){return esc(cap).replace(/\[\[\[(.*?)\]\]\]/g,(m,g)=
 function distractors(word,n=2){const lv=lvOf(word.lv),t=topicOf(word.lv,word.tp);let pool=(t?t.words:[]).filter(x=>x.w!==word.w);if(pool.length<n)pool=pool.concat(lv.topics.flatMap(x=>x.words).filter(x=>x.w!==word.w&&!pool.includes(x)));return shuffle(pool).slice(0,n)}
 const fmtTime=ts=>{if(!ts)return '';const d=new Date(ts);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' '+d.getDate()+'/'+(d.getMonth()+1)};
 const fmtDur=s=>{s=Math.round(s||0);return s<60?s+' giây':Math.floor(s/60)+' phút '+(s%60)+' giây'};
-const GAME_NAME={cards:'🃏 Thẻ',listen:'🎧 Nghe',read:'📖 Đọc',build:'🧩 Câu',speak:'🎙️ Nói',write:'✏️ Viết'};
+const GAME_NAME={cards:'🃏 Thẻ',listen:'🎧 Nghe',read:'📖 Đọc',build:'🧩 Câu',speak:'🎙️ Nói',write:'✏️ Viết',saysent:'🗣️ Đọc câu'};
+
+/* ===================== STREAK, DEVICE, ONLINE ===================== */
+function dayNum(d){const [y,m,dd]=String(d).split('-').map(Number);return Math.round(Date.UTC(y,(m||1)-1,dd||1)/DAY)}
+const numToDay=n=>{n=String(n);return n.length===8?n.slice(0,4)+'-'+n.slice(4,6)+'-'+n.slice(6):''};
+function streakState(){const S=P.streak;if(!S.last)return {n:0,alive:false,missed:0,freeze:S.freeze,best:S.best,today:false};const missed=Math.max(0,dayNum(today())-dayNum(S.last)-1);const alive=missed<=S.freeze;return {n:alive?S.n:0,alive,missed,freeze:S.freeze,best:S.best,today:S.last===today(),lost:!alive&&S.n>0?S.n:0}}
+const K_DEV='yle_dev_v1';const devId=(()=>{let d=load(K_DEV,'');if(!d){d=uid(12);save(K_DEV,d)}return d})();
+function ping(open){if(!CFG.resultsUrl||IN_FRAME)return;const st=me();if(!st.name)return;const ss=streakState();
+  try{fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'ping',dev:devId,name:st.name,cls:st.cls,stars:P.stars,streak:ss.n,best:P.streak.best,freeze:P.streak.freeze,last:P.streak.last,open:!!open,day:today(),ts:Date.now()})}).catch(()=>{})}catch(e){}}
+let pingT=0;function pingSoon(){clearTimeout(pingT);pingT=setTimeout(()=>ping(false),2500)}
+let TOP=null,TOPT=0;
+async function loadTop(force){if(!CFG.resultsUrl||IN_FRAME)return null;if(!force&&TOP&&Date.now()-TOPT<60000)return TOP;try{const r=await getJSON({action:'top',dev:devId});if(r&&r.ok){TOP=r;TOPT=Date.now()}}catch(e){}return TOP}
+
+/* ===================== STUDENT PROFILE + TOPIC STATS ===================== */
+const me=()=>Object.assign({name:'',cls:''},load(K_STUDENT,{})||{});
+const SKILL_VI={listen:'Nghe hiểu',read:'Đọc – nhận diện từ',build:'Ghép câu theo mẫu',speak:'Nói – phát âm',write:'Viết chính tả',saysent:'Đọc to mẫu câu'};
+const SKILL_TIP={listen:'nghe lại câu ở chế độ 🐢 chậm rồi đọc theo.',read:'lật lại thẻ từ, nhìn hình và nói to từ đó.',build:'đọc to các mẫu câu trọng tâm vài lần trước khi ghép.',speak:'bấm 🔊 Nghe mẫu, rồi nói chậm và rõ từng âm.',write:'đánh vần từng chữ cái thành tiếng trước khi xếp chữ.',saysent:'nghe câu mẫu rồi đọc theo từng cụm ngắn.'};
+const SK_ORDER=['listen','read','build','speak','write','saysent'];
+function statRec(w,g,ok){if(!w||!w.lv||!w.tp||String(w.id).startsWith('pat:'))return;P.stats=P.stats||{};const k=w.lv+'/'+w.tp;const s=P.stats[k]||(P.stats[k]={sk:{},w:{}});const a=s.sk[g]||(s.sk[g]=[0,0]);a[1]++;if(ok)a[0]++;const b=s.w[w.w]||(s.w[w.w]=[0,0]);b[1]++;if(ok)b[0]++;s.ts=Date.now()}
+function statSkip(w,g){if(!w||!w.lv||!w.tp||String(w.id).startsWith('pat:'))return;P.stats=P.stats||{};const k=w.lv+'/'+w.tp;const s=P.stats[k]||(P.stats[k]={sk:{},w:{}});s.skip=s.skip||{};s.skip[g]=(s.skip[g]||0)+1}
+const topicStats=T=>T&&T.words[0]?(P.stats||{})[T.words[0].lv+'/'+T.id]||null:null;
+function statsFromItems(items){const s={sk:{},w:{}};s.skip={};(items||[]).forEach(it=>{if(!it||!it.g||it.g==='cards')return;if(it.note==='bỏ qua'){s.skip[it.g]=(s.skip[it.g]||0)+1;return}const a=s.sk[it.g]||(s.sk[it.g]=[0,0]);a[1]++;if(it.ok)a[0]++;const b=s.w[it.w]||(s.w[it.w]=[0,0]);b[1]++;if(it.ok)b[0]++});return s}
+function feedbackOf(s){
+  const keys=SK_ORDER.concat(Object.keys(s.sk||{}).filter(g=>!SK_ORDER.includes(g)));
+  const sk=keys.filter(g=>s.sk[g]&&s.sk[g][1]>0).map(g=>({g,ok:s.sk[g][0],n:s.sk[g][1],p:s.sk[g][0]/s.sk[g][1]}));
+  const tot=sk.reduce((a,x)=>a+x.n,0),okN=sk.reduce((a,x)=>a+x.ok,0),pct=tot?okN/tot:0;
+  const good=sk.filter(x=>x.p>=.8&&x.n>=2),weak=sk.filter(x=>x.p<.6&&x.n>=2).sort((a,b)=>a.p-b.p);
+  const best=sk.slice().sort((a,b)=>b.p-a.p)[0]||null;
+  const words=Object.entries(s.w||{}).filter(([w,[o,n]])=>n>=2&&o/n<.6).sort((a,b)=>a[1][0]/a[1][1]-b[1][0]/b[1][1]).slice(0,6).map(([w])=>w);
+  const skipped=Object.entries(s.skip||{}).filter(([g,c])=>c>=Math.max(1,(s.sk[g]||[0,0])[1])).map(([g])=>g);
+  return {sk,pct,tot,okN,good,weak,best,words,skipped}}
+const pc=x=>Math.round(x*100)+'%';
+function fbBars(f){return `<div class="skills">${f.sk.map(x=>`<div class="skrow"><span>${SKILL_VI[x.g]||esc(x.g)}</span><span class="skbar"><i class="${x.p>=.8?'hi':x.p<.6?'lo':''}" style="width:${Math.round(x.p*100)}%"></i></span><b>${pc(x.p)}</b></div>`).join('')}</div>`}
+function fbText(f,nm){
+  const who=nm?esc(nm):'Con';
+  const head=f.pct>=.85?'Xuất sắc! 🌟':f.pct>=.65?'Làm tốt lắm! 👏':'Con đã cố gắng rồi, mình luyện thêm chút nữa nhé! 💪';
+  let h=`<p style="margin:0"><b>${head}</b> ${who} làm đúng <b>${pc(f.pct)}</b> (${f.okN}/${f.tot} câu${f.skipped&&f.skipped.length?', không tính phần đã bỏ qua':''}).</p>`;
+  if(f.good.length)h+=`<p style="margin:0">👍 <b>Làm tốt:</b> ${f.good.map(x=>`${SKILL_VI[x.g]||esc(x.g)} (${pc(x.p)})`).join(', ')}.</p>`;
+  else if(f.best)h+=`<p style="margin:0">👍 <b>Phần làm tốt nhất:</b> ${SKILL_VI[f.best.g]||esc(f.best.g)} (${pc(f.best.p)}).</p>`;
+  if(f.weak.length)h+=`<div>🎯 <b>Cần cải thiện:</b><ul class="fbl">${f.weak.map(x=>`<li><b>${SKILL_VI[x.g]||esc(x.g)}</b> (${pc(x.p)}): ${SKILL_TIP[x.g]?'con hãy '+SKILL_TIP[x.g]:''}</li>`).join('')}</ul></div>`;
+  else h+=`<p style="margin:0">🎯 Không có phần nào dưới 60%. Giữ vững phong độ nhé!</p>`;
+  if(f.skipped&&f.skipped.length)h+=`<p style="margin:0">⏭ Phần đã bỏ qua: ${f.skipped.map(g=>SKILL_VI[g]||esc(g)).join(', ')}. Khi sẵn sàng, con thử làm phần này nhé.</p>`;
+  if(f.words.length)h+=`<p style="margin:0">📌 <b>Từ hay sai:</b> ${f.words.map(esc).join(', ')}.</p>`;
+  return h}
+function fbCard(f,title,extra){return f.tot?`<div class="card stack fb" style="gap:10px"><h3>${title}</h3>${fbBars(f)}${fbText(f)}${extra||''}</div>`:''}
+function topicComplete(T){const L=lessonsOf(T);return L.length>0&&L.every((_,k)=>lessonDone(T,k))}
+function topicFbCard(T){
+  const s=topicStats(T);if(!s)return '';const f=feedbackOf(s);if(!f.tot)return '';
+  const LS=lessonsOf(T);const d=LS.filter((_,k)=>lessonDone(T,k)).length;
+  if(!topicComplete(T))return `<div class="card stack fb" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>📊 Kết quả chủ đề</h3><span class="pill wait">${d}/${LS.length} bài</span></div>${fbBars(f)}<p class="muted" style="margin:0;font-size:13px">Đến giờ con làm đúng ${pc(f.pct)}. Hoàn thành cả ${LS.length} bài để nhận nhận xét của ${esc(NAME)} nhé!</p></div>`;
+  return fbCard(f,`${MICON} Nhận xét của ${esc(NAME)} · ${esc(T.name)}`,f.words.length?`<div><button class="btn sm" data-fbsave="${esc(T.words[0].lv+'|'+T.id)}">＋ Lưu các từ hay sai vào Sổ</button></div>`:'')}
+function bindFb(){document.querySelectorAll('[data-fbsave]').forEach(b=>b.onclick=()=>{const [lv,tp]=b.dataset.fbsave.split('|');const T=topicOf(lv,tp);if(!T)return;feedbackOf(topicStats(T)).words.forEach(w=>{const x=T.words.find(z=>z.w===w);if(x)addNb(x.id)});b.textContent='✓ Đã lưu vào Sổ';b.disabled=true})}
+function vWelcome(){
+  const st=me();
+  $('#view').innerHTML=`<section class="stack" style="max-width:440px;margin:24px auto 0">
+   <div class="card stack" style="align-items:center;text-align:center;gap:10px">
+    <div class="wface" aria-hidden="true">${MICON}</div>
+    <h1>${st.name?'Đổi tên':'Chào con!'}</h1>
+    <p style="margin:0">Cô là <b>${esc(NAME)}</b>. Cô sẽ cùng con học tiếng Anh mỗi ngày. Con tên là gì?</p>
+    <form id="wf" class="stack" style="gap:10px;width:100%;text-align:left">
+     <div><label for="w-name">Tên của con</label><input type="text" id="w-name" maxlength="40" value="${esc(st.name)}" placeholder="Ví dụ: Minh Anh" autocomplete="off" required></div>
+     <div><label for="w-cls">Lớp (không bắt buộc)</label><input type="text" id="w-cls" maxlength="20" value="${esc(st.cls)}" placeholder="Ví dụ: 3A" autocomplete="off"></div>
+     <p class="muted" style="margin:0;font-size:13px">Chỉ cần tên gọi. Không cần nhập địa chỉ hay số điện thoại.</p>
+     <button class="btn sun big">${st.name?'Lưu tên':'Bắt đầu học →'}</button>
+    </form>
+   </div>
+   <p class="muted" style="text-align:center;font-size:13px;margin:0">Thầy cô? <button class="btn sm ghost" id="w-t">Vào khu Giáo viên</button></p>
+  </section>`;
+  $('#w-name').focus();
+  $('#wf').onsubmit=e=>{e.preventDefault();const name=$('#w-name').value.trim();if(!name)return toast('Con nhập tên nhé');save(K_STUDENT,{name,cls:$('#w-cls').value.trim()});toast('Chào '+name+'! 👋');ping(true);TOP=null;go({tab:'home'})};
+  $('#w-t').onclick=()=>go({tab:'teacher'});
+}
+
+/* ===================== SAVED PATTERNS ===================== */
+const patKey=(lv,tp,en)=>lv+'/'+tp+'/'+en.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,60);
+const inPats=k=>!!(P.pats&&P.pats[k]);
+function togglePat(lv,tp,p){P.pats=P.pats||{};const k=patKey(lv,tp,p.en);if(P.pats[k])delete P.pats[k];else P.pats[k]={en:p.en,vi:p.vi||'',lv,tp,box:0,due:Date.now(),added:Date.now()};saveP();return !!P.pats[k]}
+function savePat(lv,tp,p){P.pats=P.pats||{};const k=patKey(lv,tp,p.en);if(!P.pats[k])P.pats[k]={en:p.en,vi:p.vi||'',lv,tp,box:0,due:Date.now(),added:Date.now()};saveP()}
+const duePats=()=>Object.entries(P.pats||{}).filter(([k,x])=>x.due<=Date.now()).sort((a,b)=>a[1].due-b[1].due);
+function patWord(k,x){const toks=x.en.split(/[\s–]+/).map(t=>t.replace(/[^A-Za-z'-]/g,'')).filter(Boolean);const kw=toks.slice().sort((a,b)=>b.length-a.length)[0]||'word';return {id:'pat:'+k,pat:k,w:kw,e:'💬',vi:x.vi,s:x.en,ps:[{en:x.en,vi:x.vi}],lv:x.lv,tp:x.tp}}
+function startPatSession(list){const ws=list.slice(0,5).map(([k,x])=>patWord(k,x));if(!ws.length)return toast('Chưa có mẫu câu đến hạn');startSession(ws,'Ôn mẫu câu đã lưu',0,{games:'py'})}
 
 /* ===================== GAMIFICATION ===================== */
 const PETS=[[0,'🥚','Trứng thần kỳ'],[15,'🐣','Chim non vừa nở'],[50,'🐥','Gà con lon ton'],[120,'🦜','Vẹt biết nói'],[250,'🦚','Công rực rỡ'],[500,'🐉','Rồng bay']];
@@ -1321,7 +1576,14 @@ const BADGES=[
 ];
 function addStars(n){
   P.stars+=n;const t=today();
-  if(P.streak.last!==t){const ys=ymd(new Date(Date.now()-DAY));P.streak.n=P.streak.last===ys?P.streak.n+1:1;P.streak.last=t}
+  const S=P.streak;
+  if(S.last!==t){const missed=S.last?Math.max(0,dayNum(t)-dayNum(S.last)-1):0;
+    if(!S.last||missed===0)S.n=S.last?S.n+1:1;
+    else if(missed<=S.freeze){S.freeze-=missed;S.used+=missed;S.n++;setTimeout(()=>toast(`🧊 Đã dùng ${missed} lần đóng băng để giữ chuỗi ${S.n} ngày!`),600)}
+    else{if(S.n>1)setTimeout(()=>toast('Chuỗi cũ đã mất. Bắt đầu chuỗi mới hôm nay nhé! 🔥'),600);S.n=1}
+    S.last=t;if(S.n>S.best)S.best=S.n;
+    if(S.n>0&&S.n%10===0&&S.freeze<3){S.freeze++;setTimeout(()=>{toast('🧊 Giữ chuỗi 10 ngày: con nhận thêm 1 lần đóng băng!');confetti()},1200)}}
+  pingSoon();
   checkBadges();saveP();
 }
 function checkBadges(){BADGES.forEach(([id,ic,name,f])=>{if(!P.badges.includes(id)&&f(P)){P.badges.push(id);setTimeout(()=>{toast(`Huy hiệu mới: ${ic} ${name}`);confetti()},300)}})}
@@ -1329,7 +1591,7 @@ const inNb=id=>!!P.nb[id];
 function addNb(id){if(!P.nb[id]){P.nb[id]={box:0,due:Date.now(),added:Date.now()};checkBadges();saveP()}}
 function toggleNb(id){if(P.nb[id])delete P.nb[id];else{P.nb[id]={box:0,due:Date.now(),added:Date.now()};checkBadges()}saveP()}
 const dueList=()=>Object.entries(P.nb).filter(([id,x])=>WORDS[id]&&x.due<=Date.now()).sort((a,b)=>a[1].due-b[1].due).map(([id])=>WORDS[id]);
-function updHdr(){$('#hdr-stars').textContent=P.stars;$('#hdr-streak').textContent=P.streak.n;const d=dueList().length;$('#due-dot').innerHTML=d?`<span class="badge-dot">${d}</span>`:''}
+function updHdr(){$('#hdr-stars').textContent=P.stars;$('#hdr-streak').textContent=streakState().n;const d=dueList().length+duePats().length;$('#due-dot').innerHTML=d?`<span class="badge-dot">${d}</span>`:''}
 function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const c=document.createElement('canvas');c.className='confetti';document.body.appendChild(c);const x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const cols=['#F2B52A','#2B9A57','#2C7CCB','#D9741A','#D04545'];const ps=Array.from({length:90},()=>({x:innerWidth/2,y:innerHeight*.4,vx:(Math.random()-.5)*12,vy:Math.random()*-12-3,s:Math.random()*6+4,c:cols[Math.floor(Math.random()*5)]}));let f=0;(function tick(){x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.vy+=.4;p.x+=p.vx;p.y+=p.vy;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.s,p.s)});if(++f<80)requestAnimationFrame(tick);else c.remove()})()}
 
 /* memes: original captions, kid-safe */
@@ -1390,6 +1652,7 @@ function go(r){Object.assign(route,r);render();window.scrollTo(0,0)}
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{if(SESSION&&route.tab==='session'&&SESSION.hw&&!SESSION.finished){toast('Bé làm xong bài tập rồi hãy chuyển trang nhé');return}go({tab:b.dataset.tab,tp:null,hwView:null})});
 function render(){
   if(SESSION&&route.tab==='session')return renderSession();
+  if(route.tab==='welcome'||(!me().name&&!['teacher','hw'].includes(route.tab))){document.querySelectorAll('nav.tabs button').forEach(b=>b.removeAttribute('aria-current'));setLv('starters');return vWelcome()}
   document.querySelectorAll('nav.tabs button').forEach(b=>{if(b.dataset.tab===route.tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   setLv(route.tab==='teacher'?route.teacherLv:route.tab==='chat'?CHAT.lv:route.tab==='hw'&&HW?HW.lv:route.lv);
   ({home:vHome,learn:route.tp?vTopic:vLearn,notebook:vNotebook,chat:vChat,teacher:vTeacher,hw:vHw})[route.tab]();
@@ -1398,9 +1661,10 @@ function render(){
 
 /* ===================== VIEWS ===================== */
 function vHome(){
-  const {cur,next}=petOf(P.stars);const due=dueList();
+  const {cur,next}=petOf(P.stars);const due=dueList();const dp=duePats();
   const pct=next?Math.round((P.stars-cur[0])/(next[0]-cur[0])*100):100;
   $('#view').innerHTML=`
+  <div class="row" style="justify-content:space-between"><h1>Chào ${esc(me().name)}! 👋</h1><button class="btn sm ghost" id="chg">✏️ Đổi tên</button></div>
   <section class="card pet">
     <div class="face" aria-hidden="true">${cur[1]}</div>
     <div class="stack" style="gap:6px;min-width:0">
@@ -1410,13 +1674,15 @@ function vHome(){
       <span class="muted" style="font-size:13px">${next?`Thêm ${next[0]-P.stars} ⭐ nữa để thú cưng lớn lên ${next[1]}`:'Thú cưng đã lớn hết cỡ!'}</span>
     </div>
   </section>
+  ${streakCard()}
+  ${CFG.resultsUrl&&!IN_FRAME?`<section class="card stack" style="gap:10px" id="lb"><div class="row" style="justify-content:space-between"><h3>🏆 Bảng vàng</h3><span class="muted" style="font-size:12px">6 bạn nhiều sao nhất</span></div><div id="lb-body" class="muted">Đang tải…</div></section>`:''}
   <section class="card stack" style="gap:10px">
     <div class="row" style="justify-content:space-between">
-      <div><span class="tag">Hôm nay</span><h2>${due.length?`${due.length} từ đến hạn ôn`:'Không có từ nào cần ôn'}</h2></div>
-      <span class="chip">📒 ${Object.keys(P.nb).length} từ trong sổ</span>
+      <div><span class="tag">Hôm nay</span><h2>${due.length||dp.length?[due.length?`${due.length} từ`:'',dp.length?`${dp.length} mẫu câu`:''].filter(Boolean).join(' · ')+' đến hạn ôn':'Không có gì cần ôn'}</h2></div>
+      <span class="chip">📒 ${Object.keys(P.nb).length} từ · ${Object.keys(P.pats||{}).length} câu</span>
     </div>
     <p class="muted" style="margin:0">Mỗi lượt gồm Thẻ từ → Nghe → Đọc → Ghép câu → Nói → Viết. Từ nào bé đã biết thì bỏ qua. Trả lời đúng để nhận ⭐ nuôi thú cưng.</p>
-    <div class="row">${due.length?`<button class="btn sun big" id="go-review">▶ Ôn tập ngay</button>`:`<button class="btn pri big" id="go-learn">🎬 Học từ mới</button>`}<button class="btn big" id="go-chat">💬 Nói chuyện với ${NAME}</button></div>
+    <div class="row">${due.length?`<button class="btn sun big" id="go-review">▶ Ôn từ vựng</button>`:''}${dp.length?`<button class="btn sun big" id="go-pats">▶ Ôn mẫu câu</button>`:''}${due.length||dp.length?'':`<button class="btn pri big" id="go-learn">🎬 Học từ mới</button>`}<button class="btn big" id="go-chat">💬 Nói chuyện với ${NAME}</button></div>
   </section>
   <section class="stack" style="gap:10px">
     <h3>Chọn trình độ</h3>
@@ -1428,9 +1694,17 @@ function vHome(){
   </section>`;
   $('#go-review')&&($('#go-review').onclick=()=>startSession(dueList(),'Ôn tập hôm nay'));
   $('#go-learn')&&($('#go-learn').onclick=()=>go({tab:'learn'}));
+  $('#go-pats')&&($('#go-pats').onclick=()=>startPatSession(duePats()));
+  $('#chg').onclick=()=>go({tab:'welcome'});
+  if($('#lb'))loadTop().then(r=>{const b=$('#lb-body');if(!b||route.tab!=='home')return;b.classList.remove('muted');b.innerHTML=lbHTML(r)});
   $('#go-chat').onclick=()=>go({tab:'chat'});
   document.querySelectorAll('.lvcard').forEach(b=>b.onclick=()=>go({tab:'learn',lv:b.dataset.lv,tp:null}));
 }
+function streakCard(){const ss=streakState();const S=P.streak;
+  const msg=ss.today?'Hôm nay con đã học rồi. Giỏi lắm! ✓':ss.lost?`Chuỗi ${ss.lost} ngày đã mất vì con nghỉ quá lâu. Học hôm nay để bắt đầu chuỗi mới nhé!`:ss.missed?`Con đã nghỉ ${ss.missed} ngày. Học hôm nay, ${ss.missed} lần đóng băng 🧊 sẽ giữ chuỗi cho con!`:S.last?'Học hôm nay để chuỗi tăng lên nhé!':'Học bài đầu tiên để bắt đầu chuỗi ngày học!';
+  return `<section class="card streak"><div class="flame" aria-hidden="true">🔥</div><div class="stack" style="gap:4px;min-width:0"><span class="tag">Chuỗi ngày học</span><h2>${ss.n} ngày liên tiếp</h2><div class="row" style="gap:6px"><span class="pill">🧊 ${S.freeze} lần đóng băng</span><span class="pill">🏅 Kỷ lục ${S.best} ngày</span></div><span style="font-size:14px">${msg}</span><span class="muted" style="font-size:12px">Nghỉ 1 ngày sẽ dùng 1 lần đóng băng để giữ chuỗi. Hết đóng băng mà nghỉ thì chuỗi mất. Giữ chuỗi mỗi 10 ngày được thêm 1 lần đóng băng.</span></div></section>`}
+function lbHTML(r){if(!r)return '<span class="muted">Chưa tải được bảng vàng. Kiểm tra mạng nhé.</span>';const it=r.items||[];if(!it.length)return '<span class="muted">Chưa có ai. Con hãy là người đầu tiên!</span>';
+  return `<ol class="lb">${it.map((x,k)=>`<li class="${x.you?'you':''}"><span class="rk">${k<3?['🥇','🥈','🥉'][k]:k+1}</span><b>${esc(x.name)}${x.you?' (con)':''}</b><span class="st">⭐ ${x.stars}</span></li>`).join('')}</ol>${r.yourRank&&r.yourRank>it.length?`<p class="muted" style="margin:6px 0 0;font-size:13px">Con đang đứng thứ ${r.yourRank} với ⭐ ${P.stars}. Cố lên nào!</p>`:''}`}
 function levelSeg(cur,attr){return `<div class="seg" role="group" aria-label="Trình độ">${LEVELS.map(l=>`<button ${attr}="${l.id}" aria-pressed="${l.id===cur}">${l.name} <span style="opacity:.75;font-weight:400">${l.cefr}</span></button>`).join('')}</div>`}
 function vLearn(){
   const L=lvOf(route.lv);
@@ -1442,8 +1716,9 @@ function vLearn(){
   document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>go({lv:b.dataset.lv}));
   document.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>go({tp:b.dataset.tp}));
 }
-function patsHTML(T){return T.pats.length?`<div class="card stack" style="gap:10px"><h3>💬 Mẫu câu trọng tâm</h3><div class="pats">${T.pats.map((p,k)=>`<div class="pat"><button class="btn sm ghost" data-pat="${k}" aria-label="Nghe mẫu câu">🔊</button><div style="min-width:0"><b>${esc(p.en)}</b><span>${esc(p.vi)}</span></div></div>`).join('')}</div></div>`:''}
-function bindPats(T){document.querySelectorAll('[data-pat]').forEach(b=>b.onclick=()=>speak(T.pats[+b.dataset.pat].en.replace(/–/g,'.')))}
+function patsHTML(T){const lv=T.words[0]?T.words[0].lv:'';return T.pats.length?`<div class="card stack" style="gap:10px"><h3>💬 Mẫu câu trọng tâm</h3><p class="muted" style="margin:0;font-size:13px">Bấm ＋ Sổ để lưu mẫu câu và ôn lại trong Sổ.</p><div class="pats">${T.pats.map((p,k)=>{const on=inPats(patKey(lv,T.id,p.en));return `<div class="pat"><button class="btn sm ghost" data-pat="${k}" aria-label="Nghe mẫu câu">🔊</button><div style="min-width:0"><b>${esc(p.en)}</b><span>${esc(p.vi)}</span></div><button class="btn sm ${on?'saved':''}" data-psave="${k}">${on?'✓ Đã lưu':'＋ Sổ'}</button></div>`}).join('')}</div></div>`:''}
+function bindPats(T){const lv=T.words[0]?T.words[0].lv:'';document.querySelectorAll('[data-pat]').forEach(b=>b.onclick=()=>speak(T.pats[+b.dataset.pat].en.replace(/–/g,'.')));
+  document.querySelectorAll('[data-psave]').forEach(b=>b.onclick=()=>{const on=togglePat(lv,T.id,T.pats[+b.dataset.psave]);b.classList.toggle('saved',on);b.textContent=on?'✓ Đã lưu':'＋ Sổ';if(on)toast('Đã lưu mẫu câu vào Sổ')})}
 function vTopic(){
   const L=lvOf(route.lv),T=topicOf(route.lv,route.tp);if(!T)return go({tp:null});
   $('#view').innerHTML=`<section class="stack">
@@ -1454,6 +1729,7 @@ function vTopic(){
     <div class="stack" style="gap:10px"><h3>Các bài học</h3><p class="muted" style="margin:0;font-size:13px">Mỗi bài khoảng ${lessonsOf(T)[0]?lessonsOf(T)[0].length:5} từ: Thẻ từ → Nghe → Đọc → Ghép câu → Nói → Viết.</p>
     <div class="lessons">${lessonsOf(T).map((ws,k)=>{const d=lessonDone(T,k);const next=!d&&lessonsOf(T).findIndex((_,j)=>!lessonDone(T,j))===k;return `<button class="lesson ${d?'done':''} ${next?'next':''}" data-les="${k}"><div class="row" style="justify-content:space-between"><b>Bài ${k+1}</b>${d?`<span class="pill ok">✓ ${Math.round(d.pct*100)}%</span>`:next?'<span class="pill wait">Học tiếp</span>':''}</div><div class="les-em" aria-hidden="true">${ws.map(w=>w.e).join(' ')}</div><span class="muted" style="font-size:13px">${ws.map(w=>esc(w.w)).join(', ')}</span></button>`}).join('')}</div>
     <div class="row"><button class="btn big" id="talk">💬 Luyện nói với ${NAME}</button></div></div>
+    ${topicFbCard(T)}
     ${patsHTML(T)}
     <h3>Từ vựng (${T.words.length})</h3>
     <div class="words">${T.words.map(w=>`<article class="word">
@@ -1466,31 +1742,46 @@ function vTopic(){
   $('#back').onclick=()=>go({tp:null});
   document.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>startLesson(T,+b.dataset.les));
   $('#talk').onclick=()=>{CHAT.lv=L.id;CHAT.tp=T.id;CHAT.msgs=[];go({tab:'chat'});dlgStart()};
-  bindPats(T);
+  bindPats(T);bindFb();
   document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>{const w=WORDS[b.dataset.say];speakSeq([w.w,w.ps&&w.ps.length?w.ps[0].en:w.s])});
   document.querySelectorAll('[data-nb]').forEach(b=>b.onclick=()=>{toggleNb(b.dataset.nb);const on=inNb(b.dataset.nb);b.classList.toggle('saved',on);b.textContent=on?'✓ Đã lưu':'＋ Sổ';if(on)toast('Đã lưu vào Sổ Từ Vựng')});
 }
 function vNotebook(){
-  const ids=Object.keys(P.nb).filter(id=>WORDS[id]);const due=dueList();
+  const ids=Object.keys(P.nb).filter(id=>WORDS[id]);const due=dueList();const pats=Object.entries(P.pats||{}).sort((a,b)=>a[1].due-b[1].due);const dp=duePats();
   const fmt=t=>{const d=Math.ceil((t-Date.now())/DAY);return d<=0?'Đến hạn':d===1?'Ngày mai':`${d} ngày nữa`};
+  const boxes=x=>`<span class="boxes" title="Hộp ${x.box}/5">${[1,2,3,4,5].map(i=>`<i class="${i<=x.box?'on':''}"></i>`).join('')}</span>`;
   const byLv=LEVELS.map(l=>({l,items:ids.filter(id=>WORDS[id].lv===l.id).sort((a,b)=>P.nb[a].due-P.nb[b].due)})).filter(g=>g.items.length);
+  const tab=route.nbTab||'words';
   $('#view').innerHTML=`<section class="stack">
-    <div><span class="tag">Sổ Từ Vựng</span><h1>${ids.length} từ đã lưu</h1></div>
+    <div><span class="tag">Sổ Từ Vựng</span><h1>${ids.length} từ · ${pats.length} mẫu câu</h1></div>
+    <div class="seg" role="group" aria-label="Loại"><button data-nbt="words" aria-pressed="${tab==='words'}">📒 Từ vựng (${ids.length})</button><button data-nbt="pats" aria-pressed="${tab==='pats'}">💬 Mẫu câu (${pats.length})</button></div>
+    ${tab==='words'?`
     <div class="card row" style="justify-content:space-between">
       <div><b>${due.length} từ đến hạn</b><div class="muted" style="font-size:13px">Ôn đúng thì từ lên hộp mới, lâu hơn mới phải ôn lại (1 → 2 → 4 → 7 → 15 ngày).</div></div>
       <button class="btn sun" id="rv" ${due.length?'':'disabled'}>▶ Ôn ${Math.min(due.length,5)} từ</button>
     </div>
     ${ids.length?'':`<p class="note">Sổ còn trống. Vào tab <b>Học</b>, chọn chủ đề và bấm <b>＋ Sổ</b> ở những từ khó.</p>`}
-    ${byLv.map(g=>`<div class="stack" style="gap:8px"><h3 style="color:var(${g.l.color})">${g.l.name}</h3><div class="nb-list">${g.items.map(id=>{const w=WORDS[id],x=P.nb[id];return `<div class="nb"><span class="em">${w.e}</span><div style="min-width:0"><b>${esc(w.w)}</b> <span class="muted">· ${esc(w.vi)}</span><div class="row" style="gap:8px;font-size:12px"><span class="boxes" title="Hộp ${x.box}/5">${[1,2,3,4,5].map(i=>`<i class="${i<=x.box?'on':''}"></i>`).join('')}</span><span class="muted">${fmt(x.due)}</span></div></div><div class="row" style="gap:4px"><button class="btn sm ghost" data-say="${esc(id)}" aria-label="Nghe">🔊</button><button class="btn sm ghost" data-rm="${esc(id)}" aria-label="Xóa khỏi sổ">✕</button></div></div>`}).join('')}</div></div>`).join('')}
+    ${byLv.map(g=>`<div class="stack" style="gap:8px"><h3 style="color:var(${g.l.color})">${g.l.name}</h3><div class="nb-list">${g.items.map(id=>{const w=WORDS[id],x=P.nb[id];return `<div class="nb"><span class="em">${w.e}</span><div style="min-width:0"><b>${esc(w.w)}</b> <span class="muted">· ${esc(w.vi)}</span><div class="row" style="gap:8px;font-size:12px">${boxes(x)}<span class="muted">${fmt(x.due)}</span></div></div><div class="row" style="gap:4px"><button class="btn sm ghost" data-say="${esc(id)}" aria-label="Nghe">🔊</button><button class="btn sm ghost" data-rm="${esc(id)}" aria-label="Xóa khỏi sổ">✕</button></div></div>`}).join('')}</div></div>`).join('')}`
+    :`
+    <div class="card row" style="justify-content:space-between">
+      <div><b>${dp.length} mẫu câu đến hạn</b><div class="muted" style="font-size:13px">Mỗi lượt ôn: 🧩 Ghép câu → 🗣️ Đọc to câu.</div></div>
+      <button class="btn sun" id="rvp" ${dp.length?'':'disabled'}>▶ Ôn ${Math.min(dp.length,5)} câu</button>
+    </div>
+    ${pats.length?'':`<p class="note">Chưa có mẫu câu nào. Trong mỗi chủ đề, bấm <b>＋ Sổ</b> cạnh mẫu câu để lưu.</p>`}
+    <div class="nb-list">${pats.map(([k,x])=>{const T=topicOf(x.lv,x.tp);return `<div class="nb"><span class="em">💬</span><div style="min-width:0"><b>${esc(x.en)}</b><div class="muted" style="font-size:13px">${esc(x.vi)}</div><div class="row" style="gap:8px;font-size:12px">${boxes(x)}<span class="muted">${fmt(x.due)}${T?' · '+esc(T.name):''}</span></div></div><div class="row" style="gap:4px"><button class="btn sm ghost" data-psay="${esc(k)}" aria-label="Nghe">🔊</button><button class="btn sm ghost" data-prm="${esc(k)}" aria-label="Xóa khỏi sổ">✕</button></div></div>`}).join('')}</div>`}
   </section>`;
-  $('#rv').onclick=()=>startSession(due,'Ôn tập Sổ Từ Vựng');
+  document.querySelectorAll('[data-nbt]').forEach(b=>b.onclick=()=>{route.nbTab=b.dataset.nbt;vNotebook()});
+  $('#rv')&&($('#rv').onclick=()=>startSession(due,'Ôn tập Sổ Từ Vựng'));
+  $('#rvp')&&($('#rvp').onclick=()=>startPatSession(dp));
   document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(WORDS[b.dataset.say].w));
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{delete P.nb[b.dataset.rm];saveP();vNotebook()});
+  document.querySelectorAll('[data-psay]').forEach(b=>b.onclick=()=>speak(P.pats[b.dataset.psay].en.replace(/ – /g,'. ')));
+  document.querySelectorAll('[data-prm]').forEach(b=>b.onclick=()=>{delete P.pats[b.dataset.prm];saveP();vNotebook()});
 }
 
 /* ===================== SESSION: flashcards, then 4 mini-games ===================== */
 let SESSION=null;
-const STAGE_BY={c:['cards','🃏 Thẻ'],l:['listen','🎧 Nghe'],r:['read','📖 Đọc'],p:['build','🧩 Câu'],s:['speak','🎙️ Nói'],w:['write','✏️ Viết']};
+const STAGE_BY={c:['cards','🃏 Thẻ'],l:['listen','🎧 Nghe'],r:['read','📖 Đọc'],p:['build','🧩 Câu'],s:['speak','🎙️ Nói'],w:['write','✏️ Viết'],y:['saysent','🗣️ Đọc câu']};
 function startLesson(T,k){const L2=lessonsOf(T);if(!L2[k])return;startSession(L2[k],`${T.name} · Bài ${k+1}/${L2.length}`,0,{lesson:{lv:L2[k][0].lv,tp:T.id,k}})}
 function startSession(words,label,max=5,opt={}){
   words=words.slice(0,max||words.length);if(!words.length)return toast('Chưa có từ để học');
@@ -1504,7 +1795,7 @@ function sHeader(){return `<div class="row" style="justify-content:space-between
 function stageLen(){const st=SESSION.stages[SESSION.stage][0];return st==='cards'?SESSION.all.length:st==='read'?Math.ceil(SESSION.words.length/4):SESSION.words.length}
 function sNext(){SESSION.i++;if(SESSION.i>=stageLen()){if(SESSION.stages[SESSION.stage][0]==='cards'){SESSION.words=SESSION.hw?SESSION.all.slice():SESSION.all.filter(w=>!SESSION.known[w.id]);if(!SESSION.words.length)SESSION.stage=SESSION.stages.length-1}SESSION.stage++;SESSION.i=0}renderSession();window.scrollTo(0,0)}
 function sRecord(g,w,ok,note){
-  SESSION.items.push({n:SESSION.items.length+1,g,w:w.w,ok:!!ok,note:note||''});
+  SESSION.items.push({n:SESSION.items.length+1,g,w:w.pat?w.s:w.w,ok:!!ok,note:note||''});if(note!=='bỏ qua')statRec(w,g,ok);else statSkip(w,g);
   if(ok){SESSION.res[w.id]++;SESSION.stars++;SESSION.streak++;if(SESSION.streak===3)popMeme('streak');else if(SESSION.streak===6)popMeme('streak6')}
   else{SESSION.streak=0;SESSION.miss++;if(SESSION.miss===2||SESSION.miss===5)popMeme('oops')}
   const c=$('#s-stars');if(c)c.textContent='⭐ +'+SESSION.stars;
@@ -1516,7 +1807,7 @@ function renderSession(){
   const st=SESSION.stages[SESSION.stage][0];
   $('#view').innerHTML=`<section class="stack">${sHeader()}<div id="game" class="stack"></div></section>`;
   $('#s-quit')&&($('#s-quit').onclick=()=>{SESSION=null;go({tab:'home'})});
-  ({cards:gCards,listen:gListen,read:gRead,build:gBuild,speak:gSpeak,write:gWrite})[st]();
+  ({cards:gCards,listen:gListen,read:gRead,build:gBuild,speak:gSpeak,write:gWrite,saysent:gSaySent})[st]();
 }
 function gCards(){
   const all=SESSION.all,w=all[SESSION.i];const pp=w.ps&&w.ps.length?w.ps[0]:null;const back=pp?pp.en:w.s;
@@ -1528,11 +1819,12 @@ function gCards(){
         <div class="fc-face fc-back"><div class="fc-vi">${esc(w.vi)}</div><div class="fc-word" style="font-size:26px">${esc(w.w)}</div>${pp?`<div class="fc-pat"><b>💬 ${esc(pp.en)}</b><span>${esc(pp.vi)}</span></div>`:`<div style="font-size:16px">${esc(w.s)}</div>`}<div class="fc-hint">Chạm để lật lại</div></div>
       </div>
     </button>
-    <div class="row" style="justify-content:center"><button class="btn sm" id="c-say">🔊 Nghe từ</button><button class="btn sm" id="c-sent">🔊 Nghe ${pp?'câu mẫu':'câu'}</button>${vidLink(w)}</div>
+    <div class="row" style="justify-content:center"><button class="btn sm" id="c-say">🔊 Nghe từ</button><button class="btn sm" id="c-sent">🔊 Nghe ${pp?'câu mẫu':'câu'}</button>${pp?`<button class="btn sm ${inPats(patKey(w.lv,w.tp,pp.en))?'saved':''}" id="c-psave">${inPats(patKey(w.lv,w.tp,pp.en))?'✓ Đã lưu câu':'＋ Lưu câu mẫu'}</button>`:''}${vidLink(w)}</div>
     <div class="row" style="justify-content:center">${SESSION.hw?'':'<button class="btn big" id="c-know">✓ Đã biết, bỏ qua</button>'}<button class="btn sun big" id="c-learn">${SESSION.hw?'Thẻ tiếp theo →':'Học từ này →'}</button></div>`;
   const fc=$('#fc');fc.onclick=()=>{fc.classList.toggle('flip');if(fc.classList.contains('flip'))speak(back.replace(/ – /g,'. '))};
   $('#c-say').onclick=()=>speak(w.w,.75);$('#c-sent').onclick=()=>speak(back.replace(/ – /g,'. '));setTimeout(()=>speak(w.w,.8),250);
   $('#c-know')&&($('#c-know').onclick=()=>{SESSION.known[w.id]=1;sNext()});
+  $('#c-psave')&&($('#c-psave').onclick=e=>{e.stopPropagation();const on=togglePat(w.lv,w.tp,pp);e.target.classList.toggle('saved',on);e.target.textContent=on?'✓ Đã lưu câu':'＋ Lưu câu mẫu';if(on)toast('Đã lưu mẫu câu vào Sổ')});
   $('#c-learn').onclick=()=>{delete SESSION.known[w.id];sNext()};
 }
 function qNo(){return `<span class="muted" style="font-size:14px">(${SESSION.i+1}/${SESSION.words.length})</span>`}
@@ -1569,7 +1861,7 @@ function gBuild(){
   const ctxHTML=B.ctx?`<div class="msg ai" style="max-width:100%"><div class="en">${esc(B.ctx)}</div></div>`:'';
   $('#game').innerHTML=`<h2>Ghép câu theo mẫu ${qNo()}</h2>
     <div class="card stack" style="gap:8px">${B.vi?`<div><span class="tag">Nghĩa của câu</span><div style="font-size:16px">${esc(B.vi)}</div></div>`:''}
-    <div class="row"><button class="btn sm" id="b-say">🔊 Nghe câu</button><span class="muted" style="font-size:13px">${w.e} Từ khóa: <b>${esc(w.w)}</b></span></div></div>
+    <div class="row"><button class="btn sm" id="b-say">🔊 Nghe câu</button>${w.pat?'':`<span class="muted" style="font-size:13px">${w.e} Từ khóa: <b>${esc(w.w)}</b></span>`}</div></div>
     ${B.ctxFirst?ctxHTML:''}<div class="bline" id="bline" aria-label="Câu của bé"></div>${B.ctxFirst?'':ctxHTML}
     <div class="tiles" id="btiles"></div>
     <div class="row" style="justify-content:center"><button class="btn sm ghost" id="b-undo">⌫ Bỏ từ cuối</button><button class="btn sm ghost" id="b-hint">💡 Gợi ý</button><button class="btn sm ghost" id="b-skip">⏭ Bỏ qua</button></div><div id="after"></div>`;
@@ -1580,7 +1872,8 @@ function gBuild(){
     document.querySelectorAll('#bline .tok').forEach(b=>b.onclick=()=>{if(done)return;used.splice(+b.dataset.u,1);draw()})};
   const prefix=()=>{let k=0;while(k<used.length&&used[k].t===toks[k])k++;return k};
   const check=()=>{if(used.length<toks.length)return;const k=prefix();
-    if(k===toks.length){done=true;sRecord('build',w,tries===0);say();$('#after').innerHTML=`<div class="card row" style="justify-content:space-between"><b>Đúng rồi! ${esc(B.tgt)}</b><button class="btn sun" id="nx">Tiếp →</button></div>`;$('#nx').onclick=sNext}
+    if(k===toks.length){done=true;sRecord('build',w,tries===0);say();const canSave=!w.pat&&B.vi;$('#after').innerHTML=`<div class="card row" style="justify-content:space-between"><b>Đúng rồi! ${esc(B.tgt)}</b><div class="row">${canSave?`<button class="btn sm ${inPats(patKey(w.lv,w.tp,B.full))?'saved':''}" id="b-psave">${inPats(patKey(w.lv,w.tp,B.full))?'✓ Đã lưu câu':'＋ Lưu câu này'}</button>`:''}<button class="btn sun" id="nx">Tiếp →</button></div></div>`;$('#nx').onclick=sNext;
+      $('#b-psave')&&($('#b-psave').onclick=e=>{const on=togglePat(w.lv,w.tp,{en:B.full,vi:B.vi});e.target.classList.toggle('saved',on);e.target.textContent=on?'✓ Đã lưu câu':'＋ Lưu câu này';if(on)toast('Đã lưu mẫu câu vào Sổ')})}
     else{tries++;sWrongFx();draw(k);setTimeout(()=>{used=used.slice(0,k);draw()},700)}};
   $('#b-undo').onclick=()=>{if(!done){used.pop();draw()}};
   $('#b-hint').onclick=()=>{if(done)return;tries++;used=used.slice(0,prefix());const nx=tiles.find(x=>!used.includes(x)&&x.t===toks[used.length]);if(nx){used.push(nx);draw();check()}};
@@ -1612,6 +1905,27 @@ function gSpeak(){
       $('#nx').onclick=()=>{rec(false,'điểm '+r.sc);sNext()};
     }catch(e){m.classList.remove('rec');if(micBlocked||e==='unsupported')selfCheck(micErrorText(e));else $('#sp-hint').textContent=micErrorText(e)}};
 }
+function gSaySent(){
+  const w=SESSION.words[SESSION.i];const sent=(w.ps&&w.ps[0]?w.ps[0].en:w.s);const plain=sent.replace(/ – /g,'. ');let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('saysent',w,ok,note)}};
+  $('#game').innerHTML=`<h2>Đọc to mẫu câu ${qNo()}</h2>
+    <div class="card stack" style="gap:6px"><div class="cap">${esc(sent)}${w.vi?`<div class="cap-vi">${esc(w.vi)}</div>`:''}</div><div class="row" style="justify-content:center"><button class="btn sm" id="y-say">🔊 Nghe mẫu</button><button class="btn sm" id="y-slow">🐢 Chậm</button></div></div>
+    <div class="stack" style="align-items:center;gap:8px" id="y-zone"><button class="mic" id="y-mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="y-hint">Bấm micro rồi đọc cả câu</span></div>
+    <div id="after"></div><div class="row" style="justify-content:center"><button class="btn sm ghost" id="y-skip">⏭ Bỏ qua</button></div>`;
+  $('#y-say').onclick=()=>speak(plain,.8);$('#y-slow').onclick=()=>speak(plain,.6);setTimeout(()=>speak(plain,.8),250);
+  $('#y-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
+  const selfCheck=msg=>{$('#y-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Con nghe mẫu rồi đọc to theo. Bố mẹ hoặc thầy cô nghe và chọn giúp con nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="y-ok">👍 Đọc tốt</button><button class="btn" id="y-again">🔁 Cần luyện thêm</button></div>`;
+    $('#y-ok').onclick=()=>{rec(true,'người lớn chấm');sNext()};$('#y-again').onclick=()=>{rec(false,'người lớn chấm');sNext()}};
+  if(!voiceOK())return selfCheck('');
+  let attempts=0;
+  $('#y-mic').onclick=async()=>{const m=$('#y-mic');m.classList.add('rec');$('#y-hint').textContent='Đang nghe…';
+    try{const alts=await listenOnce();m.classList.remove('rec');attempts++;const r=matchAnswer(alts,[plain]);const good=r.sc>=70;
+      $('#y-hint').textContent=`Máy nghe được: “${r.heard}”`;
+      $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${r.sc}</div><b>${good?'Đọc hay lắm!':'Gần đúng rồi, thử lại nhé!'}</b><div class="row"><button class="btn" id="y-retry">🔁 Thử lại</button><button class="btn sun" id="nx">Tiếp →</button></div></div>`;
+      if(good)rec(attempts===1,'điểm '+r.sc);else sWrongFx();
+      $('#y-retry').onclick=()=>{$('#after').innerHTML='';$('#y-hint').textContent='Bấm micro rồi đọc cả câu'};
+      $('#nx').onclick=()=>{rec(false,'điểm '+r.sc);sNext()};
+    }catch(e){m.classList.remove('rec');if(micBlocked||e==='unsupported')selfCheck(micErrorText(e));else $('#y-hint').textContent=micErrorText(e)}};
+}
 function gWrite(){
   const w=SESSION.words[SESSION.i];const target=[...w.w.toLowerCase()];const isL=c=>/[\p{L}]/u.test(c);
   const letters=shuffle(target.map((c,k)=>({c,k})).filter(x=>isL(x.c)));const need=target.filter(isL);
@@ -1636,6 +1950,7 @@ function gWrite(){
 function sFinish(){
   const S=SESSION;let up=0;S.finished=true;document.querySelectorAll('.meme-pop').forEach(x=>x.remove());
   S.all.forEach(w=>{
+    if(w.pat){const x=P.pats&&P.pats[w.pat];if(!x)return;const ok=S.items.filter(i=>i.w===w.s&&i.ok).length,tot=S.items.filter(i=>i.w===w.s).length;if(tot&&ok/tot>=.75){x.box=Math.min(5,x.box+1);up++}else x.box=Math.max(1,ok/Math.max(tot,1)>=.5?x.box:1);x.due=Date.now()+INTERVAL[x.box]*DAY;return}
     if(S.known[w.id]){if(P.nb[w.id]){const x=P.nb[w.id];x.box=Math.min(5,x.box+1);x.due=Date.now()+INTERVAL[x.box]*DAY;up++}return}
     const x=P.nb[w.id]||{box:0,added:Date.now()};const ok=S.items.filter(i=>i.w===w.w&&i.ok).length,tot=S.items.filter(i=>i.w===w.w).length;
     if(tot&&ok/tot>=.75){x.box=Math.min(5,x.box+1);up++}else x.box=Math.max(1,ok/Math.max(tot,1)>=.5?x.box:1);
@@ -1643,13 +1958,14 @@ function sFinish(){
   P.reviews++;addStars(S.stars);confetti();
   const okN=S.items.filter(i=>i.ok).length,tot=S.items.length,pct=tot?okN/tot:1;const secs=(Date.now()-S.t0)/1000;
   let sendNote='';
-  let hwBtns='';
+  let hwBtns='',fbHTML='';
   if(S.hw){const items=S.items.map(it=>({...it,les:S.hw.les,nles:S.hw.nles}));const p={type:'attempt',status:'done',hw:S.hw.id,sid:S.hw.sid,name:S.hw.name,cls:S.hw.cls,lv:S.hw.lv,tp:S.hw.tp,title:S.label,score:okN,total:tot,seconds:Math.round(secs),items,ts:Date.now()};
-    const pr=hwProg(S.hw.id);if(pr){pr.done[S.hw.les]={score:okN,total:tot,seconds:Math.round(secs)};setHwProg(S.hw.id,pr)}
+    const pr=hwProg(S.hw.id);if(pr){pr.done[S.hw.les]={score:okN,total:tot,seconds:Math.round(secs),items:S.items.map(i=>({g:i.g,w:i.w,ok:i.ok,note:i.note}))};setHwProg(S.hw.id,pr)}
+    {const T2=topicOf(S.hw.lv,S.hw.tp);const parts=T2?hwParts(T2):[];if(pr&&parts.length&&parts.every(x=>pr.done[x.k])){const f=feedbackOf(statsFromItems(parts.flatMap(x=>pr.done[x.k].items||[])));fbHTML=fbCard(f,`${MICON} Nhận xét của ${esc(NAME)} cho bài tập`)}}
     if(S.hw.nles>1){const T2=topicOf(S.hw.lv,S.hw.tp);const parts=T2?hwParts(T2):[];const ni=parts.findIndex(x=>!(pr&&pr.done[x.k]));hwBtns=ni>=0?`<button class="btn sun big" id="hwnext">▶ Làm Bài ${parts[ni].k}</button><button class="btn big" id="hwlist">📋 Danh sách bài</button>`:`<span class="pill ok">🎉 Đã xong cả ${parts.length} bài!</span><button class="btn big" id="hwlist">📋 Danh sách bài</button>`;S.hw.nextI=ni}
     if(CFG.resultsUrl){sendResult(p).then(ok=>{const el=$('#send-st');if(el)el.innerHTML=ok?'<span class="pill ok">✓ Đã nộp bài cho thầy cô</span>':'<span class="pill wait">Chưa có mạng. Bài sẽ tự gửi khi có mạng</span>'});sendNote='<div id="send-st"><span class="pill wait">Đang nộp bài…</span></div>'}
     else sendNote='<span class="pill no">App chưa kết nối nơi nhận bài. Bé chụp màn hình này gửi thầy cô nhé.</span>'}
-  let nextBtn='';if(S.lesson){const T2=topicOf(S.lesson.lv,S.lesson.tp);if(T2){P.lessons=P.lessons||{};const key=lessonKey(T2,S.lesson.k);const prev=P.lessons[key];P.lessons[key]={pct:Math.max(pct,prev?prev.pct:0),ts:Date.now()};saveP();if(lessonsOf(T2)[S.lesson.k+1])nextBtn=`<button class="btn sun big" id="nextles">▶ Học bài ${S.lesson.k+2}</button>`;else nextBtn=`<span class="pill ok">🎉 Xong cả chủ đề ${esc(T2.name)}!</span>`}}
+  let nextBtn='';if(S.lesson){const T2=topicOf(S.lesson.lv,S.lesson.tp);if(T2){P.lessons=P.lessons||{};const key=lessonKey(T2,S.lesson.k);const prev=P.lessons[key];P.lessons[key]={pct:Math.max(pct,prev?prev.pct:0),ts:Date.now()};saveP();if(lessonsOf(T2)[S.lesson.k+1])nextBtn=`<button class="btn sun big" id="nextles">▶ Học bài ${S.lesson.k+2}</button>`;else nextBtn=`<span class="pill ok">🎉 Xong cả chủ đề ${esc(T2.name)}!</span>`;if(topicComplete(T2))fbHTML=topicFbCard(T2)}}
   const nk=Object.keys(S.known).length;
   $('#view').innerHTML=`<section class="stack">
     ${memeHTML(memeFor(pct),true)}
@@ -1659,11 +1975,13 @@ function sFinish(){
     <div class="stats" style="width:100%"><div class="stat"><b>${okN}/${tot}</b>câu đúng</div><div class="stat"><b>${S.stars}</b>⭐ nhận được</div><div class="stat"><b>${Math.round(secs/60)||1}</b>phút</div></div>
     ${sendNote}
     ${!S.hw&&nk?`<p class="muted" style="margin:0;font-size:13px">Bỏ qua ${nk} từ đã biết. Các từ đã luyện được lưu vào Sổ Từ Vựng.</p>`:''}</div>
+    ${fbHTML}
     ${tot?`<div class="card stack" style="gap:8px"><h3>Từng câu</h3><div class="qchips">${S.items.map(i=>`<span class="qchip ${i.ok?'ok':'no'}">Câu ${i.n} · ${GAME_NAME[i.g]||i.g} ${esc(i.w)} ${i.ok?'✓':'✗'}</span>`).join('')}</div></div>`:''}
     <div class="row">${hwBtns||nextBtn}<button class="btn ${nextBtn||hwBtns?'':'sun'} big" id="home">🏡 Về trang chủ</button><button class="btn" id="ch">💬 Luyện nói với ${NAME}</button></div></section>`;
   const lv=S.all[0].lv,tp=S.all[0].tp,les=S.lesson;SESSION=null;checkBadges();saveP();
   $('#nextles')&&($('#nextles').onclick=()=>startLesson(topicOf(les.lv,les.tp),les.k+1));
   const shw=S.hw;$('#hwnext')&&($('#hwnext').onclick=()=>startHwPart(topicOf(shw.lv,shw.tp),shw.nextI));$('#hwlist')&&($('#hwlist').onclick=()=>go({tab:'hw'}));
+  bindFb();
   $('#home').onclick=()=>go({tab:'home'});$('#ch').onclick=()=>{CHAT.lv=lv;CHAT.tp=tp;CHAT.msgs=[];go({tab:'chat'});dlgStart()};
 }
 
@@ -1709,31 +2027,31 @@ function startHwPart(T,i){const parts=hwParts(T);const p=parts[i];const prog=hwP
   startSession(p.words,parts.length>1?`${HW.t||T.name} · Bài ${p.k}/${parts.length}`:(HW.t||T.name),0,{games:HW.g,hw:{...HW,name:prog.name,cls:prog.cls,sid:prog.sid,les:p.k,nles:parts.length,part:i}})}
 
 /* ===================== ROLE PLAY: voice dialogue + optional AI ===================== */
-const CHAT={lv:'starters',tp:'body',msgs:[],scene:'',busy:false,mode:null,turns:[],turn:0,tries:0,showVi:true,listening:false,hint:false,done:false,sugs:[],streak:0};
+const CHAT={log:[],lv:'starters',tp:'body',msgs:[],scene:'',busy:false,mode:null,turns:[],turn:0,tries:0,showVi:true,listening:false,hint:false,done:false,sugs:[],streak:0};
 let SAMPLE;
 async function getSample(){if(SAMPLE!==undefined)return SAMPLE;try{SAMPLE=(window.claude&&window.claude.use)?await window.claude.use('sample'):null}catch(e){SAMPLE=null}return SAMPLE}
 function dlgOf(T){if(T.dlg&&T.dlg.length)return T.dlg;const ws=shuffle(T.words).slice(0,5);return ws.map((w,k)=>k%2===0?{q:`Look! ${w.e} What's this?`,ans:[`It's ${art(w.w)} ${w.w}.`,w.w+'.'],vi:'Nhìn này! Đây là gì?'}:{q:`Do you like ${w.w}? ${w.e}`,ans:['Yes, I do.',"No, I don't."],vi:`Bạn có thích ${w.vi} không?`})}
 function vChat(){
   const L=lvOf(CHAT.lv);if(!L.topics.some(t=>t.id===CHAT.tp))CHAT.tp=L.topics[0].id;const T=topicOf(CHAT.lv,CHAT.tp);setLv(CHAT.lv);
-  const started=CHAT.msgs.length>0;
-  const voice=voiceOK();
+  const started=CHAT.msgs.length>0;const voice=voiceOK();
   let html=`<section class="stack"><div><span class="tag">Nhập vai</span><h1>Trò chuyện cùng ${NAME}</h1></div>`;
   if(!started){
     html+=`${levelSeg(CHAT.lv,'data-cl')}
     <div><label for="c-topic">Chủ đề</label><select id="c-topic">${L.topics.map(t=>`<option value="${esc(t.id)}" ${t.id===CHAT.tp?'selected':''}>${t.icon} ${esc(t.name)} · ${esc(t.vi)}</option>`).join('')}</select></div>
-    <p class="note" style="margin:0">${voice?''+NAME+' hỏi bằng tiếng Anh. Bé bấm 🎤 và <b>nói</b> câu trả lời. Cần gợi ý thì bấm 💡.':'Thiết bị hoặc trang này chưa nghe được giọng nói, nên bé chạm vào câu trả lời và đọc to theo '+NAME+'. Mở app bằng link GitHub trên Chrome hoặc Safari để nói bằng micro.'}</p>
+    <p class="note" style="margin:0">${NAME} hỏi bằng tiếng Anh, con <b>trả lời theo ý con</b> ${voice?'bằng giọng nói (bấm 🎤) hoặc gõ chữ':'bằng cách gõ chữ'}. Cần ý tưởng thì bấm 💡 Gợi ý. ${NAME} sẽ nhận xét và gợi ý sửa câu sau khi kết thúc trò chuyện.${voice?'':' (Mở app bằng link GitHub trên Chrome hoặc Safari để nói bằng micro.)'}</p>
     <div class="row"><button class="btn sun big" id="c-start">🎙️ Luyện hội thoại theo chủ đề</button>${SAMPLE?'<button class="btn big" id="c-ai">✨ Trò chuyện tự do với AI</button>':''}</div>
     ${patsHTML(T)}`;
   }else{
     html+=`<div class="card scene"><div class="av">${MICON}</div><div style="min-width:0"><b>${T.icon} ${esc(T.name)}</b><div class="muted" style="font-size:13px">${esc(CHAT.scene||'')}</div><div class="row" style="margin-top:6px"><button class="btn sm ghost" id="c-vi">${CHAT.showVi?'Ẩn':'Hiện'} tiếng Việt</button><button class="btn sm ghost" id="c-new">↺ Đổi chủ đề</button></div></div></div>
-    <div class="msgs" id="msgs">${CHAT.msgs.map((m,k)=>m.role==='ai'?`<div class="msg ai"><div class="en">${esc(m.en)}</div>${CHAT.showVi&&m.vi?`<div class="vi">${esc(m.vi)}</div>`:''}${m.fix?`<div class="fix">💡 ${esc(m.fix)}</div>`:''}<div class="tools"><button class="btn sm ghost" data-say="${k}" aria-label="Nghe">🔊</button></div></div>`:`<div class="msg me ${m.bad?'bad':''}">${esc(m.en)}</div>`).join('')}${CHAT.busy?'<div class="msg ai"><div class="en">…</div></div>':''}</div>`;
-    if(CHAT.done){html+=`${memeHTML(pick(MEMES.chat))}<div class="row" style="justify-content:center"><button class="btn sun" id="c-again">↺ Nói lại</button><button class="btn" id="c-new2">Chủ đề khác</button></div>`}
-    else if(CHAT.mode==='dialog'){const t=CHAT.turns[CHAT.turn];const ex=examples(t.ans);
-      html+=`<div class="voice">${voice?`<button class="mic ${CHAT.listening?'rec':''}" id="c-mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="c-hint">${CHAT.listening?''+NAME+' đang nghe…':'Bấm micro rồi nói câu trả lời'}</span>`:''}
-        <div class="row" style="justify-content:center"><button class="btn sm ghost" id="c-rep">🔊 Nghe lại câu hỏi</button>${voice?`<button class="btn sm ghost" id="c-tip">💡 ${CHAT.hint?'Ẩn gợi ý':'Gợi ý'}</button>`:''}</div>
-        ${(CHAT.hint||!voice||CHAT.tries>=2)?`<div class="stack" style="gap:6px;align-items:center;width:100%"><span class="muted" style="font-size:13px">${voice?(CHAT.tries>=2?'Bé có thể chạm câu trả lời để đi tiếp:':'Bé có thể nói:'):'Chạm vào câu trả lời và đọc to:'}</span><div class="sugs" style="width:100%">${ex.map((a,k)=>`<button class="sug" data-ans="${k}">${esc(a)}</button>`).join('')}</div></div>`:''}</div>`}
-    else if(CHAT.mode==='ai'){html+=`<div class="sugs">${(CHAT.sugs||[]).map((s,k)=>`<button class="sug" data-s="${k}" ${CHAT.busy?'disabled':''}>${esc(s)}</button>`).join('')}</div>
-      <div class="row">${voice?`<button class="btn" id="c-aimic" ${CHAT.busy?'disabled':''}>🎤 Nói</button>`:''}<form class="typing" id="c-form" style="flex:1"><input type="text" id="c-in" placeholder="Hoặc tự gõ câu trả lời…" autocomplete="off" ${CHAT.busy?'disabled':''}><button class="btn pri" ${CHAT.busy?'disabled':''}>Gửi</button></form></div>`}
+    <div class="msgs" id="msgs">${CHAT.msgs.map((m,k)=>m.role==='ai'?`<div class="msg ai"><div class="en">${esc(m.en)}</div>${CHAT.showVi&&m.vi?`<div class="vi">${esc(m.vi)}</div>`:''}<div class="tools"><button class="btn sm ghost" data-say="${k}" aria-label="Nghe">🔊</button></div></div>`:`<div class="msg me">${esc(m.en)}</div>`).join('')}${CHAT.busy?'<div class="msg ai"><div class="en">…</div></div>':''}</div>`;
+    if(CHAT.done){html+=chatFeedbackHTML()+`<div class="row" style="justify-content:center"><button class="btn sun" id="c-again">↺ Nói lại</button><button class="btn" id="c-new2">Chủ đề khác</button></div>`}
+    else if(CHAT.checkpoint){html+=`<div class="card stack" style="align-items:center;text-align:center;gap:10px"><div class="wface sm" aria-hidden="true">🎉</div><h3 style="margin:0">Con đã nói xong chủ đề ${esc(T.name)}!</h3><p class="muted" style="margin:0">Con muốn dừng lại xem nhận xét, hay nói thêm ${CHAT.mode==='dialog'?'3':'vài'} câu nữa với ${esc(NAME)}?${CHAT.rounds>=MAX_MORE-1?' (Đây là lượt nói thêm cuối cùng.)':''}</p><div class="row" style="justify-content:center"><button class="btn sun big" id="c-stop">⏹ Kết thúc & xem nhận xét</button><button class="btn big" id="c-more">▶ Nói tiếp</button></div></div>`}
+    else{
+      const sugs=CHAT.mode==='dialog'?examples((CHAT.turns[CHAT.turn]||{ans:[]}).ans):(CHAT.sugs||[]);
+      html+=`<div class="voice">${voice?`<button class="mic ${CHAT.listening?'rec':''}" id="c-mic" aria-label="Bấm để nói" ${CHAT.busy?'disabled':''}>🎤</button><span class="muted">${CHAT.listening?NAME+' đang nghe…':'Bấm micro và trả lời theo ý con'}</span>`:''}
+        <form class="typing" id="c-form" style="width:100%"><input type="text" id="c-in" placeholder="${voice?'Hoặc gõ câu trả lời…':'Gõ câu trả lời của con…'}" autocomplete="off" ${CHAT.busy?'disabled':''}><button class="btn pri" ${CHAT.busy?'disabled':''}>Gửi</button></form>
+        <div class="row" style="justify-content:center">${CHAT.mode==='dialog'?'<button class="btn sm ghost" id="c-rep">🔊 Nghe lại câu hỏi</button>':''}${sugs.length?`<button class="btn sm ghost" id="c-tip">💡 ${CHAT.hint?'Ẩn gợi ý':'Gợi ý'}</button>`:''}<button class="btn sm ghost" id="c-end">⏹ Kết thúc & xem nhận xét</button></div>
+        ${CHAT.hint&&sugs.length?`<div class="stack" style="gap:6px;align-items:center;width:100%"><span class="muted" style="font-size:13px">Gợi ý câu mẫu. Con có thể nói khác theo ý con${voice?' (chạm để nghe)':' (chạm để gửi)'}:</span><div class="sugs" style="width:100%">${sugs.map((a,k)=>`<button class="sug" data-sg="${k}">${esc(a)}</button>`).join('')}</div></div>`:''}</div>`}
   }
   $('#view').innerHTML=html+'</section>';
   if(!started)bindPats(T);
@@ -1742,39 +2060,83 @@ function vChat(){
   $('#c-start')&&($('#c-start').onclick=dlgStart);
   $('#c-ai')&&($('#c-ai').onclick=aiStart);
   $('#c-vi')&&($('#c-vi').onclick=()=>{CHAT.showVi=!CHAT.showVi;vChat()});
-  [$('#c-new'),$('#c-new2')].forEach(b=>b&&(b.onclick=()=>{CHAT.msgs=[];CHAT.done=false;speechSynthesis.cancel();vChat()}));
+  [$('#c-new'),$('#c-new2')].forEach(b=>b&&(b.onclick=()=>{CHAT.msgs=[];CHAT.done=false;CHAT.checkpoint=false;speechSynthesis.cancel();vChat()}));
   $('#c-again')&&($('#c-again').onclick=()=>CHAT.mode==='ai'?aiStart():dlgStart());
   $('#c-rep')&&($('#c-rep').onclick=()=>speak(CHAT.turns[CHAT.turn].q));
   $('#c-tip')&&($('#c-tip').onclick=()=>{CHAT.hint=!CHAT.hint;vChat()});
-  $('#c-mic')&&($('#c-mic').onclick=dlgMic);
-  document.querySelectorAll('[data-ans]').forEach(b=>b.onclick=()=>{const a=examples(CHAT.turns[CHAT.turn].ans)[+b.dataset.ans];if(voiceOK()&&CHAT.tries<2){speak(a,.8);return}dlgCorrect(a,false,true)});
+  $('#c-end')&&($('#c-end').onclick=chatEnd);
+  $('#c-stop')&&($('#c-stop').onclick=chatEnd);
+  $('#c-more')&&($('#c-more').onclick=()=>CHAT.mode==='ai'?aiMore():dlgMore());
+  $('#c-mic')&&($('#c-mic').onclick=chatMic);
+  $('#c-form')&&($('#c-form').onsubmit=e=>{e.preventDefault();const v=$('#c-in').value.trim();if(v)chatSay(v)});
+  document.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>{const list=CHAT.mode==='dialog'?examples(CHAT.turns[CHAT.turn].ans):CHAT.sugs;const a=list[+b.dataset.sg];if(voiceOK())speak(a,.8);else chatSay(a)});
   document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(CHAT.msgs[+b.dataset.say].en));
-  document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>aiSend(CHAT.sugs[+b.dataset.s]));
-  $('#c-aimic')&&($('#c-aimic').onclick=async()=>{try{toast(''+NAME+' đang nghe…');const alts=await listenOnce();aiSend(alts[0])}catch(e){toast(micErrorText(e))}});
-  $('#c-form')&&($('#c-form').onsubmit=e=>{e.preventDefault();const v=$('#c-in').value.trim();if(v)aiSend(v)});
   const m=$('#msgs');if(m&&m.lastElementChild)m.lastElementChild.scrollIntoView({block:'nearest'});
 }
+async function chatMic(){
+  if(CHAT.listening||CHAT.busy)return;CHAT.listening=true;vChat();
+  try{const alts=await listenOnce();CHAT.listening=false;chatSay(alts[0]||'',alts)}
+  catch(e){CHAT.listening=false;vChat();toast(micErrorText(e))}
+}
+function chatSay(text,alts){text=String(text||'').trim().slice(0,200);if(!text)return;if(CHAT.mode==='ai')return aiSend(text);dlgAnswer(text,alts||[text])}
+const MAX_MORE=2;
+function chatCredit(){if(CHAT.credited)return;CHAT.credited=true;addStars(3);P.chats=(P.chats||0)+1;checkBadges();saveP();confetti()}
+function chatCheckpoint(){if((CHAT.rounds||0)>=MAX_MORE){CHAT.msgs.push({role:'ai',en:'Thank you for talking with me! Goodbye!',vi:'Cảm ơn con đã trò chuyện với cô! Tạm biệt!'});chatCredit();CHAT.checkpoint=false;CHAT.done=true;return}
+  CHAT.checkpoint=true;CHAT.msgs.push({role:'ai',en:"We've finished our topic! Do you want to stop or talk more?",vi:'Mình nói xong chủ đề rồi! Con muốn dừng lại hay nói thêm?'});chatCredit()}
+function chatEnd(){speechSynthesis.cancel();if(!CHAT.done){CHAT.done=true;CHAT.checkpoint=false;const n=CHAT.mode==='dialog'?CHAT.log.length:CHAT.msgs.filter(m=>m.role==='me').length;if(n&&!CHAT.credited){CHAT.credited=true;addStars(2);P.chats=(P.chats||0)+1;checkBadges();saveP()}}CHAT.listening=false;CHAT.busy=false;vChat()}
+function moreTurns(T,n){const used=new Set(CHAT.turns.map(t=>t.w).filter(Boolean));const ws=shuffle(T.words.filter(w=>!used.has(w.w))).slice(0,n);
+  return ws.map((w,k)=>{const k3=k%3;
+    if(k3===0)return {w:w.w,q:`Look! ${w.e} What's this?`,vi:'Nhìn này! Đây là gì?',ans:[w.w+'.',`It's ${art(w.w)} ${w.w}.`],re:{en:`This is "${w.w}". ${w.s}`,vi:`Đây là "${w.w}" – ${w.vi}.`}};
+    if(k3===1)return {w:w.w,q:`Can you make a sentence with "${w.w}"? ${w.e}`,vi:`Con đặt một câu với từ "${w.w}" (${w.vi}) nhé.`,ans:[w.s],re:{en:`Nice! Here's my sentence: ${w.s}`,vi:'Hay lắm! Đây là câu của cô.'}};
+    return {w:w.w,q:`Can you say "${w.w}"? ${w.e}`,vi:`Con nói từ "${w.w}" được không?`,ans:[w.w+'.',`Yes, I can. ${capF(w.w)}!`],re:{en:`Well done! ${w.s}`,vi:`Giỏi lắm! "${w.w}" nghĩa là ${w.vi}.`}}})}
+function dlgMore(){const T=topicOf(CHAT.lv,CHAT.tp);const extra=moreTurns(T,3);if(!extra.length){toast('Mình đã nói hết từ của chủ đề rồi!');return chatEnd()}
+  CHAT.rounds=(CHAT.rounds||0)+1;CHAT.checkpoint=false;CHAT.turns=CHAT.turns.concat(extra);
+  CHAT.msgs.push({role:'ai',en:"Great! Let's talk a little more.",vi:'Tuyệt! Mình nói thêm chút nữa nhé.'});dlgAsk();vChat();
+  speakSeq(["Great! Let's talk a little more.",CHAT.turns[CHAT.turn].q])}
 function dlgStart(){
-  const T=topicOf(CHAT.lv,CHAT.tp);CHAT.mode='dialog';CHAT.turns=dlgOf(T).slice(0,6);CHAT.turn=0;CHAT.done=false;CHAT.streak=0;
-  CHAT.scene=`${NAME} hỏi bé ${CHAT.turns.length} câu về chủ đề ${T.vi}. Trả lời bằng giọng nói để nhận ⭐.`;
-  CHAT.msgs=[{role:'ai',en:"Hi! I'm "+NAME+". Let's talk!",vi:'Chào em! Cô là '+NAME+'. Cùng nói chuyện nhé!'}];
+  const T=topicOf(CHAT.lv,CHAT.tp);CHAT.mode='dialog';CHAT.turns=dlgOf(T).slice(0,6);CHAT.turn=0;CHAT.lastRe=false;CHAT.rounds=0;CHAT.checkpoint=false;CHAT.credited=false;CHAT.done=false;CHAT.streak=0;CHAT.log=[];CHAT.hint=false;
+  CHAT.scene=`${NAME} hỏi con ${CHAT.turns.length} câu về chủ đề ${T.vi}. Con trả lời theo ý con nhé!`;
+  const nm=me().name;CHAT.msgs=[{role:'ai',en:`Hi${nm?' '+nm:''}! I'm ${NAME}. Let's talk!`,vi:`Chào ${nm||'con'}! Cô là ${NAME}. Cùng nói chuyện nhé!`}];
   dlgAsk();vChat();speakSeq(CHAT.msgs.filter(m=>m.role==='ai').map(m=>m.en));
 }
-function dlgAsk(){const t=CHAT.turns[CHAT.turn];if(!t){CHAT.msgs.push({role:'ai',en:'Great job! Goodbye!',vi:'Em giỏi lắm! Tạm biệt!'});CHAT.done=true;addStars(3);P.chats=(P.chats||0)+1;checkBadges();saveP();confetti();return}CHAT.tries=0;CHAT.hint=false;CHAT.msgs.push({role:'ai',en:t.q,vi:t.vi})}
-async function dlgMic(){
-  if(CHAT.listening)return;CHAT.listening=true;vChat();
-  try{const alts=await listenOnce();CHAT.listening=false;const t=CHAT.turns[CHAT.turn];const r=matchAnswer(alts,t.ans);
-    if(r.sc>=70)dlgCorrect(r.heard,CHAT.tries===0,false);
-    else{CHAT.tries++;CHAT.streak=0;CHAT.msgs.push({role:'me',en:r.heard||'…',bad:true});const ex=examples(t.ans)[0];CHAT.msgs.push({role:'ai',en:'Hmm, try again!',vi:'Ừm, bé thử nói lại nhé!',fix:'Bé có thể nói: '+ex});if(CHAT.tries===2)popMeme('oops');vChat();speakSeq(['Hmm, try again!',ex],.8)}
-  }catch(e){CHAT.listening=false;vChat();toast(micErrorText(e))}
-}
-function dlgCorrect(text,first,tapped){
-  CHAT.msgs.push({role:'me',en:text});const pr=pick(['Great!','Well done!','Super!','Brilliant!','Good job!','Excellent!']);
-  CHAT.msgs.push({role:'ai',en:pr,vi:pick(['Tuyệt vời!','Giỏi lắm!','Xuất sắc!'])});addStars(tapped?1:first?2:1);
-  if(!tapped){CHAT.streak++;if(CHAT.streak===3)popMeme('streak');P.speakGood++}
+function dlgAsk(){const t=CHAT.turns[CHAT.turn];if(!t){chatCheckpoint();return}CHAT.hint=false;CHAT.msgs.push({role:'ai',en:t.q,vi:t.vi})}
+const REACT_OK=[['Great!','Tuyệt!'],['Nice!','Hay quá!'],['Wonderful!','Tuyệt vời!'],['Good answer!','Câu trả lời hay!']];
+const REACT_FREE=[['I see!','Cô hiểu rồi!'],['Oh, really? Nice!','Ồ, thật à? Hay đấy!'],['Thank you for telling me!','Cảm ơn con đã kể cho cô!'],["Oh, that's interesting!",'Ồ, thú vị ghê!']];
+function dlgAnswer(text,alts){
+  const t=CHAT.turns[CHAT.turn];if(!t||CHAT.done)return;
+  const r=matchAnswer(alts,t.ans);const ok=r.sc>=70;const ex=examples(t.ans);
+  const yn0=ex.some(a=>/^(yes|no)\b/i.test(a));const neg=/n't|\bnot\b|\bno\b/i.test(text);
+  const close=(yn0&&!ok?ex.find(a=>neg?/^no\b/i.test(a):/^yes\b/i.test(a)):null)||ex.slice().sort((a,b)=>lev(norm(a),norm(text))-lev(norm(b),norm(text)))[0]||'';
+  const longest=ex.slice().sort((a,b)=>b.split(' ').length-a.split(' ').length)[0]||'';
+  CHAT.log.push({q:t.q,qvi:t.vi,said:text,ok,model:close,full:longest});
+  CHAT.msgs.push({role:'me',en:text});
+  const yn=ex.some(a=>/^(yes|no)\b/i.test(a));const hn=norm(text);
+  const last=CHAT.turn+1>=CHAT.turns.length;
+  const re=t.re&&t.re.en?[t.re.en,t.re.vi]:ok?pick(REACT_OK):yn&&/\byes\b/.test(hn)?['Oh, yes! Nice.','Ồ, có à! Hay quá.']:yn&&/\bno\b/.test(hn)?['Oh, OK!','À, ra vậy!']:pick(REACT_FREE);
+  CHAT.lastRe=!!(t.re&&t.re.en&&last);
+  CHAT.msgs.push({role:'ai',en:re[0],vi:re[1]});addStars(ok?2:1);
+  if(ok){CHAT.streak++;if(CHAT.streak===3)popMeme('streak');P.speakGood++}else CHAT.streak=0;
   CHAT.turn++;dlgAsk();vChat();
-  const nx=CHAT.turns[CHAT.turn];speakSeq([tapped?text:'',pr,CHAT.done?'Great job! Goodbye!':nx&&nx.q]);
+  const lastAi=CHAT.msgs[CHAT.msgs.length-1];speakSeq([re[0],lastAi&&lastAi.role==='ai'&&lastAi.en!==re[0]?lastAi.en:'']);
 }
+function chatFeedbackHTML(){
+  let rows=[];
+  if(CHAT.mode==='dialog')rows=(CHAT.log||[]).map(l=>({q:l.q,said:l.said,good:l.ok,tip:l.ok?(l.said.split(/\s+/).length<=2&&l.full.split(' ').length>2?'Con có thể nói cả câu: '+l.full:''):l.model}));
+  else{for(let i=0;i<CHAT.msgs.length;i++){const m=CHAT.msgs[i];if(m.role!=='me')continue;const q=[...CHAT.msgs.slice(0,i)].reverse().find(x=>x.role==='ai');rows.push({q:q?q.en:'',said:m.en,good:!m.fix,tip:m.fix||''})}}
+  const n=rows.length;
+  if(!n)return `<div class="card">${memeHTML(pick(MEMES.chat))}<p class="muted" style="margin:8px 0 0;text-align:center">Lần sau con thử trả lời vài câu để ${esc(NAME)} nhận xét nhé!</p></div>`;
+  const good=rows.filter(r=>r.good),fix=rows.filter(r=>!r.good||r.tip);const nm=me().name;
+  const pctG=good.length/n;
+  const head=pctG>=.8?`Con nói rất tốt! 🌟`:pctG>=.5?`Con trò chuyện giỏi lắm! 👏`:`Con đã mạnh dạn nói tiếng Anh, cô rất vui! 💪`;
+  return `<div class="card stack fb" style="gap:10px">
+    <div class="row" style="gap:10px;align-items:center"><span class="wface sm" aria-hidden="true">${MICON}</span><h3 style="margin:0">Nhận xét của ${esc(NAME)}</h3></div>
+    <p style="margin:0"><b>${head}</b> ${nm?esc(nm)+' ':'Con '}đã trả lời ${n} câu, trong đó ${good.length} câu dùng đúng mẫu câu.</p>
+    ${good.length?`<div><b>👍 Câu con nói hay:</b><ul class="fbl">${good.slice(0,4).map(r=>`<li>“${esc(r.said)}”</li>`).join('')}</ul></div>`:''}
+    ${fix.length?`<div><b>✏️ Gợi ý để nói tự nhiên hơn:</b><div class="stack" style="gap:8px;margin-top:6px">${fix.filter(r=>r.tip).map(r=>`<div class="fixrow"><div class="muted" style="font-size:13px">${esc(NAME)}: ${esc(r.q)}</div><div>Con nói: “${esc(r.said)}”</div><div class="better">💡 ${r.tip.startsWith('Con có thể')?esc(r.tip):'Có thể nói: <b>'+esc(r.tip)+'</b>'} <button class="btn sm ghost" data-fsay="${esc(r.tip.replace(/^Con có thể nói cả câu: /,''))}" aria-label="Nghe">🔊</button></div></div>`).join('')}</div></div>`:''}
+    <p class="muted" style="margin:0;font-size:13px">Câu trả lời khác câu mẫu vẫn có thể đúng. Gợi ý ở trên giúp con nói đầy đủ và tự nhiên hơn.</p>
+  </div>${memeHTML(pick(MEMES.chat))}`;
+}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-fsay]');if(b)speak(b.dataset.fsay,.8)});
 /* AI mode (only where the claude.ai sample capability exists) */
 function aiPrompt(){
   const L=lvOf(CHAT.lv),T=topicOf(CHAT.lv,CHAT.tp);const turns=CHAT.msgs.filter(m=>m.role==='me').length;
@@ -1783,32 +2145,35 @@ Topic: ${T.name} (${T.vi}). Target words: ${T.words.map(w=>w.w).join(', ')}.
 Target sentence patterns: ${T.pats.map(p=>p.en).join(' / ')}.
 Pick one simple real-life situation for this topic and keep it for the whole talk.
 Rules:
-- Use only very simple English for ${L.name}: 1-2 short sentences, at most 10 words each. End every turn with ONE simple question that invites the child to use a target pattern.
-- Use the target words often. Be warm and encouraging.
-- If the child's last message has a mistake, put the correct simple sentence in "correction". Otherwise leave it empty.
+- Use only very simple English for ${L.name}: 1-2 short sentences, at most 10 words each. React to the content of what the child said and add one small detail that moves the story forward (never just "Great!" or "Interesting!" on its own), then ask ONE simple follow-up question that invites them to use a target pattern.
+- The child may answer freely. Do NOT correct the child during the talk and never say their answer is wrong. Just reply naturally and keep the conversation going.
+- If the child's last message has a mistake or could be said more fully, put a better simple version in "correction" (it is shown to the child only at the end). Otherwise leave it empty.
 - Never ask for or repeat personal information (real name, age, address, school, phone, photos). If the child gives some, don't repeat it and move on.
 - If the child goes off topic or writes something unkind or unsafe, gently bring the talk back to the situation.
-- The child has answered ${turns} times. After 6 answers, say a happy goodbye and set "done" to true.
-- "suggestions": 3 short answers the child could give, correct English at ${L.name} level, different meanings, at most 8 words.
+- The child has answered ${turns} times. When the child has answered ${CHAT.aiLimit||6} times, wrap up this part of the topic warmly in one short sentence, ask no question, and set "done" to true.
+${CHAT.contNote?'- The child chose to keep talking. Start a new small part of the same situation and ask a new question.':''}
+- "suggestions": 3 short example answers the child could give, correct English at ${L.name} level, different meanings, at most 8 words.
 ${turns===0?'This is the start: greet the child and set the scene. Also fill "scene_vi" with one short Vietnamese sentence describing the situation.':''}
 Conversation so far:
 ${CHAT.msgs.map(m=>(m.role==='ai'?NAME+': ':'Child: ')+m.en).join('\n')||'(none)'}
 Reply with JSON only: {"reply":"...","reply_vi":"natural Vietnamese translation","correction":"","suggestions":["...","...","..."],"scene_vi":"","done":false}`;
 }
-async function aiStart(){CHAT.mode='ai';CHAT.msgs=[{role:'ai',en:'Hi! Let\'s talk!',vi:'Chào bé! Cùng nói chuyện nhé!'}];CHAT.done=false;CHAT.sugs=[];CHAT.busy=true;CHAT.scene='';vChat();await aiTurn()}
-async function aiSend(text){if(CHAT.busy||CHAT.done||!text)return;CHAT.msgs.push({role:'me',en:text});CHAT.busy=true;CHAT.sugs=[];vChat();await aiTurn()}
+async function aiMore(){CHAT.rounds=(CHAT.rounds||0)+1;CHAT.aiLimit=(CHAT.aiLimit||6)+4;CHAT.checkpoint=false;CHAT.contNote=true;CHAT.busy=true;vChat();await aiTurn();CHAT.contNote=false}
+async function aiStart(){CHAT.rounds=0;CHAT.aiLimit=6;CHAT.checkpoint=false;CHAT.credited=false;CHAT.contNote=false;CHAT.mode='ai';CHAT.msgs=[{role:'ai',en:'Hi! Let\'s talk!',vi:'Chào con! Cùng nói chuyện nhé!'}];CHAT.done=false;CHAT.sugs=[];CHAT.hint=false;CHAT.busy=true;CHAT.scene='';vChat();await aiTurn()}
+async function aiSend(text){if(CHAT.busy||CHAT.done||!text)return;CHAT.msgs.push({role:'me',en:text});CHAT.busy=true;CHAT.sugs=[];CHAT.hint=false;vChat();await aiTurn()}
 async function aiTurn(){
   try{const out=await SAMPLE.json(aiPrompt(),{modelTier:'quick',cache:false});
     if(out.scene_vi)CHAT.scene=out.scene_vi;
-    CHAT.msgs.push({role:'ai',en:String(out.reply||''),vi:String(out.reply_vi||''),fix:String(out.correction||'')});
+    const lastMe=[...CHAT.msgs].reverse().find(m=>m.role==='me');if(lastMe&&out.correction&&norm(out.correction)!==norm(lastMe.en))lastMe.fix=String(out.correction);
+    CHAT.msgs.push({role:'ai',en:String(out.reply||''),vi:String(out.reply_vi||'')});
     CHAT.sugs=Array.isArray(out.suggestions)?out.suggestions.slice(0,3).map(String):[];
-    if(CHAT.msgs.some(m=>m.role==='me'))addStars(1);
-    if(out.done){CHAT.done=true;addStars(3);P.chats=(P.chats||0)+1;checkBadges();saveP()}
+    if(lastMe)addStars(1);
+    if(out.done)chatCheckpoint();
     CHAT.busy=false;vChat();speak(CHAT.msgs[CHAT.msgs.length-1].en);
   }catch(e){CHAT.busy=false;
     if(e&&(e.code==='not_granted'||e.code==='unavailable')){SAMPLE=null;toast('AI chưa được bật, chuyển sang luyện hội thoại theo chủ đề');return dlgStart()}
     const last=CHAT.msgs[CHAT.msgs.length-1];if(last&&last.role==='me'){CHAT.msgs.pop();CHAT.sugs=[last.en]}
-    toast(e&&e.code==='rate_limited'?''+NAME+' đang bận, đợi một chút rồi thử lại nhé':''+NAME+' chưa trả lời được, bấm lại câu trả lời để thử lại');vChat()}
+    toast(e&&e.code==='rate_limited'?NAME+' đang bận, đợi một chút rồi thử lại nhé':NAME+' chưa trả lời được, con gửi lại câu trả lời nhé');vChat()}
 }
 
 /* ===================== TEACHER ===================== */
@@ -1821,12 +2186,12 @@ function vTeacher(){
     return;
   }
   if(route.hwView)return vResults(route.hwView);
-  const tabs=[['hw','📮 Bài tập'],['content','📚 Nội dung'],['data','⚙️ Dữ liệu']];
+  const tabs=[['hw','📮 Bài tập'],['students','👥 Học sinh'],['content','📚 Nội dung'],['data','⚙️ Dữ liệu']];
   $('#view').innerHTML=`<section class="stack"><div><span class="tag">Khu vực giáo viên</span><h1>Quản lý lớp học</h1></div>
     <div class="seg" role="group" aria-label="Mục">${tabs.map(([k,n])=>`<button data-tv="${k}" aria-pressed="${route.tview===k}">${n}</button>`).join('')}</div>
     <div id="tbody" class="stack"></div></section>`;
   document.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>go({tview:b.dataset.tv}));
-  ({hw:tHomework,content:tContent,data:tData})[route.tview]();
+  ({hw:tHomework,students:tStudents,content:tContent,data:tData})[route.tview]();
 }
 const hwList=()=>load(K_HWLIST,[]);
 function hwLink(h){const u=new URL(location.href);u.hash='';u.search=new URLSearchParams({hw:h.id,lv:h.lv,tp:h.tp,b:String(h.b||0),n:String(h.n||0),g:h.g,t:h.title}).toString();return u.toString()}
@@ -1886,14 +2251,17 @@ async function vResults(id){
   const hard=Object.values(q).filter(o=>o.wrong).sort((a,b)=>b.wrong/b.n-a.wrong/a.n||b.wrong-a.wrong).slice(0,8);
   const started=list.filter(s=>s.dn);const avg=started.length?Math.round(started.reduce((a,s)=>a+s.score/Math.max(s.total,1),0)/started.length*100):0;
   const multi=list.some(s=>s.nles>1)||NL>1;
+  list.forEach(s=>{s.f=feedbackOf(statsFromItems(s.parts.flatMap(([k,r])=>r.items||[])))});
+  const classF=feedbackOf(statsFromItems(list.flatMap(s=>s.parts.flatMap(([k,r])=>r.items||[]))));
   $('#view').innerHTML=`<section class="stack">${head}
     <div><span class="tag">Kết quả bài tập${h?' · '+lvOf(h.lv).name:''}${multi?` · ${Math.max(NL,...list.map(s=>s.nles))} bài nhỏ`:''}</span><h1>${esc(h?h.title:id)}</h1></div>
     <div class="stats"><div class="stat"><b>${list.length}</b>học sinh đã vào</div><div class="stat"><b>${done.length}</b>đã hoàn thành</div><div class="stat"><b>${avg}%</b>đúng trung bình</div></div>
     <div class="row"><button class="btn sm" id="r-ref">↻ Tải lại</button>${h?`<button class="btn sm" id="r-cp">🔗 Sao chép link bài</button>`:''}</div>
+    ${classF.tot?`<div class="card stack" style="gap:8px"><h3>📊 Tỉ lệ đúng theo kỹ năng (cả lớp)</h3>${fbBars(classF)}${classF.weak.length?`<p style="margin:0">🎯 Cả lớp cần luyện thêm: <b>${classF.weak.map(x=>SKILL_VI[x.g]||x.g).join(', ')}</b>.</p>`:''}${classF.words.length?`<p style="margin:0">📌 Từ cả lớp hay sai: ${classF.words.map(esc).join(', ')}.</p>`:''}</div>`:''}
     <div class="card stack" style="gap:8px"><h3>Danh sách học sinh</h3><p class="muted" style="margin:0;font-size:13px">“Thứ tự” là thứ tự vào làm bài. “Hạng” chỉ xếp các bạn đã hoàn thành, theo tỉ lệ đúng; bằng nhau thì ai làm nhanh hơn đứng trên. Chạm vào một bạn để xem từng câu.</p>
     <div class="tbl"><table class="t"><tr><th>Thứ tự</th><th>Tên</th><th>Hạng</th><th>Đúng</th><th>Tiến độ</th><th>Lớp</th><th>Thời gian</th></tr>
     ${list.length?list.map(s=>`<tr class="clk" data-sid="${esc(s.sid)}"><td>${s.order}</td><td><b>${esc(s.name)}</b></td><td class="rank">${s.rank?(s.rank<=3?['🥇','🥈','🥉'][s.rank-1]:'#'+s.rank):''}</td><td>${s.dn?`${s.score}/${s.total}`:'—'}</td><td>${s.complete?'<span class="pill ok">Hoàn thành</span>':s.dn?`<span class="pill wait">${s.dn}/${s.nles} bài</span>`:'<span class="pill wait">Mới vào</span>'}</td><td>${esc(s.cls||'')}</td><td>${s.dn?fmtDur(s.secs):'vào lúc '+fmtTime(s.start)}</td></tr>
-      <tr data-det="${esc(s.sid)}" hidden><td colspan="7">${s.dn?s.parts.map(([k,r])=>`<div style="margin:4px 0"><b style="font-size:13px">${s.nles>1?'Bài '+k+' · ':''}${r.score}/${r.total} đúng · nộp lúc ${fmtTime(r.ts)}</b><div class="qchips" style="margin-top:4px">${(r.items||[]).map(i=>`<span class="qchip ${i.ok?'ok':'no'}" title="${esc(i.note||'')}">Câu ${i.n} · ${GAME_NAME[i.g]||esc(i.g)} ${esc(i.w)} ${i.ok?'✓':'✗'}</span>`).join('')}</div></div>`).join(''):'<span class="muted">Bạn này chưa làm xong bài nào.</span>'}</td></tr>`).join(''):'<tr><td colspan="7" class="muted">Chưa có học sinh nào vào làm bài.</td></tr>'}
+      <tr data-det="${esc(s.sid)}" hidden><td colspan="7">${s.dn&&s.f.tot?`<div class="stack" style="gap:6px;margin-bottom:8px">${fbBars(s.f)}${s.complete?`<div class="note stack" style="gap:4px"><span class="tag">Nhận xét gửi ${esc(s.name)}</span>${fbText(s.f,s.name)}</div>`:''}</div>`:''}${s.dn?s.parts.map(([k,r])=>`<div style="margin:4px 0"><b style="font-size:13px">${s.nles>1?'Bài '+k+' · ':''}${r.score}/${r.total} đúng · nộp lúc ${fmtTime(r.ts)}</b><div class="qchips" style="margin-top:4px">${(r.items||[]).map(i=>`<span class="qchip ${i.ok?'ok':'no'}" title="${esc(i.note||'')}">Câu ${i.n} · ${GAME_NAME[i.g]||esc(i.g)} ${esc(i.w)} ${i.ok?'✓':'✗'}</span>`).join('')}</div></div>`).join(''):'<span class="muted">Bạn này chưa làm xong bài nào.</span>'}</td></tr>`).join(''):'<tr><td colspan="7" class="muted">Chưa có học sinh nào vào làm bài.</td></tr>'}
     </table></div></div>
     ${hard.length?`<div class="card stack" style="gap:8px"><h3>Câu nhiều bạn sai nhất</h3><div class="qchips">${hard.map(o=>`<span class="qchip no">${GAME_NAME[o.g]||esc(o.g)} ${esc(o.w)} · ${o.wrong}/${o.n} lượt sai</span>`).join('')}</div></div>`:''}
   </section>`;
@@ -1979,8 +2347,34 @@ function tData(){
   $('#x-imp').onclick=()=>{const box=$('#x-box');if(box.hidden||!box.value.trim()){box.hidden=false;box.value='';box.focus();return toast('Dán JSON vào ô rồi bấm lại')}try{const d=JSON.parse(box.value);if(!d.topics)throw 0;C={topics:{starters:[],movers:[],flyers:[],...d.topics},extra:d.extra||{},videos:d.videos||{}};saveC();toast('Đã nhập dữ liệu');tData()}catch(x){toast('JSON không hợp lệ')}};
 }
 
+async function tStudents(){
+  const body=$('#tbody');
+  if(!CFG.resultsUrl){body.innerHTML=`<div class="note">Chưa kết nối Google Sheet nên chưa theo dõi được học sinh và lượt truy cập. Xem mục 6 trong README.md.</div>`;return}
+  const key=load(K_TKEY,'');if(!key){go({hwView:'__key'});return}
+  body.innerHTML='<div class="card"><p class="muted" style="margin:0">Đang tải danh sách học sinh…</p></div>';
+  let r;
+  try{r=await getJSON({action:'students',key});if(!r.ok){if(r.error==='key'){save(K_TKEY,'');toast('Mã xem kết quả chưa đúng');return go({hwView:'__key'})}throw r}}
+  catch(e){if(route.tview==='students')body.innerHTML=`<div class="note">Chưa tải được danh sách. Nếu bạn vừa cập nhật app, hãy dán đoạn mã Apps Script mới và <b>triển khai phiên bản mới</b> (README.md, mục 8).</div><div><button class="btn" id="st-retry">↻ Thử lại</button></div>`;$('#st-retry')&&($('#st-retry').onclick=tStudents);return}
+  if(route.tab!=='teacher'||route.tview!=='students'||route.hwView)return;
+  const td=dayNum(today());
+  const list=(r.students||[]).map(x=>{const lastDay=numToDay(x.lastDay)||numToDay(x.streakDay);const sd=numToDay(x.streakDay)||lastDay;const gap=sd?td-dayNum(sd)-1:99;const alive=gap<=(+x.freeze||0);return {...x,cur:alive?(+x.streak||0):0,lost:!alive&&(+x.streak||0)>0,away:lastDay?td-dayNum(lastDay):99}}).sort((a,b)=>b.cur-a.cur||b.stars-a.stars);
+  const daily=r.daily||{};const days=[];for(let i=13;i>=0;i--){const d=ymd(new Date(Date.now()-i*DAY));days.push({d,n:+daily[d.replace(/-/g,'')]||0})}
+  const maxN=Math.max(1,...days.map(x=>x.n));
+  const active7=list.filter(x=>x.away<7).length,todayN=days[days.length-1].n,opens=list.reduce((a,x)=>a+(+x.opens||0),0);
+  body.innerHTML=`
+  <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))"><div class="stat"><b>${list.length}</b>máy đã vào app</div><div class="stat"><b>${todayN}</b>vào hôm nay</div><div class="stat"><b>${active7}</b>vào trong 7 ngày</div><div class="stat"><b>${opens}</b>tổng lượt mở app</div></div>
+  <div class="card stack" style="gap:8px"><h3>Lượt truy cập 14 ngày qua</h3><p class="muted" style="margin:0;font-size:13px">Số máy khác nhau mở app mỗi ngày.</p>
+    <div class="vbars">${days.map(x=>`<div class="vb" title="${x.d}: ${x.n}"><span class="vn">${x.n||''}</span><i style="height:${Math.round(x.n/maxN*100)}%"></i><span class="vd">${+x.d.slice(8)}/${+x.d.slice(5,7)}</span></div>`).join('')}</div></div>
+  <div class="card stack" style="gap:8px"><div class="row" style="justify-content:space-between"><h3>Chuỗi học tập của học sinh</h3><button class="btn sm ghost" id="st-ref">↻ Tải lại</button></div>
+    <p class="muted" style="margin:0;font-size:13px">Mỗi máy được tính là một học sinh; một bạn dùng hai máy sẽ hiện hai dòng. “Chuỗi” là số ngày học liên tiếp tính đến hôm nay.</p>
+    <div class="tbl"><table class="t"><tr><th>Tên</th><th>Lớp</th><th>🔥 Chuỗi</th><th>🏅 Kỷ lục</th><th>🧊</th><th>⭐ Sao</th><th>Số ngày vào</th><th>Lần cuối</th></tr>
+    ${list.length?list.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.cls||'')}</td><td>${x.cur?`<b>${x.cur}</b> ngày`:x.lost?'<span class="pill no">Đã mất</span>':'0'}</td><td>${+x.best||0}</td><td>${+x.freeze||0}</td><td>${+x.stars||0}</td><td>${+x.days||0}</td><td>${x.away===0?'Hôm nay':x.away===1?'Hôm qua':x.away<99?x.away+' ngày trước':''}</td></tr>`).join(''):'<tr><td colspan="8" class="muted">Chưa có học sinh nào mở app.</td></tr>'}</table></div></div>`;
+  $('#st-ref').onclick=tStudents;
+}
+
 /* ===================== BOOT ===================== */
 render();
+if(me().name)ping(true);
 getSample().then(s=>{if(s&&route.tab==='chat'&&!CHAT.msgs.length)vChat()});
 flushOutbox();
 if(location.protocol.startsWith('http')&&!IN_FRAME){fetch('content.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.topics){SHARED={topics:Object.assign({starters:[],movers:[],flyers:[]},d.topics),extra:d.extra||{},videos:d.videos||{}};buildData()}}).catch(()=>{}).finally(()=>{if(!SESSION&&(route.tab!=='chat'||!CHAT.msgs.length))render()})}
