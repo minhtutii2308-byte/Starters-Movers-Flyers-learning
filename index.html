@@ -1695,7 +1695,7 @@ ball bɔːl|book bʊk|school skuːl|play pleɪ|bye baɪ|hi haɪ|hello həˈləʊ
 const IPA={};IPA_RAW.split(/[|\n]/).forEach(x=>{const p=x.trim().split(' ');if(p.length<2||p.length%2)return;const n=p.length/2;IPA[p.slice(0,n).join(' ')]=p.slice(n).join(' ')});
 function ipaOf(w,extra){if(extra)return String(extra).replace(/^\/|\/$/g,'');const k=String(w||'').toLowerCase().trim().replace(/[.!?]+$/,'');if(IPA[k])return IPA[k];
   const parts=k.split(/\s+/);if(parts.length>1&&parts.every(p=>IPA[p]))return parts.map(p=>IPA[p]).join(' ');
-  const sing=k.replace(/ies$/,'y').replace(/(?<=[sxz]|ch|sh)es$/,'').replace(/s$/,'');return IPA[sing]?IPA[sing]+(k.endsWith('s')&&!IPA[k]?(/[pkfθt]$/.test(IPA[sing])?'s':/[szʃʒ]$|tʃ$|dʒ$/.test(IPA[sing])?'ɪz':'z'):''):''}
+  const sing=k.replace(/ies$/,'y').replace(/([sxz]|ch|sh)es$/,'$1').replace(/s$/,'');return IPA[sing]?IPA[sing]+(k.endsWith('s')&&!IPA[k]?(/[pkfθt]$/.test(IPA[sing])?'s':/[szʃʒ]$|tʃ$|dʒ$/.test(IPA[sing])?'ɪz':'z'):''):''}
 
 /* ===================== TỰ HOÀN THÀNH TỪ MỚI CỦA GIÁO VIÊN =====================
    Loại từ: n danh từ · u danh từ không đếm được · v động từ · adj tính từ · adv trạng từ · x khác
@@ -3169,6 +3169,9 @@ if(location.protocol.startsWith('http')&&!IN_FRAME){fetch('content.json',{cache:
 </script>
 <script>
 if('serviceWorker' in navigator && location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+<script>
+setTimeout(function(){var v=document.getElementById('view');if(v&&!v.innerHTML.replace(/\s/g,'')){v.innerHTML='<div style="margin:16px;padding:16px;border-radius:16px;background:#fff8e1;color:#3a2a00;font:16px/1.5 sans-serif"><b>App chưa mở được trên trình duyệt này.</b><br>1. Tải lại trang (kéo xuống hoặc bấm ⟳).<br>2. Cập nhật iPhone/iPad lên bản iOS mới (Cài đặt → Cài đặt chung → Cập nhật phần mềm), hoặc mở link bằng Chrome.<br>3. Vẫn không được thì nhắn cô kèm ảnh chụp màn hình nhé.</div>'}},5000);
 </script>
 </body>
 </html>
