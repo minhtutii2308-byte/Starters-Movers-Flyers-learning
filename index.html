@@ -1920,10 +1920,10 @@ const numToDay=n=>{n=String(n);return n.length===8?n.slice(0,4)+'-'+n.slice(4,6)
 function streakState(){const S=P.streak;if(!S.last)return {n:0,alive:false,missed:0,freeze:S.freeze,best:S.best,today:false};const missed=Math.max(0,dayNum(today())-dayNum(S.last)-1);const alive=missed<=S.freeze;return {n:alive?S.n:0,alive,missed,freeze:S.freeze,best:S.best,today:S.last===today(),lost:!alive&&S.n>0?S.n:0}}
 const K_DEV='yle_dev_v1';const devId=(()=>{let d=load(K_DEV,'');if(!d){d=uid(12);save(K_DEV,d)}return d})();
 function ping(open){if(!CFG.resultsUrl||IN_FRAME)return;const st=me();if(!st.name)return;const ss=streakState();
-  try{fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'ping',dev:devId,name:st.name,cls:st.cls,stars:P.stars,streak:ss.n,best:P.streak.best,freeze:P.streak.freeze,last:P.streak.last,open:!!open,day:today(),ts:Date.now()})}).catch(()=>{})}catch(e){}}
+  try{fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'ping',dev:devId,name:st.name,cls:st.cls,stars:P.stars,streak:ss.n,best:P.streak.best,freeze:P.streak.freeze,last:P.streak.last,open:!!open,day:today(),ts:Date.now()})}).then(()=>{TOP=null;if(route.tab==='home'&&$('#lb-body'))loadTop(true).then(r=>{const b=$('#lb-body');if(b){b.classList.remove('muted');b.innerHTML=lbHTML(r)}})}).catch(()=>{})}catch(e){}}
 let pingT=0;function pingSoon(){clearTimeout(pingT);pingT=setTimeout(()=>ping(false),2500)}
-let TOP=null,TOPT=0;
-async function loadTop(force){if(!CFG.resultsUrl||IN_FRAME)return null;if(!force&&TOP&&Date.now()-TOPT<60000)return TOP;try{const r=await getJSON({action:'top',dev:devId});if(r&&r.ok){TOP=r;TOPT=Date.now()}}catch(e){}return TOP}
+let TOP=null,TOPT=0,TOPERR='';
+async function loadTop(force){if(!CFG.resultsUrl||IN_FRAME)return null;if(!force&&TOP&&Date.now()-TOPT<60000)return TOP;try{const r=await getJSON({action:'top',dev:devId});if(r&&r.ok){TOP=r;TOPT=Date.now();TOPERR=''}else TOPERR=(r&&r.error)||'bad'}catch(e){TOPERR='net'}return TOP}
 
 /* ===================== STUDENT PROFILE + TOPIC STATS ===================== */
 const me=()=>Object.assign({name:'',cls:''},load(K_STUDENT,{})||{});
@@ -2140,7 +2140,7 @@ function vHome(){
 function streakCard(){const ss=streakState();const S=P.streak;
   const msg=ss.today?'Hôm nay con đã học rồi. Giỏi lắm! ✓':ss.lost?`Chuỗi ${ss.lost} ngày đã mất vì con nghỉ quá lâu. Học hôm nay để bắt đầu chuỗi mới nhé!`:ss.missed?`Con đã nghỉ ${ss.missed} ngày. Học hôm nay, ${ss.missed} lần đóng băng 🧊 sẽ giữ chuỗi cho con!`:S.last?'Học hôm nay để chuỗi tăng lên nhé!':'Học bài đầu tiên để bắt đầu chuỗi ngày học!';
   return `<section class="card streak"><div class="flame" aria-hidden="true">🔥</div><div class="stack" style="gap:4px;min-width:0"><span class="tag">Chuỗi ngày học</span><h2>${ss.n} ngày liên tiếp</h2><div class="row" style="gap:6px"><span class="pill">🧊 ${S.freeze} lần đóng băng</span><span class="pill">🏅 Kỷ lục ${S.best} ngày</span></div><span style="font-size:14px">${msg}</span><span class="muted" style="font-size:12px">Nghỉ 1 ngày sẽ dùng 1 lần đóng băng để giữ chuỗi. Hết đóng băng mà nghỉ thì chuỗi mất. Giữ chuỗi mỗi 10 ngày được thêm 1 lần đóng băng.</span></div></section>`}
-function lbHTML(r){if(!r)return '<span class="muted">Chưa tải được bảng vàng. Kiểm tra mạng nhé.</span>';const it=r.items||[];if(!it.length)return '<span class="muted">Chưa có ai. Con hãy là người đầu tiên!</span>';
+function lbHTML(r){if(!r)return TOPERR&&TOPERR!=='net'?'<span class="muted">Bảng vàng chưa bật. Con nhờ cô kiểm tra giúp nhé.</span>'+(TEACHER_OK?'<p class="note" style="margin:6px 0 0;font-size:13px">Giáo viên: Google Apps Script đang là bản cũ, chưa có Bảng vàng. Làm theo README mục 8 (dán mã mới → Triển khai → Quản lý bản triển khai → ✏️ → Phiên bản mới).</p>':''):'<span class="muted">Chưa tải được bảng vàng. Kiểm tra mạng nhé.</span>';const it=r.items||[];if(!it.length)return '<span class="muted">Chưa có ai. Con hãy là người đầu tiên!</span>';
   return `<ol class="lb">${it.map((x,k)=>`<li class="${x.you?'you':''}"><span class="rk">${k<3?['🥇','🥈','🥉'][k]:k+1}</span><b>${esc(x.name)}${x.you?' (con)':''}</b><span class="st">⭐ ${x.stars}</span></li>`).join('')}</ol>${r.yourRank&&r.yourRank>it.length?`<p class="muted" style="margin:6px 0 0;font-size:13px">Con đang đứng thứ ${r.yourRank} với ⭐ ${P.stars}. Cố lên nào!</p>`:''}`}
 function levelSeg(cur,attr){return `<div class="seg" role="group" aria-label="Trình độ">${LEVELS.map(l=>`<button ${attr}="${l.id}" aria-pressed="${l.id===cur}">${l.name} <span style="opacity:.75;font-weight:400">${l.cefr}</span></button>`).join('')}</div>`}
 function vLearn(){
@@ -2854,6 +2854,10 @@ function tData(){
   $('#x-imp').onclick=()=>{const box=$('#x-box');if(box.hidden||!box.value.trim()){box.hidden=false;box.value='';box.focus();return toast('Dán JSON vào ô rồi bấm lại')}try{const d=JSON.parse(box.value);if(!d.topics)throw 0;C={topics:{starters:[],movers:[],flyers:[],...d.topics},extra:d.extra||{},videos:d.videos||{},lib:Object.assign({},C.lib||{},d.lib||{}),vlib:Object.assign({},C.vlib||{},d.vlib||{}),vhide:Array.isArray(d.vhide)?d.vhide:(C.vhide||null)};saveC();toast('Đã nhập dữ liệu');tData()}catch(x){toast('JSON không hợp lệ')}};
 }
 
+async function connTest(out){out.textContent='Đang gửi thử…';const dev='test'+Date.now().toString(36);const key=load(K_TKEY,'');
+  try{await fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'ping',dev,name:'',cls:'__test__',stars:0,streak:0,best:0,freeze:0,last:'',open:true,day:today(),ts:Date.now()})})}catch(e){out.innerHTML='❌ Máy này không gửi được dữ liệu (mất mạng hoặc trình duyệt chặn).';return}
+  for(let i=0;i<5;i++){await new Promise(z=>setTimeout(z,2500));try{const r=await getJSON({action:'students',key});if(r.ok&&(r.students||[]).some(x=>x.cls==='__test__')){out.innerHTML='✅ Gửi dữ liệu được. Kết nối đã ổn. Nếu Bảng vàng vẫn trống, học sinh cần <b>mở lại app bằng Chrome/Safari</b> (không mở trong Zalo) để app gửi tên lên. Trang HocSinh có thêm 1 dòng lớp "__test__", cô xóa đi được.';return}}catch(e){}}
+  out.innerHTML='❌ Đã gửi nhưng Google Sheet không ghi nhận. Cô mở <b>Apps Script → Thực thi (Executions)</b> xem dòng doPost có báo lỗi không, và kiểm tra đã <b>Triển khai → Quản lý bản triển khai → ✏️ → Phiên bản mới</b>. Chụp màn hình gửi lại để được hỗ trợ.'}
 async function tStudents(){
   const body=$('#tbody');
   if(!CFG.resultsUrl){body.innerHTML=`<div class="note">Chưa kết nối Google Sheet nên chưa theo dõi được học sinh và lượt truy cập. Xem mục 6 trong README.md.</div>`;return}
@@ -2862,6 +2866,8 @@ async function tStudents(){
   let r;
   try{r=await getJSON({action:'students',key});if(!r.ok){if(r.error==='key'){save(K_TKEY,'');toast('Mã xem kết quả chưa đúng');return go({hwView:'__key'})}throw r}}
   catch(e){if(route.tview==='students')body.innerHTML=`<div class="note">Chưa tải được danh sách. Nếu bạn vừa cập nhật app, hãy dán đoạn mã Apps Script mới và <b>triển khai phiên bản mới</b> (README.md, mục 8).</div><div><button class="btn" id="st-retry">↻ Thử lại</button></div>`;$('#st-retry')&&($('#st-retry').onclick=tStudents);return}
+  if(r&&Array.isArray(r.students))r.students=r.students.filter(x=>x.cls!=='__test__');
+  setTimeout(()=>{const box=document.createElement('div');box.className='card stack';box.style.gap='8px';box.innerHTML=`<b>🔧 Kiểm tra kết nối với Google Sheet</b><p class="muted" style="margin:0;font-size:13px">Google Sheet đang ghi nhận <b>${r&&r.students?r.students.filter(x=>x.name).length:0}</b> học sinh. Nếu học sinh đã nhập tên mà số này vẫn là 0, bấm nút dưới để thử gửi dữ liệu từ máy này.</p><div><button class="btn sm" id="ct-run">Gửi thử</button></div><div id="ct-out" style="font-size:14px"></div>`;const tb=$('#tbody');if(!tb||route.tview!=='students')return;tb.prepend(box);$('#ct-run').onclick=()=>connTest($('#ct-out'))},0);
   if(route.tab!=='teacher'||route.tview!=='students'||route.hwView)return;
   const td=dayNum(today());
   const list=(r.students||[]).map(x=>{const lastDay=numToDay(x.lastDay)||numToDay(x.streakDay);const sd=numToDay(x.streakDay)||lastDay;const gap=sd?td-dayNum(sd)-1:99;const alive=gap<=(+x.freeze||0);return {...x,cur:alive?(+x.streak||0):0,lost:!alive&&(+x.streak||0)>0,away:lastDay?td-dayNum(lastDay):99}}).sort((a,b)=>b.cur-a.cur||b.stars-a.stars);
