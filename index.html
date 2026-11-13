@@ -310,6 +310,32 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 .fc .ipa{font-size:19px;margin-top:-4px}
 .ipabox{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;background:var(--paper);border:1.5px dashed var(--line);border-radius:12px;padding:6px 12px}
 .ipabox>span{font-size:12px;color:var(--muted,#6b6257)}
+.petgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.petopt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:2px solid var(--line);background:var(--paper);border-radius:14px;padding:10px;font-family:inherit;color:inherit;cursor:pointer}
+.petopt span{font-size:20px;letter-spacing:2px;line-height:1.3}
+.petopt.on{border-color:var(--sun);box-shadow:0 0 0 3px color-mix(in srgb,var(--sun) 35%,transparent)}
+.pet .face.petbtn{padding:0;cursor:pointer;overflow:hidden;font:inherit}
+.petstage{position:relative;width:92px;height:92px;display:grid;place-items:center;border-radius:inherit}
+.petstage.big{width:180px;height:180px;border-radius:32px;background:var(--soft);border:2px dashed var(--line)}
+.petstage .pbody{font-size:58px;line-height:1}
+.petstage.big .pbody{font-size:104px}
+.petstage .acc{position:absolute;font-style:normal;line-height:1;pointer-events:none}
+.petstage .acc.head{top:2%;left:50%;transform:translateX(-50%);font-size:34%}
+.petstage .acc.head,.petstage .acc.face,.petstage .acc.neck,.petstage .acc.hand{font-size:28px}
+.petstage.big .acc.head,.petstage.big .acc.face,.petstage.big .acc.neck,.petstage.big .acc.hand{font-size:52px}
+.petstage .acc.head{top:-4px}
+.petstage .acc.face{top:34%;left:50%;transform:translate(-50%,-50%);opacity:.95}
+.petstage .acc.neck{bottom:6%;left:50%;transform:translateX(-50%)}
+.petstage .acc.hand{bottom:4%;right:2%}
+.petstage .deco{position:absolute;font-style:normal;font-size:18px;opacity:.85}
+.petstage.big .deco{font-size:30px}
+.petstage .deco.d0{left:6%;bottom:6%}.petstage .deco.d1{left:8%;top:8%}.petstage .deco.d2{right:8%;top:8%}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.shopitem{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:12px 8px;border-radius:16px;background:var(--card,#fff);border:2px solid var(--line)}
+.shopitem.on{border-color:var(--sun)}
+.shopitem .si-e{font-size:40px;line-height:1.1}
+.evbanner{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 16px;border-radius:18px;border:2px solid var(--sun);background:linear-gradient(90deg,color-mix(in srgb,var(--sun) 22%,transparent),transparent);color:inherit;font:inherit;cursor:pointer}
+.evbanner .eve{font-size:34px}.evbanner>span:last-child{margin-left:auto;font-size:24px}
 
 </style>
 </head>
@@ -2830,6 +2856,7 @@ async function autoComplete(ws,lv,onStep){let net=0,netFail=0,done=0;const out=w
   const q=out.slice();await Promise.all([0,1,2,3].map(async()=>{while(q.length)await job(q.shift())}));
   return {ws:out,net,netFail}}
 
+const GS_CODE="/**\n * YLE Video Words \u2013 n\u01a1i nh\u1eadn b\u00e0i t\u1eadp c\u1ee7a h\u1ecdc sinh.\n * D\u00e1n to\u00e0n b\u1ed9 \u0111o\u1ea1n m\u00e3 n\u00e0y v\u00e0o Google Apps Script c\u1ee7a m\u1ed9t Google Sheet (xem README.md, m\u1ee5c 6).\n *\n * B\u01af\u1edaC B\u1eaeT BU\u1ed8C: \u0111\u1ed5i m\u00e3 b\u00ean d\u01b0\u1edbi th\u00e0nh m\u00e3 c\u1ee7a ri\u00eang b\u1ea1n.\n * \u0110\u00e2y l\u00e0 m\u00e3 gi\u00e1o vi\u00ean nh\u1eadp trong app \u0111\u1ec3 XEM k\u1ebft qu\u1ea3. \u0110\u1eebng chia s\u1ebb m\u00e3 n\u00e0y v\u1edbi h\u1ecdc sinh.\n */\nconst TEACHER_KEY = 'doi-ma-nay-thanh-ma-rieng';\n\nconst SHEET_HW = 'BaiTap';\nconst SHEET_RESULTS = 'KetQua';\nconst SHEET_USERS = 'HocSinh';   // m\u1ed7i m\u00e1y h\u1ecdc sinh m\u1ed9t d\u00f2ng: sao, chu\u1ed7i ng\u00e0y h\u1ecdc, l\u01b0\u1ee3t m\u1edf app\nconst SHEET_VISITS = 'TruyCap';  // m\u1ed7i m\u00e1y m\u1ed7i ng\u00e0y m\u1ed9t d\u00f2ng, \u0111\u1ec3 \u0111\u1ebfm l\u01b0\u1ee3t truy c\u1eadp theo ng\u00e0y\n\nfunction doPost(e) {\n  const lock = LockService.getScriptLock();\n  lock.waitLock(10000);\n  try {\n    const d = JSON.parse(e.postData.contents);\n    const ss = SpreadsheetApp.getActiveSpreadsheet();\n    if (d.type === 'assign') {\n      sheet_(ss, SHEET_HW, ['T\u1ea1o l\u00fac', 'M\u00e3 b\u00e0i', 'T\u00ean b\u00e0i', 'Tr\u00ecnh \u0111\u1ed9', 'Ch\u1ee7 \u0111\u1ec1', 'S\u1ed1 t\u1eeb', 'C\u00e1c ph\u1ea7n', 'H\u1ea1n n\u1ed9p', 'Link'])\n        .appendRow([new Date(), text_(d.id), text_(d.title), text_(d.lv), text_(d.tp), Number(d.n) || 0, text_(d.g), text_(d.due), text_(d.link, 500)]);\n    } else if (d.type === 'ping') {\n      ping_(ss, d);\n    } else if (d.type === 'attempt') {\n      const items = Array.isArray(d.items) ? d.items.slice(0, 200) : [];\n      const wrong = items.filter(function (x) { return !x.ok; }).map(function (x) { return (x.nles > 1 ? 'B\u00e0i ' + x.les + ' ' : '') + 'c\u00e2u ' + x.n + ': ' + x.w; }).join(', ');\n      sheet_(ss, SHEET_RESULTS, ['Th\u1eddi gian', 'M\u00e3 b\u00e0i', 'M\u00e3 l\u01b0\u1ee3t', 'T\u00ean', 'L\u1edbp', 'Tr\u1ea1ng th\u00e1i', '\u0110\u00fang', 'T\u1ed5ng', 'S\u1ed1 gi\u00e2y', 'C\u00e2u sai', 'Chi ti\u1ebft'])\n        .appendRow([new Date(Number(d.ts) || Date.now()), text_(d.hw), text_(d.sid), text_(d.name, 40), text_(d.cls, 20), d.status === 'done' ? 'done' : 'start',\n          Number(d.score) || 0, Number(d.total) || 0, Number(d.seconds) || 0, text_(wrong, 2000), JSON.stringify(items)]);\n    }\n    return out_({ ok: true });\n  } catch (err) {\n    return out_({ ok: false, error: 'bad_request' });\n  } finally {\n    lock.releaseLock();\n  }\n}\n\nfunction doGet(e) {\n  const p = e.parameter || {};\n  const ss = SpreadsheetApp.getActiveSpreadsheet();\n  // B\u1ea3ng v\u00e0ng: ai c\u0169ng xem \u0111\u01b0\u1ee3c, ch\u1ec9 tr\u1ea3 v\u1ec1 t\u00ean g\u1ecdi v\u00e0 s\u1ed1 sao.\n  if (p.action === 'top') {\n    const all = users_(ss).filter(function (u) { return u.name; }).sort(function (a, b) { return b.stars - a.stars; });\n    let yourRank = 0;\n    all.forEach(function (u, i) { if (p.dev && u.dev === p.dev) yourRank = i + 1; });\n    return out_({ ok: true, yourRank: yourRank, items: all.slice(0, 6).map(function (u) {\n      return { name: String(u.name).slice(0, 20), stars: u.stars, you: !!p.dev && u.dev === p.dev };\n    }) });\n  }\n  if (p.key !== TEACHER_KEY) return out_({ ok: false, error: 'key' });\n  if (p.action === 'list') {\n    const sh = ss.getSheetByName(SHEET_HW);\n    const v = sh ? sh.getDataRange().getValues().slice(1) : [];\n    return out_({ ok: true, items: v.map(function (r) {\n      return { created: +new Date(r[0]), id: String(r[1]), title: r[2], lv: r[3], tp: r[4], n: r[5], g: r[6], due: String(r[7]), link: r[8] };\n    }) });\n  }\n  if (p.action === 'results') {\n    const sh = ss.getSheetByName(SHEET_RESULTS);\n    const v = sh ? sh.getDataRange().getValues().slice(1) : [];\n    return out_({ ok: true, rows: v.filter(function (r) { return String(r[1]) === String(p.hw); }).map(function (r) {\n      return { ts: +new Date(r[0]), hw: String(r[1]), sid: String(r[2]), name: String(r[3]).replace(/^'/, ''), cls: String(r[4]).replace(/^'/, ''),\n        status: r[5], score: r[6], total: r[7], seconds: r[8], items: json_(r[10]) };\n    }) });\n  }\n  if (p.action === 'students') {\n    const daily = {};\n    const vs = ss.getSheetByName(SHEET_VISITS);\n    if (vs) vs.getDataRange().getValues().slice(1).forEach(function (r) { const k = String(r[0]); daily[k] = (daily[k] || 0) + 1; });\n    return out_({ ok: true, daily: daily, students: users_(ss).map(function (u) {\n      return { name: u.name, cls: u.cls, stars: u.stars, streak: u.streak, best: u.best, freeze: u.freeze, first: u.first, last: u.last,\n        lastDay: u.lastDay, streakDay: u.streakDay, opens: u.opens, days: u.days };\n    }) });\n  }\n  return out_({ ok: true });\n}\n\n// Ghi nh\u1eadn m\u1ed9t m\u00e1y h\u1ecdc sinh: c\u1eadp nh\u1eadt sao, chu\u1ed7i ng\u00e0y h\u1ecdc; \u0111\u1ebfm l\u01b0\u1ee3t m\u1edf v\u00e0 s\u1ed1 ng\u00e0y v\u00e0o app.\nfunction ping_(ss, d) {\n  const dev = String(d.dev || '').replace(/[^a-z0-9]/gi, '').slice(0, 24);\n  if (!dev) return;\n  const sh = sheet_(ss, SHEET_USERS, ['M\u00e3 m\u00e1y', 'T\u00ean', 'L\u1edbp', 'Sao', 'Chu\u1ed7i', 'K\u1ef7 l\u1ee5c', '\u0110\u00f3ng b\u0103ng', 'L\u1ea7n \u0111\u1ea7u', 'L\u1ea7n cu\u1ed1i', 'Ng\u00e0y cu\u1ed1i', 'Ng\u00e0y h\u1ecdc cu\u1ed1i', 'S\u1ed1 l\u01b0\u1ee3t m\u1edf', 'S\u1ed1 ng\u00e0y v\u00e0o']);\n  const day = dayNum_(d.day), sday = dayNum_(d.last), now = new Date();\n  const ids = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues() : [];\n  let row = -1;\n  for (let i = 0; i < ids.length; i++) if (String(ids[i][0]) === dev) { row = i + 2; break; }\n  if (row < 0) {\n    sh.appendRow([dev, text_(d.name, 40), text_(d.cls, 20), Number(d.stars) || 0, Number(d.streak) || 0, Number(d.best) || 0, Number(d.freeze) || 0, now, now, day, sday, d.open ? 1 : 0, 1]);\n    if (day) sheet_(ss, SHEET_VISITS, ['Ng\u00e0y', 'M\u00e3 m\u00e1y']).appendRow([day, dev]);\n    return;\n  }\n  const r = sh.getRange(row, 1, 1, 13).getValues()[0];\n  const newDay = day && Number(r[9]) !== day;\n  sh.getRange(row, 2, 1, 12).setValues([[text_(d.name, 40) || r[1], text_(d.cls, 20), Number(d.stars) || 0, Number(d.streak) || 0,\n    Math.max(Number(d.best) || 0, Number(r[5]) || 0), Number(d.freeze) || 0, r[7], now, day || r[9], sday || r[10],\n    (Number(r[11]) || 0) + (d.open ? 1 : 0), (Number(r[12]) || 0) + (newDay ? 1 : 0)]]);\n  if (newDay) sheet_(ss, SHEET_VISITS, ['Ng\u00e0y', 'M\u00e3 m\u00e1y']).appendRow([day, dev]);\n}\nfunction users_(ss) {\n  const sh = ss.getSheetByName(SHEET_USERS);\n  if (!sh || sh.getLastRow() < 2) return [];\n  return sh.getRange(2, 1, sh.getLastRow() - 1, 13).getValues().map(function (r) {\n    return { dev: String(r[0]), name: String(r[1]).replace(/^'/, ''), cls: String(r[2]).replace(/^'/, ''), stars: Number(r[3]) || 0, streak: Number(r[4]) || 0,\n      best: Number(r[5]) || 0, freeze: Number(r[6]) || 0, first: +new Date(r[7]), last: +new Date(r[8]), lastDay: Number(r[9]) || 0, streakDay: Number(r[10]) || 0,\n      opens: Number(r[11]) || 0, days: Number(r[12]) || 0 };\n  });\n}\n// '2026-11-09' -> 20261109 (l\u01b0u d\u1ea1ng s\u1ed1 \u0111\u1ec3 Google Sheet kh\u00f4ng t\u1ef1 \u0111\u1ed5i th\u00e0nh ng\u00e0y th\u00e1ng)\nfunction dayNum_(s) { const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(s || '')); return m ? Number(m[1] + m[2] + m[3]) : 0; }\n\nfunction sheet_(ss, name, head) {\n  let sh = ss.getSheetByName(name);\n  if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }\n  return sh;\n}\n// C\u1eaft \u0111\u1ed9 d\u00e0i v\u00e0 ch\u1eb7n ch\u1eef b\u1eaft \u0111\u1ea7u b\u1eb1ng = + - @ \u0111\u1ec3 Google Sheet kh\u00f4ng hi\u1ec3u nh\u1ea7m th\u00e0nh c\u00f4ng th\u1ee9c.\nfunction text_(s, max) {\n  s = String(s == null ? '' : s).slice(0, max || 100);\n  return /^[=+\\-@]/.test(s) ? \"'\" + s : s;\n}\nfunction json_(s) { try { return JSON.parse(s); } catch (e) { return []; } }\nfunction out_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }\n";
 /* ===================== STORAGE ===================== */
 const K_VRECV='yle_vrecv_v1',K_LIBRECV='yle_librecv_v1',K_HWPROG='yle_hwprog_v1',K_PROG='yle_prog_v1',K_CUSTOM='yle_custom_v1',K_STUDENT='yle_student_v1',K_OUTBOX='yle_outbox_v1',K_HWLIST='yle_hwlist_v1',K_TKEY='yle_tkey_v1';
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -2938,8 +2965,8 @@ const K_DEV='yle_dev_v1';const devId=(()=>{let d=load(K_DEV,'');if(!d){d=uid(12)
 function ping(open){if(!CFG.resultsUrl||IN_FRAME)return;const st=me();if(!st.name)return;const ss=streakState();
   try{fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'ping',dev:devId,name:st.name,cls:st.cls,stars:P.stars,streak:ss.n,best:P.streak.best,freeze:P.streak.freeze,last:P.streak.last,open:!!open,day:today(),ts:Date.now()})}).then(()=>{TOP=null;if(route.tab==='home'&&$('#lb-body'))loadTop(true).then(r=>{const b=$('#lb-body');if(b){b.classList.remove('muted');b.innerHTML=lbHTML(r)}})}).catch(()=>{})}catch(e){}}
 let pingT=0;function pingSoon(){clearTimeout(pingT);pingT=setTimeout(()=>ping(false),2500)}
-let TOP=null,TOPT=0,TOPERR='';
-async function loadTop(force){if(!CFG.resultsUrl||IN_FRAME)return null;if(!force&&TOP&&Date.now()-TOPT<60000)return TOP;try{const r=await getJSON({action:'top',dev:devId});if(r&&r.ok){TOP=r;TOPT=Date.now();TOPERR=''}else TOPERR=(r&&r.error)||'bad'}catch(e){TOPERR=e&&e.name==='SyntaxError'?'html':'net'}return TOP}
+let TOP=null,TOPT=0,TOPERR='',TOPSNIP='';
+async function loadTop(force){if(!CFG.resultsUrl||IN_FRAME)return null;if(!force&&TOP&&Date.now()-TOPT<60000)return TOP;try{const r=await getJSON({action:'top',dev:devId});if(r&&r.ok){TOP=r;TOPT=Date.now();TOPERR=''}else TOPERR=(r&&r.error)||'bad'}catch(e){TOPERR=e&&e.name==='SyntaxError'?'html':'net';TOPSNIP=(e&&e.snippet)||String(e&&e.message||e)}return TOP}
 
 /* ===================== STUDENT PROFILE + TOPIC STATS ===================== */
 const me=()=>Object.assign({name:'',cls:''},load(K_STUDENT,{})||{});
@@ -3011,8 +3038,18 @@ function patWord(k,x){const toks=x.en.split(/[\s–]+/).map(t=>t.replace(/[^A-Za
 function startPatSession(list){const ws=list.slice(0,5).map(([k,x])=>patWord(k,x));if(!ws.length)return toast('Chưa có mẫu câu đến hạn');startSession(ws,'Ôn mẫu câu đã lưu',0,{games:'py'})}
 
 /* ===================== GAMIFICATION ===================== */
-const PETS=[[0,'🥚','Trứng thần kỳ'],[15,'🐣','Chim non vừa nở'],[50,'🐥','Gà con lon ton'],[120,'🦜','Vẹt biết nói'],[250,'🦚','Công rực rỡ'],[500,'🐉','Rồng bay']];
-function petOf(s){let cur=PETS[0],next=null;for(let i=0;i<PETS.length;i++){if(s>=PETS[i][0]){cur=PETS[i];next=PETS[i+1]||null}}return {cur,next}}
+const PET_STEPS=[0,15,50,120,250,500,900];
+const PET_KINDS={
+ bird:{n:'Chim',st:[['🥚','Trứng thần kỳ'],['🐣','Chim non vừa nở'],['🐥','Gà con lon ton'],['🐦','Chim nhỏ hót hay'],['🦜','Vẹt biết nói'],['🦚','Công rực rỡ'],['🐉','Rồng bay']]},
+ dog:{n:'Cún',st:[['🦴','Khúc xương bí ẩn'],['🐶','Cún con'],['🐕','Cún tinh nghịch'],['🦮','Cún dẫn đường'],['🐕‍🦺','Cún cứu hộ'],['🐺','Sói dũng cảm'],['🦊','Cáo chín đuôi']]},
+ cat:{n:'Mèo',st:[['🧶','Cuộn len'],['🐱','Mèo con'],['🐈','Mèo lém lỉnh'],['🐈‍⬛','Mèo đen bí ẩn'],['🐆','Báo săn'],['🐯','Hổ con'],['🦁','Vua sư tử']]},
+ bunny:{n:'Thỏ',st:[['🥕','Củ cà rốt'],['🐰','Thỏ con'],['🐇','Thỏ nhảy xa'],['🐿️','Sóc nhanh nhẹn'],['🦘','Chuột túi'],['🦌','Hươu sao'],['🦄','Kỳ lân']]},
+ sea:{n:'Biển',st:[['🫧','Bong bóng biển'],['🐟','Cá nhỏ'],['🐠','Cá nhiệt đới'],['🐡','Cá nóc'],['🐢','Rùa biển'],['🐬','Cá heo'],['🐋','Cá voi xanh']]},
+ dino:{n:'Khủng long',st:[['🥚','Trứng khủng long'],['🦎','Thằn lằn nhỏ'],['🐊','Cá sấu'],['🐢','Rùa cổ đại'],['🦕','Khủng long cổ dài'],['🦖','Khủng long bạo chúa'],['🐲','Rồng lửa']]},
+ bug:{n:'Côn trùng',st:[['🌱','Mầm cây'],['🐛','Sâu con'],['🐞','Bọ rùa'],['🐝','Ong chăm chỉ'],['🦗','Dế mèn'],['🦋','Bướm xinh'],['🧚','Tiên bướm']]},
+ bear:{n:'Gấu',st:[['🍯','Hũ mật ong'],['🧸','Gấu bông'],['🐨','Gấu koala'],['🐼','Gấu trúc'],['🐻','Gấu nâu'],['🐻‍❄️','Gấu Bắc Cực'],['🦍','Vua rừng xanh']]}};
+function petKind(){return PET_KINDS[P.petKind]||PET_KINDS.bird}
+function petOf(s){const K=petKind();const L=PET_STEPS.map((t,i)=>[t,K.st[i][0],K.st[i][1]]);let cur=L[0],next=null;for(let i=0;i<L.length;i++){if(s>=L[i][0]){cur=L[i];next=L[i+1]||null}}return {cur,next,all:L}}
 const BADGES=[
  ['first','📌','Từ đầu tiên',p=>Object.keys(p.nb).length>=1],
  ['ten','📒','10 từ trong sổ',p=>Object.keys(p.nb).length>=10],
@@ -3073,13 +3110,33 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let IN_FRAME=true;try{IN_FRAME=window.self!==window.top}catch(e){IN_FRAME=true}
 let micBlocked=IN_FRAME;
 const voiceOK=()=>!!SR&&!micBlocked;
-function listenOnce(){return new Promise((res,rej)=>{if(!SR||micBlocked)return rej('unsupported');let r;try{r=new SR()}catch(e){return rej('unsupported')}r.lang='en-US';r.interimResults=false;r.maxAlternatives=5;let got=false;r.onresult=e=>{got=true;res([...e.results[0]].map(a=>a.transcript))};r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed')micBlocked=true;rej(e.error)};r.onend=()=>{if(!got)rej('no-speech')};try{r.start()}catch(e){rej('unsupported')}})}
+/* Nghe giọng nói: nghe đến khi bé ngừng nói (không cắt quá sớm), hiện chữ đang nghe được, gom nhiều phương án */
+let LISTEN_CB=t=>{if(!t)return;const el=document.querySelector('#sp-hint,#y-hint,#sh-hint,#chat-live');if(el)el.textContent='🎧 '+t};
+function listenOnce(onInterim){onInterim=onInterim||LISTEN_CB;return new Promise((res,rej)=>{if(!SR||micBlocked)return rej('unsupported');let r;try{r=new SR()}catch(e){return rej('unsupported')}
+  r.lang='en-US';r.interimResults=true;r.maxAlternatives=5;r.continuous=true;
+  const finals=[];let interim='',done=false,silT=0,hardT=0,heard=false;
+  const finish=()=>{if(done)return;done=true;clearTimeout(silT);clearTimeout(hardT);try{r.stop()}catch(e){}
+    const alts=[];if(finals.length){const firsts=finals.map(f=>f[0]).join(' ').trim();alts.push(firsts);finals.forEach(f=>f.forEach(a=>alts.push(a.trim())))}if(interim.trim())alts.push(interim.trim());
+    const u=[...new Set(alts.filter(Boolean))];u.length?res(u):rej('no-speech')};
+  const quiet=ms=>{clearTimeout(silT);silT=setTimeout(finish,ms)};
+  r.onresult=e=>{heard=true;interim='';for(let i=e.resultIndex;i<e.results.length;i++){const R=e.results[i];if(R.isFinal)finals.push([...R].map(a=>a.transcript));else interim+=R[0].transcript}
+    try{onInterim&&onInterim((finals.map(f=>f[0]).join(' ')+' '+interim).trim())}catch(x){}
+    quiet(finals.length&&!interim?900:1600)};
+  r.onspeechend=()=>quiet(700);
+  r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){micBlocked=true;done=true;return rej(e.error)}if(e.error==='no-speech'&&!heard){done=true;return rej('no-speech')}if(e.error==='aborted')return;if(!heard){done=true;rej(e.error)}else finish()};
+  r.onend=()=>{if(!done){if(heard)finish();else{done=true;rej('no-speech')}}};
+  hardT=setTimeout(finish,9000);
+  try{r.start()}catch(e){rej('unsupported')}})}
 function micErrorText(e){return e==='not-allowed'||e==='service-not-allowed'?'Trình duyệt đang chặn micro. Bấm biểu tượng ổ khóa cạnh địa chỉ trang → cho phép Micro → tải lại trang.':e==='network'?'Nhận giọng nói cần mạng internet. Kiểm tra mạng rồi thử lại nhé.':e==='audio-capture'?'Không tìm thấy micro trên thiết bị này.':e==='unsupported'?'Trình duyệt này chưa nghe được giọng nói. Hãy mở bằng Chrome hoặc Safari.':''+NAME+' chưa nghe thấy gì, bé bấm micro và nói to hơn nhé.'}
 function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let prev=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur}return prev[n]}
 const ONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'],TENS=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
 function numWords(n){n=+n;if(n<20)return ONES[n];if(n<100)return TENS[Math.floor(n/10)]+(n%10?' '+ONES[n%10]:'');if(n===100)return 'one hundred';return String(n)}
 const norm=s=>String(s).toLowerCase().replace(/[-–]/g,' ').replace(/\b(\d{1,3})\b/g,(m,d)=>+d<=100?numWords(d):m).replace(/[^a-z0-9' ]/g,'').replace(/'/g,'').replace(/\s+/g,' ').trim();
-function scoreSpeech(target,alts){const t=norm(target).replace(/ /g,'');let best={sc:0,heard:alts[0]||'',tok:''};for(const a of alts){const toks=norm(a).split(' ').filter(Boolean);const n=norm(target).split(' ').length;for(let i=0;i<toks.length;i++){const cand=toks.slice(i,i+n).join('');const sc=Math.round((1-lev(t,cand)/Math.max(t.length,cand.length))*100);if(sc>best.sc)best={sc,heard:a,tok:cand}}}return best}
+function phon(x){return x.replace(/ph/g,'f').replace(/ck|c(?=[aou])|q/g,'k').replace(/c/g,'s').replace(/z/g,'s').replace(/th/g,'t').replace(/sh/g,'s').replace(/wh/g,'w').replace(/kn/g,'n').replace(/gh/g,'').replace(/(.)\1+/g,'$1').replace(/ee|ea/g,'i').replace(/oo/g,'u').replace(/e$/,'').replace(/s$/,'')}
+function scoreSpeech(target,alts){const r1=scoreSpeech0(target,alts);if(r1.sc>=90)return r1;const pt=phon(norm(target).replace(/ /g,''));let best=r1;
+  for(const a of alts){const toks=norm(a).split(' ').filter(Boolean);const n=Math.max(1,norm(target).split(' ').length);for(let i=0;i<toks.length;i++)for(const k of [n,n+1,Math.max(1,n-1)]){const cand=toks.slice(i,i+k).join('');if(!cand)continue;const pc=phon(cand);const sc=Math.round((1-lev(pt,pc)/Math.max(pt.length,pc.length,1))*100)-8;if(sc>best.sc)best={sc,heard:a,tok:cand}}}
+  return best}
+function scoreSpeech0(target,alts){const t=norm(target).replace(/ /g,'');let best={sc:0,heard:alts[0]||'',tok:''};for(const a of alts){const toks=norm(a).split(' ').filter(Boolean);const n=norm(target).split(' ').length;for(let i=0;i<toks.length;i++){const cand=toks.slice(i,i+n).join('');const sc=Math.round((1-lev(t,cand)/Math.max(t.length,cand.length))*100);if(sc>best.sc)best={sc,heard:a,tok:cand}}}return best}
 function letterMarks(target,heard){const a=target.toLowerCase(),b=heard;const m=a.length,n=b.length;const L=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)L[i][j]=a[i]===b[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);const ok=Array(m).fill(false);let i=0,j=0;while(i<m&&j<n){if(a[i]===b[j]){ok[i]=true;i++;j++}else if(L[i+1][j]>=L[i][j+1])i++;else j++}return [...target].map((ch,k)=>ch===' '||ch==='-'?ch:`<span class="${ok[k]?'g':'r'}">${esc(ch)}</span>`).join('')}
 function matchAnswer(alts,ans){let best={sc:0,heard:alts[0]||''};for(const h of alts){const hn=norm(h);for(const a of ans){let sc;if(a.startsWith('~')){const p=norm(a.slice(1));sc=hn.startsWith(p)?100:Math.round((1-lev(p,hn.slice(0,p.length))/Math.max(p.length,1))*100)}else{const an=norm(a);sc=Math.round((1-lev(an,hn)/Math.max(an.length,hn.length,1))*100)}if(sc>best.sc)best={sc,heard:h}}}return best}
 const examples=ans=>ans.filter(a=>!a.startsWith('~'));
@@ -3094,21 +3151,21 @@ const outbox=()=>load(K_OUTBOX,[]);
 function sendResult(p){const ob=outbox();ob.push(p);save(K_OUTBOX,ob);return flushOutbox()}
 async function flushOutbox(){if(!CFG.resultsUrl)return false;const ob=outbox();if(!ob.length)return true;const rest=[];for(const p of ob){try{await fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})}catch(e){rest.push(p)}}save(K_OUTBOX,rest);return rest.length===0}
 window.addEventListener('online',()=>flushOutbox());
-async function getJSON(params){const u=CFG.resultsUrl+(CFG.resultsUrl.includes('?')?'&':'?')+new URLSearchParams(params).toString();const r=await fetch(u);return r.json()}
+async function getJSON(params){const u=CFG.resultsUrl+(CFG.resultsUrl.includes('?')?'&':'?')+new URLSearchParams(params).toString();const r=await fetch(u);const t=await r.text();try{return JSON.parse(t)}catch(e){const er=new SyntaxError('html');er.snippet=t.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g,' ').replace(/<[^>]+>/g,' ').replace(/&[a-z#0-9]+;/g,' ').replace(/\s+/g,' ').trim().slice(0,220);throw er}}
 
 /* ===================== ROUTER ===================== */
 const HW=(()=>{try{const q=new URLSearchParams(location.search);const id=q.get('hw');if(!id)return null;if(q.get('d')){const x=decLib(q.get('d'));if(x){const r=load(K_LIBRECV,{})||{};r[x.id]=x;save(K_LIBRECV,r);regLib(x)}}return {id:id.slice(0,24),lv:q.get('lv')||'starters',tp:q.get('tp')||'',b:+q.get('b')||0,n:+q.get('n')||0,g:(q.get('g')||'clrpsw').replace(/[^clrpsw]/g,'')||'lrpsw',t:(q.get('t')||'').slice(0,80)}}catch(e){return null}})();
 const VID0=(()=>{try{const q=new URLSearchParams(location.search);const d=q.get('vid');if(!d)return null;const v=decVid(d);if(!v)return null;const r=load(K_VRECV,{})||{};r[v.id]=v;save(K_VRECV,r);return v.id}catch(e){return null}})();
 let route={tab:HW?'hw':VID0?'video':'home',vid:VID0,vmode:'watch',lv:'starters',tp:null,teacherLv:'starters',tview:'hw',hwView:null};
 function go(r){Object.assign(route,r);render();window.scrollTo(0,0)}
-document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{if(SESSION&&route.tab==='session'&&SESSION.hw&&!SESSION.finished){toast('Bé làm xong bài tập rồi hãy chuyển trang nhé');return}go({tab:b.dataset.tab,tp:null,hwView:null,vid:null})});
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{if(SESSION&&route.tab==='session'&&SESSION.hw&&!SESSION.finished){toast('Bé làm xong bài tập rồi hãy chuyển trang nhé');return}go({tab:b.dataset.tab,tp:null,hwView:null,vid:null,shop:false})});
 function render(){
   if(!(route.tab==='video'&&route.vid&&YTP))stopPlayer();
   if(SESSION&&route.tab==='session')return renderSession();
   if(route.tab==='welcome'||(!me().name&&!TEACHER_OK&&!['teacher','hw'].includes(route.tab))){document.querySelectorAll('nav.tabs button').forEach(b=>b.removeAttribute('aria-current'));setLv('starters');return vWelcome()}
   document.querySelectorAll('nav.tabs button').forEach(b=>{if(b.dataset.tab===route.tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   setLv(route.tab==='teacher'?route.teacherLv:route.tab==='chat'?CHAT.lv:route.tab==='hw'&&HW?HW.lv:route.lv);
-  ({video:vVideo,home:vHome,learn:route.tp?vTopic:vLearn,notebook:vNotebook,chat:vChat,teacher:vTeacher,hw:vHw})[route.tab]();
+  ({video:vVideo,home:route.shop?vShop:vHome,learn:route.tp?vTopic:vLearn,notebook:vNotebook,chat:vChat,teacher:vTeacher,hw:vHw})[route.tab]();
   updHdr();
 }
 
@@ -3119,14 +3176,15 @@ function vHome(){
   $('#view').innerHTML=`
   <div class="row" style="justify-content:space-between"><h1>Chào ${esc(me().name)}! 👋</h1><button class="btn sm ghost" id="chg">✏️ Đổi tên</button></div>
   <section class="card pet">
-    <div class="face" aria-hidden="true">${cur[1]}</div>
+    <button class="face petbtn" id="pet-shop" aria-label="Cửa hàng thú cưng">${petStageHTML(cur[1])}</button>
     <div class="stack" style="gap:6px;min-width:0">
-      <span class="tag">Thú cưng của bé</span>
+      <div class="row" style="justify-content:space-between;gap:6px"><span class="tag">Thú cưng của bé</span><span class="row" style="gap:6px"><button class="btn sm sun" id="pet-buy" style="padding:4px 10px">🛍️ Cửa hàng · ${wallet()}⭐</button><button class="btn sm ghost" id="pet-chg" style="padding:4px 10px">🔄 Đổi</button></span></div>
       <h2>${cur[2]}</h2>
       <div class="bar" aria-label="Tiến độ lớn lên"><i style="width:${pct}%"></i></div>
       <span class="muted" style="font-size:13px">${next?`Thêm ${next[0]-P.stars} ⭐ nữa để thú cưng lớn lên ${next[1]}`:'Thú cưng đã lớn hết cỡ!'}</span>
     </div>
   </section>
+  ${eventBanner()}
   ${streakCard()}
   ${CFG.resultsUrl&&!IN_FRAME?`<section class="card stack" style="gap:10px" id="lb"><div class="row" style="justify-content:space-between"><h3>🏆 Bảng vàng</h3><span class="muted" style="font-size:12px">6 bạn nhiều sao nhất</span></div><div id="lb-body" class="muted">Đang tải…</div></section>`:''}
   <section class="card stack" style="gap:10px">
@@ -3149,6 +3207,11 @@ function vHome(){
   $('#go-learn')&&($('#go-learn').onclick=()=>go({tab:'learn'}));
   $('#go-pats')&&($('#go-pats').onclick=()=>startPatSession(duePats()));
   $('#chg').onclick=()=>go({tab:'welcome'});
+  const toShop=()=>{route.shop=true;vShop();window.scrollTo(0,0)};$('#pet-buy')&&($('#pet-buy').onclick=toShop);$('#pet-shop')&&($('#pet-shop').onclick=toShop);$('#ev-go')&&($('#ev-go').onclick=()=>{SHOP_TAB='event';toShop()});
+  $('#pet-chg')&&($('#pet-chg').onclick=()=>{const sec=document.querySelector('.card.pet');sec.classList.remove('pet');sec.innerHTML=`<div class="stack" style="gap:10px;width:100%"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Chọn thú cưng</h3><button class="btn sm ghost" id="pet-x">✕ Đóng</button></div>
+    <p class="muted" style="margin:0;font-size:13px">Thú cưng lớn lên theo số ⭐ của con. Đổi loại thì không mất sao đâu!</p>
+    <div class="petgrid">${Object.entries(PET_KINDS).map(([k,K])=>`<button class="petopt ${(P.petKind||'bird')===k?'on':''}" data-pk="${k}"><b>${K.n}</b><span>${K.st.map(x=>x[0]).join(' ')}</span></button>`).join('')}</div></div>`;
+    $('#pet-x').onclick=()=>render();document.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{P.petKind=b.dataset.pk;saveP();toast('Đã chọn thú cưng mới: '+petOf(P.stars).cur[2]+' '+petOf(P.stars).cur[1]);render()})});
   if($('#lb'))loadTop().then(r=>{const b=$('#lb-body');if(!b||route.tab!=='home')return;b.classList.remove('muted');b.innerHTML=lbHTML(r)});
   $('#go-chat').onclick=()=>go({tab:'chat'});
   document.querySelectorAll('.lvcard').forEach(b=>b.onclick=()=>go({tab:'learn',lv:b.dataset.lv,tp:null}));
@@ -3156,7 +3219,7 @@ function vHome(){
 function streakCard(){const ss=streakState();const S=P.streak;
   const msg=ss.today?'Hôm nay con đã học rồi. Giỏi lắm! ✓':ss.lost?`Chuỗi ${ss.lost} ngày đã mất vì con nghỉ quá lâu. Học hôm nay để bắt đầu chuỗi mới nhé!`:ss.missed?`Con đã nghỉ ${ss.missed} ngày. Học hôm nay, ${ss.missed} lần đóng băng 🧊 sẽ giữ chuỗi cho con!`:S.last?'Học hôm nay để chuỗi tăng lên nhé!':'Học bài đầu tiên để bắt đầu chuỗi ngày học!';
   return `<section class="card streak"><div class="flame" aria-hidden="true">🔥</div><div class="stack" style="gap:4px;min-width:0"><span class="tag">Chuỗi ngày học</span><h2>${ss.n} ngày liên tiếp</h2><div class="row" style="gap:6px"><span class="pill">🧊 ${S.freeze} lần đóng băng</span><span class="pill">🏅 Kỷ lục ${S.best} ngày</span></div><span style="font-size:14px">${msg}</span><span class="muted" style="font-size:12px">Nghỉ 1 ngày sẽ dùng 1 lần đóng băng để giữ chuỗi. Hết đóng băng mà nghỉ thì chuỗi mất. Giữ chuỗi mỗi 10 ngày được thêm 1 lần đóng băng.</span></div></section>`}
-function lbHTML(r){if(!r)return TOPERR&&TOPERR!=='net'?'<span class="muted">Bảng vàng chưa bật. Con nhờ cô kiểm tra giúp nhé.</span>'+(TEACHER_OK?'<p class="note" style="margin:6px 0 0;font-size:13px">Giáo viên: Google Apps Script đang là bản cũ, chưa có Bảng vàng. Làm theo README mục 8 (dán mã mới → Triển khai → Quản lý bản triển khai → ✏️ → Phiên bản mới).</p>':''):'<span class="muted">Chưa tải được bảng vàng. Kiểm tra mạng nhé.</span>'+(TEACHER_OK?'<p class="note" style="margin:6px 0 0;font-size:13px">Giáo viên: app không đọc được dữ liệu từ Google Apps Script. Thường do bản triển khai đang để <b>“Bất kỳ ai có tài khoản Google”</b>. Vào Apps Script → Triển khai → Quản lý bản triển khai → ✏️ → Ai có quyền truy cập: <b>Bất kỳ ai</b> → Phiên bản mới → Triển khai.</p>':'');const it=r.items||[];if(!it.length)return '<span class="muted">Chưa có ai. Con hãy là người đầu tiên!</span>';
+function lbHTML(r){if(!r)return TOPERR&&TOPERR!=='net'?'<span class="muted">Bảng vàng chưa bật. Con nhờ cô kiểm tra giúp nhé.</span>'+(TEACHER_OK?'<p class="note" style="margin:6px 0 0;font-size:13px">Giáo viên: Google Apps Script đang là bản cũ, chưa có Bảng vàng. Làm theo README mục 8 (dán mã mới → Triển khai → Quản lý bản triển khai → ✏️ → Phiên bản mới).</p>':''):'<span class="muted">Chưa tải được bảng vàng. Kiểm tra mạng nhé.</span>'+(TEACHER_OK?'<p class="note" style="margin:6px 0 0;font-size:13px">Giáo viên: app không đọc được dữ liệu từ Google Apps Script. Thường do bản triển khai đang để <b>“Bất kỳ ai có tài khoản Google”</b>. Vào Apps Script → Triển khai → Quản lý bản triển khai → ✏️ → Ai có quyền truy cập: <b>Bất kỳ ai</b> → Phiên bản mới → Triển khai.'+(TOPSNIP?'<br><b>Google trả về:</b> <code>'+esc(TOPSNIP)+'</code>':'')+'</p>':'');const it=r.items||[];if(!it.length)return '<span class="muted">Chưa có ai. Con hãy là người đầu tiên!</span>';
   return `<ol class="lb">${it.map((x,k)=>`<li class="${x.you?'you':''}"><span class="rk">${k<3?['🥇','🥈','🥉'][k]:k+1}</span><b>${esc(x.name)}${x.you?' (con)':''}</b><span class="st">⭐ ${x.stars}</span></li>`).join('')}</ol>${r.yourRank&&r.yourRank>it.length?`<p class="muted" style="margin:6px 0 0;font-size:13px">Con đang đứng thứ ${r.yourRank} với ⭐ ${P.stars}. Cố lên nào!</p>`:''}`}
 function levelSeg(cur,attr){return `<div class="seg" role="group" aria-label="Trình độ">${LEVELS.map(l=>`<button ${attr}="${l.id}" aria-pressed="${l.id===cur}">${l.name} <span style="opacity:.75;font-weight:400">${l.cefr}</span></button>`).join('')}</div>`}
 function vLearn(){
@@ -3349,7 +3412,7 @@ function gSpeak(){
   $('#mic').onclick=async()=>{const m=$('#mic');m.classList.add('rec');$('#sp-hint').textContent='Đang nghe…';
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;const r=scoreSpeech(w.w,alts);
       $('#ltr').innerHTML=letterMarks(w.w,r.tok||norm(r.heard).replace(/ /g,''));
-      const good=r.sc>=75;$('#sp-hint').textContent=`Máy nghe được: “${r.heard}”`;
+      const good=r.sc>=70;$('#sp-hint').textContent=`Máy nghe được: “${r.heard}”`;
       $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${r.sc}</div><b>${good?'Phát âm tốt lắm!':'Gần đúng rồi, thử lại nhé!'}</b><span class="muted" style="font-size:13px">Chữ đỏ là phần máy chưa nghe rõ.</span>${ipaOf(w.w,w.ipa)?`<div class="ipabox"><span>Phiên âm chuẩn</span>${ipaHTML(w)}${good?'':'<button class="btn sm" id="slowm">🐢 Nghe chậm từng âm</button>'}</div>`:''}<div class="row"><button class="btn" id="again">🔁 Thử lại</button>${good&&SB?'<button class="btn pri" id="sent">💬 Đọc cả câu</button>':''}<button class="btn sun" id="nx">Tiếp →</button></div><div id="sent-res" class="muted" style="text-align:center"></div></div>`;
       $('#sent')&&($('#sent').onclick=async()=>{const sb=$('#sent');sb.disabled=true;sb.textContent='Đang nghe…';try{const a2=await listenOnce();const r2=matchAnswer(a2,[SB.tgt]);const ok2=r2.sc>=70;$('#sent-res').innerHTML=`Máy nghe được: “${esc(r2.heard)}” · <b style="color:var(${ok2?'--good':'--bad'})">${r2.sc}</b>${ok2?' · +1 ⭐ thưởng':''}`;if(ok2){SESSION.stars++;const c=$('#s-stars');if(c)c.textContent='⭐ +'+SESSION.stars}}catch(e2){$('#sent-res').textContent=micErrorText(e2)}sb.disabled=false;sb.textContent='💬 Đọc lại cả câu'});
       if(good){rec(attempts===1,'điểm '+r.sc);if(attempts===1){P.speakGood++;saveP()}}
@@ -3499,10 +3562,10 @@ function vChat(){
     html+=`<div class="card scene"><div class="av">${MICON}</div><div style="min-width:0"><b>${T.icon} ${esc(T.name)}</b><div class="muted" style="font-size:13px">${esc(CHAT.scene||'')}</div><div class="row" style="margin-top:6px"><button class="btn sm ghost" id="c-vi">${CHAT.showVi?'Ẩn':'Hiện'} tiếng Việt</button><button class="btn sm ghost" id="c-new">↺ Đổi chủ đề</button></div></div></div>
     <div class="msgs" id="msgs">${CHAT.msgs.map((m,k)=>m.role==='ai'?`<div class="msg ai"><div class="en">${esc(m.en)}</div>${CHAT.showVi&&m.vi?`<div class="vi">${esc(m.vi)}</div>`:''}<div class="tools"><button class="btn sm ghost" data-say="${k}" aria-label="Nghe">🔊</button></div></div>`:`<div class="msg me">${esc(m.en)}</div>`).join('')}${CHAT.busy?'<div class="msg ai"><div class="en">…</div></div>':''}</div>`;
     if(CHAT.done){html+=chatFeedbackHTML()+`<div class="row" style="justify-content:center"><button class="btn sun" id="c-again">↺ Nói lại</button><button class="btn" id="c-new2">Chủ đề khác</button></div>`}
-    else if(CHAT.checkpoint){html+=`<div class="card stack" style="align-items:center;text-align:center;gap:10px"><div class="wface sm" aria-hidden="true">🎉</div><h3 style="margin:0">Con đã nói xong chủ đề ${esc(T.name)}!</h3><p class="muted" style="margin:0">Con muốn dừng lại xem nhận xét, hay nói thêm ${CHAT.mode==='dialog'?'3':'vài'} câu nữa với ${esc(NAME)}?${CHAT.rounds>=MAX_MORE-1?' (Đây là lượt nói thêm cuối cùng.)':''}</p><div class="row" style="justify-content:center"><button class="btn sun big" id="c-stop">⏹ Kết thúc & xem nhận xét</button><button class="btn big" id="c-more">▶ Nói tiếp</button></div></div>`}
+    else if(CHAT.checkpoint){html+=`<div class="card stack" style="align-items:center;text-align:center;gap:10px"><div class="wface sm" aria-hidden="true">🎉</div><h3 style="margin:0">Con đã nói xong chủ đề ${esc(T.name)}!</h3><p class="muted" style="margin:0">Con muốn dừng lại xem nhận xét, hay nói thêm 6 câu nữa với ${esc(NAME)}?${CHAT.rounds>=MAX_MORE-1?' (Đây là lượt nói thêm cuối cùng.)':''}</p><div class="row" style="justify-content:center"><button class="btn sun big" id="c-stop">⏹ Kết thúc & xem nhận xét</button><button class="btn big" id="c-more">▶ Nói tiếp</button></div></div>`}
     else{
       const sugs=CHAT.mode==='dialog'?examples((CHAT.turns[CHAT.turn]||{ans:[]}).ans):(CHAT.sugs||[]);
-      html+=`<div class="voice">${voice?`<button class="mic ${CHAT.listening?'rec':''}" id="c-mic" aria-label="Bấm để nói" ${CHAT.busy?'disabled':''}>🎤</button><span class="muted">${CHAT.listening?NAME+' đang nghe…':'Bấm micro và trả lời theo ý con'}</span>`:''}
+      html+=`<div class="voice">${voice?`<button class="mic ${CHAT.listening?'rec':''}" id="c-mic" aria-label="Bấm để nói" ${CHAT.busy?'disabled':''}>🎤</button><span class="muted" id="chat-live">${CHAT.listening?NAME+' đang nghe…':'Bấm micro và trả lời theo ý con'}</span>`:''}
         <form class="typing" id="c-form" style="width:100%"><input type="text" id="c-in" placeholder="${voice?'Hoặc gõ câu trả lời…':'Gõ câu trả lời của con…'}" autocomplete="off" ${CHAT.busy?'disabled':''}><button class="btn pri" ${CHAT.busy?'disabled':''}>Gửi</button></form>
         <div class="row" style="justify-content:center">${CHAT.mode==='dialog'?'<button class="btn sm ghost" id="c-rep">🔊 Nghe lại câu hỏi</button>':''}${sugs.length?`<button class="btn sm ghost" id="c-tip">💡 ${CHAT.hint?'Ẩn gợi ý':'Gợi ý'}</button>`:''}<button class="btn sm ghost" id="c-end">⏹ Kết thúc & xem nhận xét</button></div>
         ${CHAT.hint&&sugs.length?`<div class="stack" style="gap:6px;align-items:center;width:100%"><span class="muted" style="font-size:13px">Gợi ý câu mẫu. Con có thể nói khác theo ý con${voice?' (chạm để nghe)':' (chạm để gửi)'}:</span><div class="sugs" style="width:100%">${sugs.map((a,k)=>`<button class="sug" data-sg="${k}">${esc(a)}</button>`).join('')}</div></div>`:''}</div>`}
@@ -3543,10 +3606,10 @@ function moreTurns(T,n){const used=new Set(CHAT.turns.map(t=>t.w).filter(Boolean
     if(k3===0)return {w:w.w,q:`Look! ${w.e} What's this?`,vi:'Nhìn này! Đây là gì?',ans:[w.w+'.',`It's ${art(w.w)} ${w.w}.`],re:{en:`This is "${w.w}". ${w.s}`,vi:`Đây là "${w.w}" – ${w.vi}.`}};
     if(k3===1)return {w:w.w,q:`Can you make a sentence with "${w.w}"? ${w.e}`,vi:`Con đặt một câu với từ "${w.w}" (${w.vi}) nhé.`,ans:[w.s],re:{en:`Nice! Here's my sentence: ${w.s}`,vi:'Hay lắm! Đây là câu của cô.'}};
     return {w:w.w,q:`Can you say "${w.w}"? ${w.e}`,vi:`Con nói từ "${w.w}" được không?`,ans:[w.w+'.',`Yes, I can. ${capF(w.w)}!`],re:{en:`Well done! ${w.s}`,vi:`Giỏi lắm! "${w.w}" nghĩa là ${w.vi}.`}}})}
-function dlgMore(){const T=topicOf(CHAT.lv,CHAT.tp);const extra=moreTurns(T,3);if(!extra.length){toast('Mình đã nói hết từ của chủ đề rồi!');return chatEnd()}
+function dlgMore(){const T=topicOf(CHAT.lv,CHAT.tp);let extra=moreTurns(T,6);if(extra.length<6)extra=extra.concat(shuffle(dlgOf(T)).slice(0,6-extra.length));if(!extra.length){toast('Mình đã nói hết từ của chủ đề rồi!');return chatEnd()}
   CHAT.rounds=(CHAT.rounds||0)+1;CHAT.checkpoint=false;CHAT.turns=CHAT.turns.concat(extra);
-  CHAT.msgs.push({role:'ai',en:"Great! Let's talk a little more.",vi:'Tuyệt! Mình nói thêm chút nữa nhé.'});dlgAsk();vChat();
-  speakSeq(["Great! Let's talk a little more.",CHAT.turns[CHAT.turn].q])}
+  CHAT.msgs.push({role:'ai',en:"Great! Let's talk a little more. Six more questions!",vi:'Tuyệt! Mình nói thêm 6 câu nữa nhé.'});dlgAsk();vChat();
+  speakSeq(["Great! Let's talk a little more. Six more questions!",CHAT.turns[CHAT.turn].q])}
 function dlgStart(){
   const T=topicOf(CHAT.lv,CHAT.tp);CHAT.mode='dialog';CHAT.turns=dlgOf(T).slice(0,6);CHAT.turn=0;CHAT.lastRe=false;CHAT.rounds=0;CHAT.checkpoint=false;CHAT.credited=false;CHAT.done=false;CHAT.streak=0;CHAT.log=[];CHAT.hint=false;
   CHAT.scene=`${NAME} hỏi con ${CHAT.turns.length} câu về chủ đề ${T.vi}. Con trả lời theo ý con nhé!`;
@@ -3612,7 +3675,7 @@ Conversation so far:
 ${CHAT.msgs.map(m=>(m.role==='ai'?NAME+': ':'Child: ')+m.en).join('\n')||'(none)'}
 Reply with JSON only: {"reply":"...","reply_vi":"natural Vietnamese translation","correction":"","suggestions":["...","...","..."],"scene_vi":"","done":false}`;
 }
-async function aiMore(){CHAT.rounds=(CHAT.rounds||0)+1;CHAT.aiLimit=(CHAT.aiLimit||6)+4;CHAT.checkpoint=false;CHAT.contNote=true;CHAT.busy=true;vChat();await aiTurn();CHAT.contNote=false}
+async function aiMore(){CHAT.rounds=(CHAT.rounds||0)+1;CHAT.aiLimit=(CHAT.aiLimit||6)+6;CHAT.checkpoint=false;CHAT.contNote=true;CHAT.busy=true;vChat();await aiTurn();CHAT.contNote=false}
 async function aiStart(){CHAT.rounds=0;CHAT.aiLimit=6;CHAT.checkpoint=false;CHAT.credited=false;CHAT.contNote=false;CHAT.mode='ai';CHAT.msgs=[{role:'ai',en:'Hi! Let\'s talk!',vi:'Chào con! Cùng nói chuyện nhé!'}];CHAT.done=false;CHAT.sugs=[];CHAT.hint=false;CHAT.busy=true;CHAT.scene='';vChat();await aiTurn()}
 async function aiSend(text){if(CHAT.busy||CHAT.done||!text)return;CHAT.msgs.push({role:'me',en:text});CHAT.busy=true;CHAT.sugs=[];CHAT.hint=false;vChat();await aiTurn()}
 async function aiTurn(){
@@ -3874,7 +3937,25 @@ async function connTest(out){out.textContent='Đang gửi thử…';const dev='t
   try{await fetch(CFG.resultsUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'ping',dev,name:'',cls:'__test__',stars:0,streak:0,best:0,freeze:0,last:'',open:true,day:today(),ts:Date.now()})})}catch(e){out.innerHTML='❌ Máy này không gửi được dữ liệu (mất mạng hoặc trình duyệt chặn).';return}
   for(let i=0;i<5;i++){await new Promise(z=>setTimeout(z,2500));try{const r=await getJSON({action:'students',key});if(r.ok&&(r.students||[]).some(x=>x.cls==='__test__')){out.innerHTML='✅ Gửi dữ liệu được. Kết nối đã ổn. Nếu Bảng vàng vẫn trống, học sinh cần <b>mở lại app bằng Chrome/Safari</b> (không mở trong Zalo) để app gửi tên lên. Trang HocSinh có thêm 1 dòng lớp "__test__", cô xóa đi được.';return}}catch(e){}}
   out.innerHTML='❌ Đã gửi nhưng Google Sheet không ghi nhận. Cô mở <b>Apps Script → Thực thi (Executions)</b> xem dòng doPost có báo lỗi không, và kiểm tra đã <b>Triển khai → Quản lý bản triển khai → ✏️ → Phiên bản mới</b>. Chụp màn hình gửi lại để được hỗ trợ.'}
-async function tStudents(){
+async function lbSetupCard(){const box=document.createElement('div');box.className='card stack';box.style.gap='8px';box.id='lbsetup';
+  box.innerHTML='<b>🏆 Bảng vàng</b><span class="muted" style="font-size:14px">Đang kiểm tra…</span>';const tb=$('#tbody');if(!tb)return;tb.prepend(box);
+  let st='net',n=0;try{const r=await getJSON({action:'top',dev:'teacher'});if(r&&r.ok){st='ok';n=(r.items||[]).length}else st=(r&&r.error)||'bad'}catch(e){st=e&&e.name==='SyntaxError'?'html':'net';box.dataset.snip=(e&&e.snippet)||String(e&&e.message||e)}
+  if(!document.body.contains(box))return;
+  if(st==='ok'){box.innerHTML=`<b>🏆 Bảng vàng: ✅ đang chạy</b><span style="font-size:14px">${n?`Có <b>${n}</b> bạn đang hiện trên Bảng vàng.`:'Kết nối đã đúng nhưng <b>chưa có học sinh nào</b>. Mỗi con chỉ cần <b>mở lại app bằng Chrome/Safari</b> (đã nhập tên) là tên hiện lên.'}</span>`;return}
+  const old=st==='key'||st==='bad';
+  box.innerHTML=`<b>🏆 Bảng vàng: ❌ ${old?'Google đang chạy mã Apps Script CŨ':st==='html'?'Google không trả về dữ liệu':'Không kết nối được'}</b>
+  ${st==='html'?'<p style="margin:0;font-size:14px">Xem dòng <b>Google trả về</b> bên dưới. Nếu có chữ <b>SyntaxError / Lỗi cú pháp</b>: mã bị dán thiếu hoặc dòng TEACHER_KEY bị sai dấu nháy, hãy dán lại mã. Nếu là trang <b>đăng nhập Google</b>: bản triển khai đang để “Bất kỳ ai có tài khoản Google”. Vào Apps Script → <b>Triển khai → Quản lý bản triển khai → ✏️</b> → Ai có quyền truy cập: <b>Bất kỳ ai</b> → Phiên bản: <b>Phiên bản mới</b> → <b>Triển khai</b>.</p>'+(box.dataset.snip?'<p style="margin:0;font-size:13px"><b>Google trả về:</b> <code>'+esc(box.dataset.snip)+'</code></p>':''):st==='net'?'<p style="margin:0;font-size:14px">Kiểm tra mạng, hoặc link resultsUrl trong config.js chưa đúng.</p>':`<p style="margin:0;font-size:14px">Làm 4 bước (khoảng 2 phút), không cần vào GitHub:</p>
+  <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.6"><li>Bấm <b>📋 Sao chép mã mới</b> bên dưới${load(K_TKEY,'')?' (mã đã kèm sẵn mã xem kết quả của bạn)':''}.</li>
+  <li>Mở Google Sheet → <b>Tiện ích mở rộng → Apps Script</b> → bấm vào ô mã → <b>Ctrl + A</b> → <b>Ctrl + V</b> → <b>Ctrl + S</b>.${load(K_TKEY,'')?'':' Sửa dòng <code>TEACHER_KEY</code> thành mã xem kết quả của bạn.'}</li>
+  <li><b>Triển khai → Quản lý bản triển khai</b> → bấm ✏️ → ô <b>Phiên bản</b> chọn <b>Phiên bản mới</b> → <b>Triển khai</b>. <i>(Không bấm “Tùy chọn triển khai mới”.)</i></li>
+  <li>Quay lại đây bấm <b>🔄 Kiểm tra lại</b>.</li></ol>
+  <div class="row"><button class="btn sun" id="lb-copy">📋 Sao chép mã mới</button><button class="btn" id="lb-re">🔄 Kiểm tra lại</button></div><textarea id="lb-code" readonly style="height:60px;font-size:11px" aria-label="Mã Apps Script"></textarea>`}`;
+  const code=GS_CODE.replace("'doi-ma-nay-thanh-ma-rieng'",load(K_TKEY,'')?JSON.stringify(load(K_TKEY,'')).replace(/"/g,"'"):"'doi-ma-nay-thanh-ma-rieng'");
+  if($('#lb-code'))$('#lb-code').value=code;
+  $('#lb-copy')&&($('#lb-copy').onclick=async()=>{try{await navigator.clipboard.writeText(code);toast('Đã sao chép! Giờ dán vào Apps Script nhé.')}catch(e){const t=$('#lb-code');t.focus();t.select();document.execCommand('copy');toast('Đã chọn mã, bấm Ctrl + C để sao chép')}});
+  $('#lb-re')&&($('#lb-re').onclick=()=>{box.remove();lbSetupCard()})}
+async function tStudents(){await tStudents0();if(route.tab==='teacher'&&route.tview==='students'&&!route.hwView&&CFG.resultsUrl&&!$('#lbsetup'))lbSetupCard()}
+async function tStudents0(){
   const body=$('#tbody');
   if(!CFG.resultsUrl){body.innerHTML=`<div class="note">Chưa kết nối Google Sheet nên chưa theo dõi được học sinh và lượt truy cập. Xem mục 6 trong README.md.</div>`;return}
   const key=load(K_TKEY,'');if(!key){go({hwView:'__key'});return}
@@ -4179,6 +4260,93 @@ function tVideoEdit(){
     if(!V.lines.length&&$('#ve-tr').value.trim())parse();
     if(!V.checked)return toast('Bạn cần xem hết video và đánh dấu ô kiểm duyệt trước khi lưu');
     C.vlib=C.vlib||{};C.vlib[V.id]={...V,parts:false,updated:Date.now()};saveC();toast(vSynced(V)?'Đã lưu video':!V.lines.length?'Đã lưu. Học sinh sẽ luyện theo phụ đề YouTube.':'Đã lưu. Nhớ đồng bộ thời gian để học sinh dùng được Nhại theo và Chép chính tả.');go({vedit:null})};
+}
+
+/* ===================== CỬA HÀNG THÚ CƯNG & SỰ KIỆN =====================
+   Ví sao = tổng sao đã nhận − sao đã tiêu. Tiêu sao KHÔNG làm thú cưng nhỏ lại và KHÔNG giảm điểm Bảng vàng. */
+const SHOP_SLOTS=[['head','🎩 Đội đầu'],['face','🕶️ Kính'],['neck','🧣 Cổ'],['hand','🎈 Đồ chơi'],['scene','🏞️ Phông nền']];
+const SHOP=[
+ {id:'cap',s:'head',e:'🧢',n:'Mũ lưỡi trai',p:15},
+ {id:'bow',s:'head',e:'🎀',n:'Nơ xinh',p:15},
+ {id:'flowerhat',s:'head',e:'🌼',n:'Hoa cài đầu',p:20},
+ {id:'tophat',s:'head',e:'🎩',n:'Mũ ảo thuật',p:50},
+ {id:'helmet',s:'head',e:'⛑️',n:'Mũ cứu hộ',p:60},
+ {id:'grad',s:'head',e:'🎓',n:'Mũ tốt nghiệp',p:100},
+ {id:'crown',s:'head',e:'👑',n:'Vương miện',p:150,streak:10},
+ {id:'glasses',s:'face',e:'👓',n:'Kính cận',p:20},
+ {id:'sun',s:'face',e:'🕶️',n:'Kính râm',p:30},
+ {id:'goggles',s:'face',e:'🥽',n:'Kính bơi',p:40},
+ {id:'mask',s:'face',e:'🤿',n:'Mặt nạ lặn',p:70},
+ {id:'scarf',s:'neck',e:'🧣',n:'Khăn len',p:20},
+ {id:'tie',s:'neck',e:'👔',n:'Cà vạt lịch lãm',p:35},
+ {id:'ribbon',s:'neck',e:'🎗️',n:'Ruy băng',p:25},
+ {id:'beads',s:'neck',e:'📿',n:'Vòng cổ',p:40},
+ {id:'medal3',s:'neck',e:'🥉',n:'Huy chương chăm chỉ',p:0,streak:3},
+ {id:'medal7',s:'neck',e:'🥈',n:'Huy chương 7 ngày',p:0,streak:7},
+ {id:'medal14',s:'neck',e:'🥇',n:'Huy chương 14 ngày',p:0,streak:14},
+ {id:'trophy30',s:'neck',e:'🏆',n:'Cúp 30 ngày',p:0,streak:30},
+ {id:'balloon',s:'hand',e:'🎈',n:'Bóng bay',p:10},
+ {id:'icecream',s:'hand',e:'🍦',n:'Kem ốc quế',p:10},
+ {id:'ball',s:'hand',e:'⚽',n:'Quả bóng',p:15},
+ {id:'kite',s:'hand',e:'🪁',n:'Con diều',p:25},
+ {id:'teddy',s:'hand',e:'🧸',n:'Gấu bông',p:30},
+ {id:'book',s:'hand',e:'📚',n:'Chồng sách',p:30},
+ {id:'guitar',s:'hand',e:'🎸',n:'Đàn ghi-ta',p:60},
+ {id:'rocketToy',s:'hand',e:'🚀',n:'Tên lửa đồ chơi',p:80},
+ {id:'park',s:'scene',e:'🌳',n:'Công viên',p:25,bg:'linear-gradient(#c9ecff,#e6f7d6)',deco:['🌳','🌼','☁️']},
+ {id:'beach',s:'scene',e:'🏖️',n:'Bãi biển',p:40,bg:'linear-gradient(#aee3ff,#ffe7a8)',deco:['🌴','🐚','☀️']},
+ {id:'snow',s:'scene',e:'❄️',n:'Xứ tuyết',p:60,bg:'linear-gradient(#dff1ff,#ffffff)',deco:['❄️','⛄','🌨️']},
+ {id:'party',s:'scene',e:'🎉',n:'Bữa tiệc',p:60,bg:'linear-gradient(#ffe0f0,#fff4c2)',deco:['🎈','🎉','🎊']},
+ {id:'jungle',s:'scene',e:'🌴',n:'Rừng xanh',p:80,bg:'linear-gradient(#c6f0c2,#7fcf8a)',deco:['🌴','🦜','🍃']},
+ {id:'space',s:'scene',e:'🚀',n:'Vũ trụ',p:120,bg:'linear-gradient(#1d1b4a,#4b3a8c)',deco:['🪐','⭐','🌙']},
+ {id:'castle',s:'scene',e:'🏰',n:'Lâu đài',p:150,bg:'linear-gradient(#f3e3ff,#ffd9ec)',deco:['🏰','✨','🌈']},
+ {id:'fire',s:'scene',e:'🔥',n:'Ngọn lửa chăm chỉ',p:0,streak:21,bg:'linear-gradient(#ffd6a0,#ff9a6b)',deco:['🔥','⭐','🔥']}];
+/* Sự kiện theo ngày trong năm: món đồ chỉ mở bán trong thời gian sự kiện, mua rồi giữ mãi */
+const EVENTS=[
+ {id:'teacher',n:'Ngày Nhà giáo Việt Nam 20/11',from:'11-01',to:'11-30',e:'💐',msg:'Tặng hoa cho thầy cô nhé!',items:[
+   {id:'ev_bouquet',s:'hand',e:'💐',n:'Bó hoa tặng cô',p:10},{id:'ev_teacherbg',s:'scene',e:'📚',n:'Lớp học 20/11',p:30,bg:'linear-gradient(#fff1d6,#ffd8e4)',deco:['💐','📚','🍎']}]},
+ {id:'xmas',n:'Giáng sinh',from:'12-01',to:'12-31',e:'🎄',msg:'Ho ho ho! Trang trí cho thú cưng nào!',items:[
+   {id:'ev_santa',s:'head',e:'🎅',n:'Mũ ông già Noel',p:30},{id:'ev_gift',s:'hand',e:'🎁',n:'Hộp quà',p:20},{id:'ev_xmasbg',s:'scene',e:'🎄',n:'Đêm Giáng sinh',p:50,bg:'linear-gradient(#0f3d2e,#1f6b4a)',deco:['🎄','⭐','❄️']}]},
+ {id:'tet',n:'Tết Nguyên đán',from:'01-10',to:'02-28',e:'🧧',msg:'Chúc mừng năm mới! Nhận lì xì nào!',items:[
+   {id:'ev_lixi',s:'hand',e:'🧧',n:'Bao lì xì',p:10},{id:'ev_lantern',s:'hand',e:'🏮',n:'Đèn lồng',p:25},{id:'ev_tetbg',s:'scene',e:'🌸',n:'Sắc xuân',p:50,bg:'linear-gradient(#ffe1e1,#ffd36b)',deco:['🌸','🏮','🧧']}]},
+ {id:'kids',n:'Tết Thiếu nhi 1/6',from:'05-25',to:'06-10',e:'🎠',msg:'Chúc các con ngày 1/6 thật vui!',items:[
+   {id:'ev_pinwheel',s:'hand',e:'🍭',n:'Kẹo mút',p:10},{id:'ev_funbg',s:'scene',e:'🎠',n:'Khu vui chơi',p:40,bg:'linear-gradient(#ffeaa7,#a8e6ff)',deco:['🎠','🎡','🎈']}]},
+ {id:'summer',n:'Hè rực rỡ',from:'06-11',to:'08-31',e:'🍉',msg:'Mùa hè đến rồi! Đi biển thôi!',items:[
+   {id:'ev_melon',s:'hand',e:'🍉',n:'Miếng dưa hấu',p:10},{id:'ev_float',s:'neck',e:'🛟',n:'Phao bơi',p:30}]},
+ {id:'midautumn',n:'Tết Trung thu',from:'09-01',to:'09-30',e:'🥮',msg:'Rước đèn ông sao nào!',items:[
+   {id:'ev_mooncake',s:'hand',e:'🥮',n:'Bánh trung thu',p:10},{id:'ev_moonbg',s:'scene',e:'🌕',n:'Đêm trăng rằm',p:40,bg:'linear-gradient(#2a2560,#5a4a9c)',deco:['🌕','🏮','⭐']}]},
+ {id:'halloween',n:'Halloween',from:'10-15',to:'10-31',e:'🎃',msg:'Trick or treat!',items:[
+   {id:'ev_pumpkin',s:'head',e:'🎃',n:'Mũ bí ngô',p:25},{id:'ev_hallobg',s:'scene',e:'🦇',n:'Đêm Halloween',p:40,bg:'linear-gradient(#2b1d3d,#6b3b7a)',deco:['🦇','🕸️','🎃']}]}];
+function mmdd(d){d=d||new Date();return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function activeEvents(){const t=mmdd();return EVENTS.filter(ev=>ev.from<=ev.to?(t>=ev.from&&t<=ev.to):(t>=ev.from||t<=ev.to))}
+function allItems(){const ev=EVENTS.flatMap(e=>e.items.map(i=>({...i,ev:e.id})));return SHOP.concat(ev)}
+function itemById(id){return allItems().find(i=>i.id===id)}
+function wallet(){return Math.max(0,(P.stars||0)-(P.spent||0))}
+function bestStreak(){const s=P.streak||{};return Math.max(s.best||0,s.n||0)}
+function owned(id){return (P.owned||[]).includes(id)}
+function petStageHTML(petEmoji,big){const w=P.wear||{};const sc=w.scene&&itemById(w.scene);const it=k=>w[k]&&itemById(w[k])?itemById(w[k]).e:'';
+  return `<div class="petstage${big?' big':''}" style="${sc?`background:${sc.bg}`:''}">${sc?sc.deco.map((d,i)=>`<i class="deco d${i}">${d}</i>`).join(''):''}<span class="pbody">${petEmoji}</span>${it('head')?`<i class="acc head">${it('head')}</i>`:''}${it('face')?`<i class="acc face">${it('face')}</i>`:''}${it('neck')?`<i class="acc neck">${it('neck')}</i>`:''}${it('hand')?`<i class="acc hand">${it('hand')}</i>`:''}</div>`}
+function eventBanner(){const ev=activeEvents()[0];if(!ev)return '';return `<button class="evbanner" id="ev-go"><span class="eve">${ev.e}</span><span><b>Sự kiện: ${esc(ev.n)}</b><br><small>${esc(ev.msg)} Có ${ev.items.length} món mới trong cửa hàng.</small></span><span>›</span></button>`}
+let SHOP_TAB='head';
+function vShop(){const {cur}=petOf(P.stars);const evs=activeEvents();const evItems=evs.flatMap(e=>e.items.map(i=>({...i,ev:e.id,evn:e.n})));
+  const list=(SHOP_TAB==='event'?evItems:SHOP.filter(i=>i.s===SHOP_TAB));const w=P.wear||{};
+  $('#view').innerHTML=`<section class="stack">
+   <div class="row" style="justify-content:space-between"><button class="btn sm ghost" id="sh-back">← Trang chủ</button><span class="chip" title="Ví sao">👛 ${wallet()} ⭐</span></div>
+   <h1>🛍️ Cửa hàng thú cưng</h1>
+   <div class="card stack" style="align-items:center;gap:8px">${petStageHTML(cur[1],true)}<b>${esc(cur[2])}</b><span class="muted" style="font-size:13px;text-align:center">Mua đồ bằng ⭐ trong ví. Tiêu sao <b>không</b> làm thú cưng nhỏ lại và <b>không</b> giảm hạng trên Bảng vàng. Đồ có 🔥 được mở khi con giữ chuỗi ngày học.</span></div>
+   ${evs.length?`<div class="note" style="margin:0">${evs.map(e=>`${e.e} <b>${esc(e.n)}</b>: ${esc(e.msg)}`).join('<br>')}</div>`:''}
+   <div class="seg" role="group" aria-label="Loại đồ">${(evs.length?[['event','🎉 Sự kiện']]:[]).concat(SHOP_SLOTS).map(([k,l])=>`<button data-st="${k}" aria-pressed="${SHOP_TAB===k}">${l}</button>`).join('')}</div>
+   <div class="shopgrid">${list.map(i=>{const own=owned(i.id),on=w[i.s]===i.id,need=i.streak&&bestStreak()<i.streak,poor=!own&&wallet()<i.p;
+     return `<div class="shopitem ${on?'on':''}"><span class="si-e">${i.e}</span><b>${esc(i.n)}</b>
+       <span class="muted" style="font-size:12px">${i.streak?`🔥 Chuỗi ${i.streak} ngày${i.p?' · ':''}`:''}${i.p?`${i.p} ⭐`:i.streak?'':'Miễn phí'}${i.ev?' · có hạn':''}</span>
+       ${own?`<button class="btn sm ${on?'':'pri'}" data-wear="${i.id}">${on?'✓ Đang dùng':'Dùng'}</button>`:need?`<button class="btn sm" disabled>🔒 Cần chuỗi ${i.streak} ngày</button>`:`<button class="btn sm sun" data-buy="${i.id}" ${poor?'disabled':''}>${poor?`Thiếu ${i.p-wallet()} ⭐`:i.p?`Mua ${i.p} ⭐`:'Nhận quà'}</button>`}</div>`}).join('')||'<p class="muted">Chưa có món nào.</p>'}</div>
+  </section>`;
+  if(!SHOP_SLOTS.some(([k])=>k===SHOP_TAB)&&!(SHOP_TAB==='event'&&evs.length))SHOP_TAB='head';
+  $('#sh-back').onclick=()=>go({tab:'home',shop:false});
+  document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{SHOP_TAB=b.dataset.st;vShop()});
+  document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const i=itemById(b.dataset.buy);if(!i||owned(i.id))return;if(i.streak&&bestStreak()<i.streak)return;if(wallet()<i.p)return toast('Chưa đủ sao, con học thêm nhé!');
+    P.spent=(P.spent||0)+i.p;P.owned=(P.owned||[]).concat(i.id);P.wear=Object.assign({},P.wear,{[i.s]:i.id});saveP();confetti();toast(`Đã ${i.p?'mua':'nhận'} ${i.e} ${i.n}!`);vShop()});
+  document.querySelectorAll('[data-wear]').forEach(b=>b.onclick=()=>{const i=itemById(b.dataset.wear);const W=Object.assign({},P.wear);W[i.s]=W[i.s]===i.id?null:i.id;P.wear=W;saveP();vShop()});
 }
 
 /* ===================== BOOT ===================== */
