@@ -3106,8 +3106,17 @@ const stripEmoji=t=>String(t).replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F
 const FEMALE=/female|woman|samantha|karen|serena|kate|libby|sonia|susan|hazel|zira|jenny|aria|ava|allison|victoria|moira|tessa|fiona|emma|amy|joanna|salli|kimberly|google uk english female|google us english/i;
 function pickVoice(){const en=VOICES.filter(v=>/^en/i.test(v.lang));return en.find(v=>/en-GB/i.test(v.lang)&&FEMALE.test(v.name))||en.find(v=>FEMALE.test(v.name))||en.find(v=>/en-GB/i.test(v.lang))||en[0]||null}
 function utter(text,rate){const u=new SpeechSynthesisUtterance(stripEmoji(text));const v=pickVoice();u.pitch=1.1;if(v)u.voice=v;u.lang=v?v.lang:'en-GB';u.rate=rate;return u}
-function speak(text,rate=.85){try{speechSynthesis.cancel();speechSynthesis.speak(utter(text,rate))}catch(e){toast('Thiết bị này chưa đọc to được')}}
-function speakSeq(texts,rate=.85){try{speechSynthesis.cancel();texts.filter(Boolean).forEach(t=>speechSynthesis.speak(utter(t,rate)))}catch(e){}}
+/* Chống mất âm đầu: nhiều điện thoại (nhất là Android, tai nghe Bluetooth) tắt đường loa khi im lặng, nên chữ đầu bị nuốt.
+   Trước khi đọc: đánh thức loa bằng một đoạn âm thanh im lặng, chờ một chút nếu loa vừa nghỉ hoặc vừa ngắt câu trước. */
+let ACX=null,LAST_TTS=0,TTS_T=0;
+function wakeAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ACX=ACX||new AC();if(ACX.state==='suspended')ACX.resume();const b=ACX.createBuffer(1,Math.floor(ACX.sampleRate*0.6),ACX.sampleRate);const src=ACX.createBufferSource();src.buffer=b;src.connect(ACX.destination);src.start()}catch(e){}}
+document.addEventListener('pointerdown',()=>{wakeAudio();try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch(e){}},{once:true,capture:true});
+function stopSpeak(){clearTimeout(TTS_T);try{speechSynthesis.cancel()}catch(e){}}
+function ttsRun(list,rate,onErr){clearTimeout(TTS_T);let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel()}catch(e){}
+  const idle=Date.now()-LAST_TTS>1200;wakeAudio();const go=()=>{try{list.forEach((t,i)=>{const u=utter(t,rate);u.onstart=()=>{LAST_TTS=Date.now()};u.onend=()=>{LAST_TTS=Date.now()};speechSynthesis.speak(u)});LAST_TTS=Date.now()}catch(e){onErr&&onErr()}};
+  const d=(busy?200:0)+(idle?250:60);TTS_T=setTimeout(go,d)}
+function speak(text,rate=.85){ttsRun([text],rate,()=>toast('Thiết bị này chưa đọc to được'))}
+function speakSeq(texts,rate=.85){ttsRun(texts.filter(Boolean),rate)}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let IN_FRAME=true;try{IN_FRAME=window.self!==window.top}catch(e){IN_FRAME=true}
 let micBlocked=IN_FRAME;
@@ -3407,14 +3416,15 @@ function gSpeakSent(w){const sent=w.s;let recorded=false,attempts=0;const rec=(o
       <div class="cap" id="ss-line" style="font-size:22px;text-align:left">${hiWord(sent,w.w)}</div>
       <div class="row" style="justify-content:center"><button class="btn sm" id="ss-model">🔊 Nghe cả câu</button><button class="btn sm" id="ss-slow">🐢 Chậm</button><button class="btn sm ghost" id="ss-word">🔈 Nghe từ</button></div></div>
     <div class="stack" style="align-items:center;gap:8px" id="sp-zone"><button class="mic" id="mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="sp-hint">Nghe mẫu, rồi bấm micro và đọc <b>cả câu</b></span><span class="muted" style="font-size:12px;text-align:center">App nghe đến khi con đọc hết câu mới chấm. Giọng đọc được trình duyệt gửi đi để nhận dạng, app không lưu lại.</span></div>
-    <div id="after"></div><div class="row" style="justify-content:center"><button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
+    <div id="after"></div><div class="row" style="justify-content:center">${SENT_SPEAK_LV.includes(w.lv||route.lv)?'':'<button class="btn sm" id="sp-mode">🔤 Chỉ đọc từ</button>'}<button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
   const plain=sent.replace(/ – /g,'. ');
   $('#ss-model').onclick=()=>speak(plain,.85);$('#ss-slow').onclick=()=>speak(plain,.6);$('#ss-word').onclick=()=>speak(w.w,.75);setTimeout(()=>speak(plain,.85),250);
+  $('#sp-mode')&&($('#sp-mode').onclick=()=>{stopSpeak();SESSION.sayAll=false;gSpeak()});
   $('#sp-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
   const selfCheck=msg=>{$('#sp-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Bé bấm 🔊 Nghe cả câu, đọc to theo 3 lần. Bố mẹ hoặc thầy cô nghe và chọn giúp bé nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="ok">👍 Đọc tốt</button><button class="btn" id="again">🔁 Cần luyện thêm</button></div>`;
     $('#ok').onclick=()=>{rec(true,'người lớn chấm');P.speakGood++;saveP();sNext()};$('#again').onclick=()=>{rec(false,'người lớn chấm');speak(plain,.7);sNext()}};
   if(!voiceOK())return selfCheck('');
-  $('#mic').onclick=async()=>{const m=$('#mic');speechSynthesis.cancel();m.classList.add('rec');$('#sp-hint').textContent='Đang nghe… con đọc hết câu nhé';
+  $('#mic').onclick=async()=>{const m=$('#mic');stopSpeak();m.classList.add('rec');$('#sp-hint').textContent='Đang nghe… con đọc hết câu nhé';
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;let best={pct:-1};alts.forEach(a=>{const d=wordDiff(plain,a);if(d.pct>best.pct)best={...d,heard:a}});
       const wd=scoreSpeech(w.w,alts);const sc=Math.round(Math.max(0,best.pct)*100);const good=sc>=70;
       $('#ss-line').innerHTML=best.html;$('#sp-hint').textContent=`Máy nghe được: “${best.heard}”`;
@@ -3428,13 +3438,13 @@ function gSpeakSent(w){const sent=w.s;let recorded=false,attempts=0;const rec=(o
     }catch(e){m.classList.remove('rec');if(micBlocked||e==='unsupported')selfCheck(micErrorText(e));else $('#sp-hint').textContent=micErrorText(e)}};
 }
 function gSpeak(){
-  const w=SESSION.words[SESSION.i];if(SENT_SPEAK_LV.includes(w.lv||route.lv))return gSpeakSent(w);const SB=w.ps&&w.ps.length?buildTarget(w):null;let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
+  const w=SESSION.words[SESSION.i];if(SENT_SPEAK_LV.includes(w.lv||route.lv)||SESSION.sayAll)return gSpeakSent(w);const SB=w.ps&&w.ps.length?buildTarget(w):null;let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
   $('#game').innerHTML=`<h2>Đọc to từ này ${qNo()}</h2>
     <div class="card stack" style="align-items:center;gap:8px"><div class="prompt-em">${w.e}</div><div class="letters" id="ltr">${esc(w.w)}</div>${ipaHTML(w)}<span class="muted">${esc(w.vi)}</span>
     <button class="btn sm" id="sp-model">🔊 Nghe mẫu</button>${SB?`<div class="fc-pat" style="width:100%"><b>💬 ${esc(SB.tgt)}</b>${SB.vi?`<span>${esc(SB.vi)}</span>`:''}</div>`:''}</div>
     <div class="stack" style="align-items:center;gap:8px" id="sp-zone"><button class="mic" id="mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="sp-hint">Bấm micro rồi đọc to</span><span class="muted" style="font-size:12px;text-align:center">Giọng đọc được trình duyệt gửi đi để nhận dạng, app không lưu lại.</span></div>
-    <div id="after"></div><div class="row" style="justify-content:center"><button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
-  $('#sp-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
+    <div id="after"></div><div class="row" style="justify-content:center">${w.s&&w.s.split(' ').length>2?'<button class="btn sm" id="sp-mode">🗣 Đọc cả câu</button>':''}<button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
+  $('#sp-mode')&&($('#sp-mode').onclick=()=>{stopSpeak();SESSION.sayAll=true;gSpeakSent(w)});$('#sp-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
   $('#sp-model').onclick=()=>speak(w.w,.75);setTimeout(()=>speak(w.w,.8),250);
   let attempts=0;
   const selfCheck=msg=>{$('#sp-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Bé bấm 🔊 Nghe mẫu, đọc to theo 3 lần. Bố mẹ hoặc thầy cô nghe và chọn giúp bé nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="ok">👍 Đọc tốt</button><button class="btn" id="again">🔁 Cần luyện thêm</button></div>`;
@@ -3608,7 +3618,7 @@ function vChat(){
   $('#c-start')&&($('#c-start').onclick=dlgStart);
   $('#c-ai')&&($('#c-ai').onclick=aiStart);
   $('#c-vi')&&($('#c-vi').onclick=()=>{CHAT.showVi=!CHAT.showVi;vChat()});
-  [$('#c-new'),$('#c-new2')].forEach(b=>b&&(b.onclick=()=>{CHAT.msgs=[];CHAT.done=false;CHAT.checkpoint=false;speechSynthesis.cancel();vChat()}));
+  [$('#c-new'),$('#c-new2')].forEach(b=>b&&(b.onclick=()=>{CHAT.msgs=[];CHAT.done=false;CHAT.checkpoint=false;stopSpeak();vChat()}));
   $('#c-again')&&($('#c-again').onclick=()=>CHAT.mode==='ai'?aiStart():dlgStart());
   $('#c-rep')&&($('#c-rep').onclick=()=>speak(CHAT.turns[CHAT.turn].q));
   $('#c-tip')&&($('#c-tip').onclick=()=>{CHAT.hint=!CHAT.hint;vChat()});
@@ -3631,7 +3641,7 @@ const MAX_MORE=2;
 function chatCredit(){if(CHAT.credited)return;CHAT.credited=true;addStars(3);P.chats=(P.chats||0)+1;checkBadges();saveP();confetti()}
 function chatCheckpoint(){if((CHAT.rounds||0)>=MAX_MORE){CHAT.msgs.push({role:'ai',en:'Thank you for talking with me! Goodbye!',vi:'Cảm ơn con đã trò chuyện với cô! Tạm biệt!'});chatCredit();CHAT.checkpoint=false;CHAT.done=true;return}
   CHAT.checkpoint=true;CHAT.msgs.push({role:'ai',en:"We've finished our topic! Do you want to stop or talk more?",vi:'Mình nói xong chủ đề rồi! Con muốn dừng lại hay nói thêm?'});chatCredit()}
-function chatEnd(){speechSynthesis.cancel();if(!CHAT.done){CHAT.done=true;CHAT.checkpoint=false;const n=CHAT.mode==='dialog'?CHAT.log.length:CHAT.msgs.filter(m=>m.role==='me').length;if(n&&!CHAT.credited){CHAT.credited=true;addStars(2);P.chats=(P.chats||0)+1;checkBadges();saveP()}}CHAT.listening=false;CHAT.busy=false;vChat()}
+function chatEnd(){stopSpeak();if(!CHAT.done){CHAT.done=true;CHAT.checkpoint=false;const n=CHAT.mode==='dialog'?CHAT.log.length:CHAT.msgs.filter(m=>m.role==='me').length;if(n&&!CHAT.credited){CHAT.credited=true;addStars(2);P.chats=(P.chats||0)+1;checkBadges();saveP()}}CHAT.listening=false;CHAT.busy=false;vChat()}
 function moreTurns(T,n){const used=new Set(CHAT.turns.map(t=>t.w).filter(Boolean));const ws=shuffle(T.words.filter(w=>!used.has(w.w))).slice(0,n);
   return ws.map((w,k)=>{const k3=k%3;
     if(k3===0)return {w:w.w,q:`Look! ${w.e} What's this?`,vi:'Nhìn này! Đây là gì?',ans:[w.w+'.',`It's ${art(w.w)} ${w.w}.`],re:{en:`This is "${w.w}". ${w.s}`,vi:`Đây là "${w.w}" – ${w.vi}.`}};
