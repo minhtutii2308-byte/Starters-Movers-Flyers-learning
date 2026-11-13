@@ -315,27 +315,32 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 .petopt span{font-size:20px;letter-spacing:2px;line-height:1.3}
 .petopt.on{border-color:var(--sun);box-shadow:0 0 0 3px color-mix(in srgb,var(--sun) 35%,transparent)}
 .pet .face.petbtn{padding:0;cursor:pointer;overflow:hidden;font:inherit}
-.petstage{position:relative;width:92px;height:92px;display:grid;place-items:center;border-radius:inherit}
-.petstage.big{width:180px;height:180px;border-radius:32px;background:var(--soft);border:2px dashed var(--line)}
-.petstage .pbody{font-size:58px;line-height:1}
-.petstage.big .pbody{font-size:104px}
-.petstage .acc{position:absolute;font-style:normal;line-height:1;pointer-events:none}
-.petstage .acc.head{top:2%;left:50%;transform:translateX(-50%);font-size:34%}
-.petstage .acc.head,.petstage .acc.face,.petstage .acc.neck,.petstage .acc.hand{font-size:28px}
-.petstage.big .acc.head,.petstage.big .acc.face,.petstage.big .acc.neck,.petstage.big .acc.hand{font-size:52px}
-.petstage .acc.head{top:-4px}
-.petstage .acc.face{top:34%;left:50%;transform:translate(-50%,-50%);opacity:.95}
-.petstage .acc.neck{bottom:6%;left:50%;transform:translateX(-50%)}
-.petstage .acc.hand{bottom:4%;right:2%}
-.petstage .deco{position:absolute;font-style:normal;font-size:18px;opacity:.85}
-.petstage.big .deco{font-size:30px}
-.petstage .deco.d0{left:6%;bottom:6%}.petstage .deco.d1{left:8%;top:8%}.petstage .deco.d2{right:8%;top:8%}
+.petstage{position:relative;width:92px;height:92px;display:grid;place-items:center;border-radius:inherit;font-size:9px;overflow:hidden}
+.petstage.big{width:200px;height:200px;border-radius:32px;background:var(--soft);border:2px dashed var(--line);font-size:20px}
+.petstage .pbody{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);font-size:5.6em;line-height:1;z-index:1}
+.petstage .acc{position:absolute;font-style:normal;line-height:1;pointer-events:none;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.petstage .acc.head{left:50%;top:9%;transform:translate(-50%,0) rotate(-8deg);font-size:2.4em}
+.petstage .acc.face{left:50%;top:44%;transform:translate(-50%,-50%);font-size:1.9em}
+.petstage .acc.neck{left:50%;top:64%;transform:translate(-50%,-50%);font-size:1.5em}
+.petstage .acc.hand{right:6%;top:58%;transform:translateY(-50%) rotate(12deg);font-size:2.2em}
+.petstage .deco{position:absolute;font-style:normal;font-size:1.6em;opacity:.9;z-index:0}
+.petstage .deco.d0{left:6%;bottom:5%}.petstage .deco.d1{left:7%;top:6%}.petstage .deco.d2{right:7%;top:6%}
+.petcap{display:inline-block;background:color-mix(in srgb,var(--sun) 22%,transparent);border-radius:12px;padding:6px 12px;font-size:15px;text-align:center}
+.petcap.sm{font-size:13px;padding:4px 10px}
+.petphoto{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(20,18,15,.55)}
 .shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
 .shopitem{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:12px 8px;border-radius:16px;background:var(--card,#fff);border:2px solid var(--line)}
 .shopitem.on{border-color:var(--sun)}
 .shopitem .si-e{font-size:40px;line-height:1.1}
 .evbanner{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 16px;border-radius:18px;border:2px solid var(--sun);background:linear-gradient(90deg,color-mix(in srgb,var(--sun) 22%,transparent),transparent);color:inherit;font:inherit;cursor:pointer}
 .evbanner .eve{font-size:34px}.evbanner>span:last-child{margin-left:auto;font-size:24px}
+.petstage.facey .pbody{top:54%}
+.petstage.facey .acc.head{top:3%}
+.petstage.facey .acc.face{top:50%}
+.petstage.facey .acc.neck{top:86%}
+.hbc{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card,#fff);font-size:14px;line-height:1.35;cursor:pointer}
+.hbc input{width:18px;height:18px;margin-top:1px;flex:none;accent-color:var(--lv)}
+.hbc:has(input:checked){border-color:var(--lv)}
 
 </style>
 </head>
@@ -3154,7 +3159,8 @@ window.addEventListener('online',()=>flushOutbox());
 async function getJSON(params){const u=CFG.resultsUrl+(CFG.resultsUrl.includes('?')?'&':'?')+new URLSearchParams(params).toString();const r=await fetch(u);const t=await r.text();try{return JSON.parse(t)}catch(e){const er=new SyntaxError('html');er.snippet=t.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g,' ').replace(/<[^>]+>/g,' ').replace(/&[a-z#0-9]+;/g,' ').replace(/\s+/g,' ').trim().slice(0,220);throw er}}
 
 /* ===================== ROUTER ===================== */
-const HW=(()=>{try{const q=new URLSearchParams(location.search);const id=q.get('hw');if(!id)return null;if(q.get('d')){const x=decLib(q.get('d'));if(x){const r=load(K_LIBRECV,{})||{};r[x.id]=x;save(K_LIBRECV,r);regLib(x)}}return {id:id.slice(0,24),lv:q.get('lv')||'starters',tp:q.get('tp')||'',b:+q.get('b')||0,n:+q.get('n')||0,g:(q.get('g')||'clrpsw').replace(/[^clrpsw]/g,'')||'lrpsw',t:(q.get('t')||'').slice(0,80)}}catch(e){return null}})();
+function bList(b){return [...new Set(String(b==null?'':b).split(/[,\s]+/).map(Number).filter(n=>n>0&&n<100))].sort((a,b)=>a-b)}
+const HW=(()=>{try{const q=new URLSearchParams(location.search);const id=q.get('hw');if(!id)return null;if(q.get('d')){const x=decLib(q.get('d'));if(x){const r=load(K_LIBRECV,{})||{};r[x.id]=x;save(K_LIBRECV,r);regLib(x)}}return {id:id.slice(0,24),lv:q.get('lv')||'starters',tp:q.get('tp')||'',b:bList(q.get('b')),n:+q.get('n')||0,g:(q.get('g')||'clrpsw').replace(/[^clrpsw]/g,'')||'lrpsw',t:(q.get('t')||'').slice(0,80)}}catch(e){return null}})();
 const VID0=(()=>{try{const q=new URLSearchParams(location.search);const d=q.get('vid');if(!d)return null;const v=decVid(d);if(!v)return null;const r=load(K_VRECV,{})||{};r[v.id]=v;save(K_VRECV,r);return v.id}catch(e){return null}})();
 let route={tab:HW?'hw':VID0?'video':'home',vid:VID0,vmode:'watch',lv:'starters',tp:null,teacherLv:'starters',tview:'hw',hwView:null};
 function go(r){Object.assign(route,r);render();window.scrollTo(0,0)}
@@ -3179,7 +3185,7 @@ function vHome(){
     <button class="face petbtn" id="pet-shop" aria-label="Cửa hàng thú cưng">${petStageHTML(cur[1])}</button>
     <div class="stack" style="gap:6px;min-width:0">
       <div class="row" style="justify-content:space-between;gap:6px"><span class="tag">Thú cưng của bé</span><span class="row" style="gap:6px"><button class="btn sm sun" id="pet-buy" style="padding:4px 10px">🛍️ Cửa hàng · ${wallet()}⭐</button><button class="btn sm ghost" id="pet-chg" style="padding:4px 10px">🔄 Đổi</button></span></div>
-      <h2>${cur[2]}</h2>
+      <h2>${cur[2]}</h2>${petCaption(cur[2])?`<span class="petcap sm">📸 ${esc(petCaption(cur[2]))}</span>`:''}
       <div class="bar" aria-label="Tiến độ lớn lên"><i style="width:${pct}%"></i></div>
       <span class="muted" style="font-size:13px">${next?`Thêm ${next[0]-P.stars} ⭐ nữa để thú cưng lớn lên ${next[1]}`:'Thú cưng đã lớn hết cỡ!'}</span>
     </div>
@@ -3533,13 +3539,13 @@ function sFinish(){
 /* ===================== HOMEWORK (student side) ===================== */
 const hwProg=id=>(load(K_HWPROG,{})||{})[id]||null;
 function setHwProg(id,v){const a=load(K_HWPROG,{})||{};a[id]=v;save(K_HWPROG,a)}
-function hwParts(T){const LS=lessonsOf(T);if(HW.b&&LS[HW.b-1])return [{k:HW.b,words:LS[HW.b-1]}];if(HW.n)return [{k:1,words:T.words.slice(0,HW.n)}];return LS.map((ws,i)=>({k:i+1,words:ws}))}
+function hwParts(T){const LS=lessonsOf(T);const bs=(HW.b||[]).filter(k=>LS[k-1]);if(bs.length)return bs.map(k=>({k,words:LS[k-1]}));if(HW.n)return [{k:1,words:T.words.slice(0,HW.n)}];return LS.map((ws,i)=>({k:i+1,words:ws}))}
 function vHw(){
   if(!HW){return go({tab:'home'})}
   const L=lvOf(HW.lv),T=topicOf(HW.lv,HW.tp);setLv(L.id);
   if(!T){$('#view').innerHTML=`<section class="card stack" style="margin-top:20px"><h2>Đang tải bài tập…</h2><p class="muted" style="margin:0">Nếu chờ lâu, bé kiểm tra mạng rồi tải lại trang nhé. Nếu vẫn không thấy, có thể link bài tập bị sai.</p></section>`;return}
   const parts=hwParts(T);const multi=parts.length>1;const prog=hwProg(HW.id);const total=parts.reduce((a,p)=>a+p.words.length,0);
-  const hero=`<div class="card hw-hero"><div class="ic">${T.icon}</div><div style="min-width:0"><span class="tag">📮 Bài tập về nhà · ${L.name}</span><h1>${esc(HW.t||T.name)}</h1><span class="muted">${esc(T.name)} · ${esc(T.vi)} · ${multi?`${parts.length} bài nhỏ, ${total} từ`:`${HW.b?'Bài '+HW.b+' · ':''}${total} từ: ${parts[0].words.map(w=>esc(w.w)).join(', ')}`}</span>
+  const hero=`<div class="card hw-hero"><div class="ic">${T.icon}</div><div style="min-width:0"><span class="tag">📮 Bài tập về nhà · ${L.name}</span><h1>${esc(HW.t||T.name)}</h1><span class="muted">${esc(T.name)} · ${esc(T.vi)} · ${multi?`${parts.length} bài nhỏ, ${total} từ`:`${HW.b.length?'Bài '+HW.b.join(', ')+' · ':''}${total} từ: ${parts[0].words.map(w=>esc(w.w)).join(', ')}`}</span>
       <div class="games" style="margin-top:8px">${HW.g.split('').map(k=>`<span class="pill">${STAGE_BY[k][1]}</span>`).join('')}</div></div></div>`;
   if(!prog){
     const st=load(K_STUDENT,{name:'',cls:''});
@@ -3569,7 +3575,7 @@ function vHw(){
   document.querySelectorAll('[data-hwp]').forEach(b=>b.onclick=()=>startHwPart(T,+b.dataset.hwp));
 }
 function startHwPart(T,i){const parts=hwParts(T);const p=parts[i];const prog=hwProg(HW.id);if(!p||!prog)return;
-  startSession(p.words,parts.length>1?`${HW.t||T.name} · Bài ${p.k}/${parts.length}`:(HW.t||T.name),0,{games:HW.g,hw:{...HW,name:prog.name,cls:prog.cls,sid:prog.sid,les:p.k,nles:parts.length,part:i}})}
+  startSession(p.words,parts.length>1?`${HW.t||T.name} · Bài ${p.k} (${i+1}/${parts.length})`:(HW.t||T.name),0,{games:HW.g,hw:{...HW,name:prog.name,cls:prog.cls,sid:prog.sid,les:p.k,nles:parts.length,part:i}})}
 
 /* ===================== ROLE PLAY: voice dialogue + optional AI ===================== */
 const CHAT={log:[],lv:'starters',tp:'body',msgs:[],scene:'',busy:false,mode:null,turns:[],turn:0,tries:0,showVi:true,listening:false,hint:false,done:false,sugs:[],streak:0};
@@ -3749,20 +3755,23 @@ function tHomework(){
     <h3>Giao bài mới</h3>
     ${levelSeg(route.teacherLv,'data-tl')}
     <div class="grid2"><div><label for="h-topic">Chủ đề</label><select id="h-topic">${(()=>{const mine=Object.values(C.lib||{}).filter(x=>x.lv===L.id).map(x=>topicOf(L.id,x.id)).filter(Boolean);return (mine.length?`<optgroup label="📚 Thư viện của tôi">${mine.map(t=>`<option value="${esc(t.id)}" ${route.preTopic===t.id?'selected':''}>${t.icon} ${esc(t.name)} (${t.words.length} từ)</option>`).join('')}</optgroup><optgroup label="Chủ đề có sẵn">`:'')+L.topics.map(t=>`<option value="${esc(t.id)}">${t.icon} ${esc(t.name)} (${t.words.length} từ)</option>`).join('')+(mine.length?'</optgroup>':'')})()}</select></div>
-    <div><label for="h-b">Phần từ vựng</label><select id="h-b"></select></div></div>
+    <div><span class="lbl" style="font-weight:700;font-size:14px">Phần từ vựng</span><div id="h-b" class="stack" style="gap:6px;margin-top:6px"></div></div></div>
     <div><label>Các phần trong bài</label><div class="games">${Object.entries(STAGE_BY).map(([k,s])=>`<label><input type="checkbox" id="g-${k}" value="${k}" ${k==='w'&&['starters','gs1','pu1','pu2'].includes(L.id)?'':'checked'}> ${s[1]}</label>`).join('')}</div></div>
     <div class="grid2"><div><label for="h-title">Tên bài</label><input type="text" id="h-title" maxlength="60" placeholder="Ví dụ: BTVN tuần 3"></div><div><label for="h-due">Hạn nộp (không bắt buộc)</label><input type="text" id="h-due" maxlength="30" placeholder="Ví dụ: Thứ Sáu 14/11"></div></div>
     <div><button class="btn sun" id="h-make">📮 Tạo link bài tập</button></div>
     <div id="h-out"></div>
   </div>
   <div class="card stack"><div class="row" style="justify-content:space-between"><h3>Bài đã giao</h3>${CFG.resultsUrl?'<button class="btn sm ghost" id="h-sync">↻ Lấy danh sách từ Google Sheet</button>':''}</div>
-    ${list.length?list.slice().reverse().map(h=>{const t=topicOf(h.lv,h.tp);return `<div class="hwrow"><div style="min-width:0"><b>${esc(h.title)}</b><div class="muted" style="font-size:13px">${lvOf(h.lv).name} · ${t?esc(t.name):esc(h.tp)} · ${h.b?'Bài '+h.b:h.n?h.n+' từ':'cả chủ đề'}${h.due?' · Hạn: '+esc(h.due):''}</div></div><div class="row" style="gap:6px"><button class="btn sm" data-copy="${esc(h.id)}">🔗 Link</button><button class="btn sm pri" data-res="${esc(h.id)}">📊 Kết quả</button></div></div>`}).join(''):'<p class="muted" style="margin:0">Chưa có bài nào.</p>'}
+    ${list.length?list.slice().reverse().map(h=>{const t=topicOf(h.lv,h.tp);return `<div class="hwrow"><div style="min-width:0"><b>${esc(h.title)}</b><div class="muted" style="font-size:13px">${lvOf(h.lv).name} · ${t?esc(t.name):esc(h.tp)} · ${bList(h.b).length?'Bài '+bList(h.b).join(', '):h.n?h.n+' từ':'cả chủ đề'}${h.due?' · Hạn: '+esc(h.due):''}</div></div><div class="row" style="gap:6px"><button class="btn sm" data-copy="${esc(h.id)}">🔗 Link</button><button class="btn sm pri" data-res="${esc(h.id)}">📊 Kết quả</button></div></div>`}).join(''):'<p class="muted" style="margin:0">Chưa có bài nào.</p>'}
   </div>`;
   document.querySelectorAll('[data-tl]').forEach(b=>b.onclick=()=>go({teacherLv:b.dataset.tl}));
   route.preTopic=null;
-  const fillB=()=>{const T=topicOf(L.id,$('#h-topic').value);const LS=lessonsOf(T);$('#h-b').innerHTML=`<option value="0">Cả chủ đề: ${LS.length} bài nhỏ, ${T.words.length} từ (học sinh làm lần lượt từng bài)</option>`+LS.map((ws,k)=>`<option value="${k+1}">Chỉ Bài ${k+1}: ${ws.map(w=>esc(w.w)).join(', ')}</option>`).join('')};fillB();$('#h-topic').onchange=fillB;
+  const fillB=()=>{const T=topicOf(L.id,$('#h-topic').value);const LS=lessonsOf(T);
+    $('#h-b').innerHTML=`<label class="chk hbc"><input type="checkbox" id="hb-all" checked> <b>Cả chủ đề</b> (${LS.length} bài nhỏ, ${T.words.length} từ)</label>`+LS.map((ws,k)=>`<label class="chk hbc"><input type="checkbox" data-hb="${k+1}" checked> <b>Bài ${k+1}:</b> <span class="muted">${ws.map(w=>esc(w.w)).join(', ')}</span></label>`).join('')+`<span class="muted" id="hb-sum" style="font-size:13px"></span>`;
+    const boxes=[...document.querySelectorAll('[data-hb]')];const sum=()=>{const on=boxes.filter(x=>x.checked);$('#hb-all').checked=on.length===boxes.length;$('#hb-all').indeterminate=on.length>0&&on.length<boxes.length;$('#hb-sum').textContent=on.length===boxes.length?'Học sinh làm lần lượt tất cả các bài.':on.length?`Đã chọn ${on.length} bài: Bài ${on.map(x=>x.dataset.hb).join(', ')} (${on.reduce((a,x)=>a+LS[x.dataset.hb-1].length,0)} từ).`:'Chọn ít nhất 1 bài.'};
+    $('#hb-all').onchange=()=>{boxes.forEach(x=>x.checked=$('#hb-all').checked);sum()};boxes.forEach(x=>x.onchange=sum);sum()};fillB();$('#h-topic').onchange=fillB;
   $('#h-make').onclick=()=>{const tp=$('#h-topic').value;const T=topicOf(L.id,tp);const g=Object.keys(STAGE_BY).filter(k=>$('#g-'+k).checked).join('');if(!g.replace('c',''))return toast('Chọn ít nhất một phần Nghe, Đọc, Nói hoặc Viết');
-    const b=+$('#h-b').value;const h={id:uid(8),lv:L.id,tp,b,n:0,g,title:$('#h-title').value.trim()||(b?`${T.name} – Bài ${b}`:T.name),due:$('#h-due').value.trim(),created:Date.now()};h.link=hwLink(h);
+    const boxes=[...document.querySelectorAll('[data-hb]')];const on=boxes.filter(x=>x.checked).map(x=>+x.dataset.hb);if(!on.length)return toast('Chọn ít nhất 1 bài nhỏ nhé');const b=on.length===boxes.length?0:on.join(',');const h={id:uid(8),lv:L.id,tp,b,n:0,g,title:$('#h-title').value.trim()||(b?`${T.name} – Bài ${on.join(', ')}`:T.name),due:$('#h-due').value.trim(),created:Date.now()};h.link=hwLink(h);
     const l=hwList();l.push(h);save(K_HWLIST,l);
     if(CFG.resultsUrl)sendResult({type:'assign',...h});
     tHomework();$('#h-out').innerHTML=`<div class="stack" style="gap:8px"><span class="pill ok">✓ Đã tạo bài “${esc(h.title)}”</span><div class="linkbox" id="h-link">${esc(h.link)}</div><div class="row"><button class="btn sm sun" id="h-cp">Sao chép link gửi học sinh</button><a class="btn sm" href="${esc(h.link)}" target="_blank" rel="noopener">Mở thử</a></div></div>`;
@@ -3784,7 +3793,7 @@ async function vResults(id){
   try{const r=await getJSON({action:'results',hw:id,key});if(!r.ok){if(r.error==='key'){save(K_TKEY,'');toast('Mã xem kết quả chưa đúng');return vResults(id)}throw r}rows=r.rows||[]}
   catch(e){$('#view').innerHTML=`<section class="stack">${head}<div class="note">Chưa tải được kết quả. Kiểm tra mạng, hoặc kiểm tra lại link <code>resultsUrl</code> trong config.js.</div><div><button class="btn" id="r-retry">↻ Thử lại</button></div></section>`;$('#r-back').onclick=()=>go({hwView:null});$('#r-retry').onclick=()=>vResults(id);return}
   if(route.hwView!==id)return;
-  const T0=h?topicOf(h.lv,h.tp):null;const NL=h?(h.b||h.n?1:(T0?lessonsOf(T0).length:1)):1;
+  const T0=h?topicOf(h.lv,h.tp):null;const NL=h?(bList(h.b).length||(h.n?1:(T0?lessonsOf(T0).length:1))):1;
   const by={};rows.forEach(r=>{const s=by[r.sid]||(by[r.sid]={sid:r.sid,name:r.name,cls:r.cls,start:null,les:{},nles:NL});
     if(r.status==='start'){s.start=s.start?Math.min(s.start,r.ts):r.ts}
     else if(r.status==='done'){const it0=(r.items||[])[0]||{};const k=it0.les||1;if(it0.nles)s.nles=Math.max(s.nles,it0.nles);if(!s.les[k]||r.ts>s.les[k].ts)s.les[k]=r}
@@ -4306,45 +4315,45 @@ const SHOP=[
  {id:'goggles',s:'face',e:'🥽',n:'Kính bơi',p:40},
  {id:'mask',s:'face',e:'🤿',n:'Mặt nạ lặn',p:70},
  {id:'scarf',s:'neck',e:'🧣',n:'Khăn len',p:20},
- {id:'tie',s:'neck',e:'👔',n:'Cà vạt lịch lãm',p:35},
+ {id:'tie',s:'neck',e:'🔔',n:'Chuông cổ',p:35},
  {id:'ribbon',s:'neck',e:'🎗️',n:'Ruy băng',p:25},
  {id:'beads',s:'neck',e:'📿',n:'Vòng cổ',p:40},
  {id:'medal3',s:'neck',e:'🥉',n:'Huy chương chăm chỉ',p:0,streak:3},
  {id:'medal7',s:'neck',e:'🥈',n:'Huy chương 7 ngày',p:0,streak:7},
  {id:'medal14',s:'neck',e:'🥇',n:'Huy chương 14 ngày',p:0,streak:14},
  {id:'trophy30',s:'neck',e:'🏆',n:'Cúp 30 ngày',p:0,streak:30},
- {id:'balloon',s:'hand',e:'🎈',n:'Bóng bay',p:10},
- {id:'icecream',s:'hand',e:'🍦',n:'Kem ốc quế',p:10},
- {id:'ball',s:'hand',e:'⚽',n:'Quả bóng',p:15},
- {id:'kite',s:'hand',e:'🪁',n:'Con diều',p:25},
- {id:'teddy',s:'hand',e:'🧸',n:'Gấu bông',p:30},
- {id:'book',s:'hand',e:'📚',n:'Chồng sách',p:30},
- {id:'guitar',s:'hand',e:'🎸',n:'Đàn ghi-ta',p:60},
- {id:'rocketToy',s:'hand',e:'🚀',n:'Tên lửa đồ chơi',p:80},
- {id:'park',s:'scene',e:'🌳',n:'Công viên',p:25,bg:'linear-gradient(#c9ecff,#e6f7d6)',deco:['🌳','🌼','☁️']},
- {id:'beach',s:'scene',e:'🏖️',n:'Bãi biển',p:40,bg:'linear-gradient(#aee3ff,#ffe7a8)',deco:['🌴','🐚','☀️']},
- {id:'snow',s:'scene',e:'❄️',n:'Xứ tuyết',p:60,bg:'linear-gradient(#dff1ff,#ffffff)',deco:['❄️','⛄','🌨️']},
- {id:'party',s:'scene',e:'🎉',n:'Bữa tiệc',p:60,bg:'linear-gradient(#ffe0f0,#fff4c2)',deco:['🎈','🎉','🎊']},
- {id:'jungle',s:'scene',e:'🌴',n:'Rừng xanh',p:80,bg:'linear-gradient(#c6f0c2,#7fcf8a)',deco:['🌴','🦜','🍃']},
- {id:'space',s:'scene',e:'🚀',n:'Vũ trụ',p:120,bg:'linear-gradient(#1d1b4a,#4b3a8c)',deco:['🪐','⭐','🌙']},
- {id:'castle',s:'scene',e:'🏰',n:'Lâu đài',p:150,bg:'linear-gradient(#f3e3ff,#ffd9ec)',deco:['🏰','✨','🌈']},
- {id:'fire',s:'scene',e:'🔥',n:'Ngọn lửa chăm chỉ',p:0,streak:21,bg:'linear-gradient(#ffd6a0,#ff9a6b)',deco:['🔥','⭐','🔥']}];
+ {id:'balloon',s:'hand',e:'🎈',n:'Bóng bay',p:10,say:'cầm bóng bay'},
+ {id:'icecream',s:'hand',e:'🍦',n:'Kem ốc quế',p:10,say:'ăn kem'},
+ {id:'ball',s:'hand',e:'⚽',n:'Quả bóng',p:15,say:'chơi bóng'},
+ {id:'kite',s:'hand',e:'🪁',n:'Con diều',p:25,say:'thả diều'},
+ {id:'teddy',s:'hand',e:'🧸',n:'Gấu bông',p:30,say:'ôm gấu bông'},
+ {id:'book',s:'hand',e:'📚',n:'Chồng sách',p:30,say:'đọc sách'},
+ {id:'guitar',s:'hand',e:'🎸',n:'Đàn ghi-ta',p:60,say:'chơi đàn'},
+ {id:'rocketToy',s:'hand',e:'🚀',n:'Tên lửa đồ chơi',p:80,say:'chơi tên lửa'},
+ {id:'park',s:'scene',e:'🌳',n:'Công viên',p:25,bg:'linear-gradient(#c9ecff,#e6f7d6)',deco:['🌳','🌼','☁️'],say:'dạo công viên',where:'ở công viên'},
+ {id:'beach',s:'scene',e:'🏖️',n:'Bãi biển',p:40,bg:'linear-gradient(#aee3ff,#ffe7a8)',deco:['🌴','🐚','☀️'],say:'tắm biển',where:'ở bãi biển'},
+ {id:'snow',s:'scene',e:'❄️',n:'Xứ tuyết',p:60,bg:'linear-gradient(#dff1ff,#ffffff)',deco:['❄️','⛄','🌨️'],say:'chơi tuyết',where:'ở xứ tuyết'},
+ {id:'party',s:'scene',e:'🎉',n:'Bữa tiệc',p:60,bg:'linear-gradient(#ffe0f0,#fff4c2)',deco:['🎈','🎉','🎊'],say:'dự tiệc',where:'ở bữa tiệc'},
+ {id:'jungle',s:'scene',e:'🌴',n:'Rừng xanh',p:80,bg:'linear-gradient(#c6f0c2,#7fcf8a)',deco:['🌴','🦜','🍃'],say:'khám phá rừng xanh',where:'trong rừng xanh'},
+ {id:'space',s:'scene',e:'🚀',n:'Vũ trụ',p:120,bg:'linear-gradient(#1d1b4a,#4b3a8c)',deco:['🪐','⭐','🌙'],say:'du hành vũ trụ',where:'ngoài vũ trụ'},
+ {id:'castle',s:'scene',e:'🏰',n:'Lâu đài',p:150,bg:'linear-gradient(#f3e3ff,#ffd9ec)',deco:['🏰','✨','🌈'],say:'thăm lâu đài',where:'ở lâu đài'},
+ {id:'fire',s:'scene',e:'🔥',n:'Ngọn lửa chăm chỉ',p:0,streak:21,bg:'linear-gradient(#ffd6a0,#ff9a6b)',deco:['🔥','⭐','🔥'],say:'giữ lửa chăm học',where:'bên ngọn lửa chăm chỉ'}];
 /* Sự kiện theo ngày trong năm: món đồ chỉ mở bán trong thời gian sự kiện, mua rồi giữ mãi */
 const EVENTS=[
  {id:'teacher',n:'Ngày Nhà giáo Việt Nam 20/11',from:'11-01',to:'11-30',e:'💐',msg:'Tặng hoa cho thầy cô nhé!',items:[
-   {id:'ev_bouquet',s:'hand',e:'💐',n:'Bó hoa tặng cô',p:10},{id:'ev_teacherbg',s:'scene',e:'📚',n:'Lớp học 20/11',p:30,bg:'linear-gradient(#fff1d6,#ffd8e4)',deco:['💐','📚','🍎']}]},
+   {id:'ev_bouquet',s:'hand',e:'💐',n:'Bó hoa tặng cô',p:10,say:'tặng hoa cho cô nhân ngày 20/11'},{id:'ev_teacherbg',s:'scene',e:'📚',n:'Lớp học 20/11',p:30,bg:'linear-gradient(#fff1d6,#ffd8e4)',deco:['💐','📚','🍎'],say:'đến lớp mừng ngày 20/11',where:'ở lớp học ngày 20/11'}]},
  {id:'xmas',n:'Giáng sinh',from:'12-01',to:'12-31',e:'🎄',msg:'Ho ho ho! Trang trí cho thú cưng nào!',items:[
-   {id:'ev_santa',s:'head',e:'🎅',n:'Mũ ông già Noel',p:30},{id:'ev_gift',s:'hand',e:'🎁',n:'Hộp quà',p:20},{id:'ev_xmasbg',s:'scene',e:'🎄',n:'Đêm Giáng sinh',p:50,bg:'linear-gradient(#0f3d2e,#1f6b4a)',deco:['🎄','⭐','❄️']}]},
+   {id:'ev_santa',s:'head',e:'🌟',n:'Ngôi sao Giáng sinh',p:30,say:'đội ngôi sao Giáng sinh'},{id:'ev_gift',s:'hand',e:'🎁',n:'Hộp quà',p:20,say:'mở quà Giáng sinh'},{id:'ev_xmasbg',s:'scene',e:'🎄',n:'Đêm Giáng sinh',p:50,bg:'linear-gradient(#0f3d2e,#1f6b4a)',deco:['🎄','⭐','❄️'],say:'đón Giáng sinh',where:'bên cây thông Noel'}]},
  {id:'tet',n:'Tết Nguyên đán',from:'01-10',to:'02-28',e:'🧧',msg:'Chúc mừng năm mới! Nhận lì xì nào!',items:[
-   {id:'ev_lixi',s:'hand',e:'🧧',n:'Bao lì xì',p:10},{id:'ev_lantern',s:'hand',e:'🏮',n:'Đèn lồng',p:25},{id:'ev_tetbg',s:'scene',e:'🌸',n:'Sắc xuân',p:50,bg:'linear-gradient(#ffe1e1,#ffd36b)',deco:['🌸','🏮','🧧']}]},
+   {id:'ev_lixi',s:'hand',e:'🧧',n:'Bao lì xì',p:10,say:'nhận lì xì Tết'},{id:'ev_lantern',s:'hand',e:'🏮',n:'Đèn lồng',p:25,say:'rước đèn đón Tết'},{id:'ev_tetbg',s:'scene',e:'🌸',n:'Sắc xuân',p:50,bg:'linear-gradient(#ffe1e1,#ffd36b)',deco:['🌸','🏮','🧧'],say:'du xuân đón Tết',where:'trong sắc xuân'}]},
  {id:'kids',n:'Tết Thiếu nhi 1/6',from:'05-25',to:'06-10',e:'🎠',msg:'Chúc các con ngày 1/6 thật vui!',items:[
-   {id:'ev_pinwheel',s:'hand',e:'🍭',n:'Kẹo mút',p:10},{id:'ev_funbg',s:'scene',e:'🎠',n:'Khu vui chơi',p:40,bg:'linear-gradient(#ffeaa7,#a8e6ff)',deco:['🎠','🎡','🎈']}]},
+   {id:'ev_pinwheel',s:'hand',e:'🍭',n:'Kẹo mút',p:10,say:'mút kẹo ngày 1/6'},{id:'ev_funbg',s:'scene',e:'🎠',n:'Khu vui chơi',p:40,bg:'linear-gradient(#ffeaa7,#a8e6ff)',deco:['🎠','🎡','🎈'],say:'đi khu vui chơi',where:'ở khu vui chơi'}]},
  {id:'summer',n:'Hè rực rỡ',from:'06-11',to:'08-31',e:'🍉',msg:'Mùa hè đến rồi! Đi biển thôi!',items:[
-   {id:'ev_melon',s:'hand',e:'🍉',n:'Miếng dưa hấu',p:10},{id:'ev_float',s:'neck',e:'🛟',n:'Phao bơi',p:30}]},
+   {id:'ev_melon',s:'hand',e:'🍉',n:'Miếng dưa hấu',p:10,say:'ăn dưa hấu mùa hè'},{id:'ev_float',s:'neck',e:'🛟',n:'Phao bơi',p:30,say:'đeo phao đi bơi'}]},
  {id:'midautumn',n:'Tết Trung thu',from:'09-01',to:'09-30',e:'🥮',msg:'Rước đèn ông sao nào!',items:[
-   {id:'ev_mooncake',s:'hand',e:'🥮',n:'Bánh trung thu',p:10},{id:'ev_moonbg',s:'scene',e:'🌕',n:'Đêm trăng rằm',p:40,bg:'linear-gradient(#2a2560,#5a4a9c)',deco:['🌕','🏮','⭐']}]},
+   {id:'ev_mooncake',s:'hand',e:'🥮',n:'Bánh trung thu',p:10,say:'ăn bánh trung thu'},{id:'ev_moonbg',s:'scene',e:'🌕',n:'Đêm trăng rằm',p:40,bg:'linear-gradient(#2a2560,#5a4a9c)',deco:['🌕','🏮','⭐'],say:'ngắm trăng rằm',where:'dưới trăng rằm'}]},
  {id:'halloween',n:'Halloween',from:'10-15',to:'10-31',e:'🎃',msg:'Trick or treat!',items:[
-   {id:'ev_pumpkin',s:'head',e:'🎃',n:'Mũ bí ngô',p:25},{id:'ev_hallobg',s:'scene',e:'🦇',n:'Đêm Halloween',p:40,bg:'linear-gradient(#2b1d3d,#6b3b7a)',deco:['🦇','🕸️','🎃']}]}];
+   {id:'ev_pumpkin',s:'head',e:'🎃',n:'Mũ bí ngô',p:25,say:'hóa trang Halloween'},{id:'ev_hallobg',s:'scene',e:'🦇',n:'Đêm Halloween',p:40,bg:'linear-gradient(#2b1d3d,#6b3b7a)',deco:['🦇','🕸️','🎃'],say:'đi chơi Halloween',where:'trong đêm Halloween'}]}];
 function mmdd(d){d=d||new Date();return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function activeEvents(){const t=mmdd();return EVENTS.filter(ev=>ev.from<=ev.to?(t>=ev.from&&t<=ev.to):(t>=ev.from||t<=ev.to))}
 function allItems(){const ev=EVENTS.flatMap(e=>e.items.map(i=>({...i,ev:e.id})));return SHOP.concat(ev)}
@@ -4353,7 +4362,14 @@ function wallet(){return Math.max(0,(P.stars||0)-(P.spent||0))}
 function bestStreak(){const s=P.streak||{};return Math.max(s.best||0,s.n||0)}
 function owned(id){return (P.owned||[]).includes(id)}
 function petStageHTML(petEmoji,big){const w=P.wear||{};const sc=w.scene&&itemById(w.scene);const it=k=>w[k]&&itemById(w[k])?itemById(w[k]).e:'';
-  return `<div class="petstage${big?' big':''}" style="${sc?`background:${sc.bg}`:''}">${sc?sc.deco.map((d,i)=>`<i class="deco d${i}">${d}</i>`).join(''):''}<span class="pbody">${petEmoji}</span>${it('head')?`<i class="acc head">${it('head')}</i>`:''}${it('face')?`<i class="acc face">${it('face')}</i>`:''}${it('neck')?`<i class="acc neck">${it('neck')}</i>`:''}${it('hand')?`<i class="acc hand">${it('hand')}</i>`:''}</div>`}
+  const facey=['🐶','🐱','🐰','🐯','🦁','🐺','🦊','🐻','🐼','🐨','🐻‍❄️','🐸','🐵','🐮','🐷'].includes(petEmoji);
+  return `<div class="petstage${big?' big':''}${facey?' facey':''}" style="${sc?`background:${sc.bg}`:''}">${sc?sc.deco.map((d,i)=>`<i class="deco d${i}">${d}</i>`).join(''):''}<span class="pbody">${petEmoji}</span>${it('head')?`<i class="acc head">${it('head')}</i>`:''}${it('face')?`<i class="acc face">${it('face')}</i>`:''}${it('neck')?`<i class="acc neck">${it('neck')}</i>`:''}${it('hand')?`<i class="acc hand">${it('hand')}</i>`:''}</div>`}
+function petCaption(name){const w=P.wear||{};const g=k=>w[k]&&itemById(w[k]);const h=g('hand'),sc=g('scene'),hd=g('head'),nk=g('neck');
+  const act=(h&&h.say)||(hd&&hd.say)||(nk&&nk.say)||(sc&&sc.say);if(!act)return '';
+  const where=sc&&sc.where&&act!==sc.say?' '+sc.where:'';return `${name} đang ${act}${where}!`}
+function petPhoto(i){const {cur}=petOf(P.stars);const cap=petCaption(cur[2]);const d=document.createElement('div');d.className='petphoto';d.setAttribute('role','dialog');
+  d.innerHTML=`<div class="card stack" style="align-items:center;gap:10px;max-width:340px">${i.ev?'<span class="tag">🎉 Sự kiện</span>':''}<b style="font-size:18px">${i.p?'Đã mua':'Đã nhận'} ${i.e} ${esc(i.n)}!</b>${petStageHTML(cur[1],true)}${cap?`<p style="margin:0;text-align:center;font-size:16px">📸 ${esc(cap)}</p>`:''}<button class="btn sun" id="pp-ok">Tuyệt quá!</button></div>`;
+  document.body.appendChild(d);d.querySelector('#pp-ok').onclick=()=>d.remove();d.onclick=e=>{if(e.target===d)d.remove()}}
 function eventBanner(){const ev=activeEvents()[0];if(!ev)return '';return `<button class="evbanner" id="ev-go"><span class="eve">${ev.e}</span><span><b>Sự kiện: ${esc(ev.n)}</b><br><small>${esc(ev.msg)} Có ${ev.items.length} món mới trong cửa hàng.</small></span><span>›</span></button>`}
 let SHOP_TAB='head';
 function vShop(){const {cur}=petOf(P.stars);const evs=activeEvents();const evItems=evs.flatMap(e=>e.items.map(i=>({...i,ev:e.id,evn:e.n})));
@@ -4361,7 +4377,7 @@ function vShop(){const {cur}=petOf(P.stars);const evs=activeEvents();const evIte
   $('#view').innerHTML=`<section class="stack">
    <div class="row" style="justify-content:space-between"><button class="btn sm ghost" id="sh-back">← Trang chủ</button><span class="chip" title="Ví sao">👛 ${wallet()} ⭐</span></div>
    <h1>🛍️ Cửa hàng thú cưng</h1>
-   <div class="card stack" style="align-items:center;gap:8px">${petStageHTML(cur[1],true)}<b>${esc(cur[2])}</b><span class="muted" style="font-size:13px;text-align:center">Mua đồ bằng ⭐ trong ví. Tiêu sao <b>không</b> làm thú cưng nhỏ lại và <b>không</b> giảm hạng trên Bảng vàng. Đồ có 🔥 được mở khi con giữ chuỗi ngày học.</span></div>
+   <div class="card stack" style="align-items:center;gap:8px">${petStageHTML(cur[1],true)}<b>${esc(cur[2])}</b>${petCaption(cur[2])?`<span class="petcap">📸 ${esc(petCaption(cur[2]))}</span>`:''}<span class="muted" style="font-size:13px;text-align:center">Mua đồ bằng ⭐ trong ví. Tiêu sao <b>không</b> làm thú cưng nhỏ lại và <b>không</b> giảm hạng trên Bảng vàng. Đồ có 🔥 được mở khi con giữ chuỗi ngày học.</span></div>
    ${evs.length?`<div class="note" style="margin:0">${evs.map(e=>`${e.e} <b>${esc(e.n)}</b>: ${esc(e.msg)}`).join('<br>')}</div>`:''}
    <div class="seg" role="group" aria-label="Loại đồ">${(evs.length?[['event','🎉 Sự kiện']]:[]).concat(SHOP_SLOTS).map(([k,l])=>`<button data-st="${k}" aria-pressed="${SHOP_TAB===k}">${l}</button>`).join('')}</div>
    <div class="shopgrid">${list.map(i=>{const own=owned(i.id),on=w[i.s]===i.id,need=i.streak&&bestStreak()<i.streak,poor=!own&&wallet()<i.p;
@@ -4373,7 +4389,7 @@ function vShop(){const {cur}=petOf(P.stars);const evs=activeEvents();const evIte
   $('#sh-back').onclick=()=>go({tab:'home',shop:false});
   document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{SHOP_TAB=b.dataset.st;vShop()});
   document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const i=itemById(b.dataset.buy);if(!i||owned(i.id))return;if(i.streak&&bestStreak()<i.streak)return;if(wallet()<i.p)return toast('Chưa đủ sao, con học thêm nhé!');
-    P.spent=(P.spent||0)+i.p;P.owned=(P.owned||[]).concat(i.id);P.wear=Object.assign({},P.wear,{[i.s]:i.id});saveP();confetti();toast(`Đã ${i.p?'mua':'nhận'} ${i.e} ${i.n}!`);vShop()});
+    P.spent=(P.spent||0)+i.p;P.owned=(P.owned||[]).concat(i.id);P.wear=Object.assign({},P.wear,{[i.s]:i.id});saveP();confetti();vShop();petPhoto(i)});
   document.querySelectorAll('[data-wear]').forEach(b=>b.onclick=()=>{const i=itemById(b.dataset.wear);const W=Object.assign({},P.wear);W[i.s]=W[i.s]===i.id?null:i.id;P.wear=W;saveP();vShop()});
 }
 
