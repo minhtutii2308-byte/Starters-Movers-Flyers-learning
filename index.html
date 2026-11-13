@@ -3396,8 +3396,36 @@ function gBuild(){
   $('#b-skip').onclick=()=>{if(!done)sRecord('build',w,false,'bỏ qua');sNext()};
   draw();
 }
+const SENT_SPEAK_LV=['pu3','pu4','movers','flyers'];
+function hiWord(sent,word){const re=new RegExp('\\b('+wordForms(word).map(reEsc).join('|')+')\\b','i');return esc(sent).replace(re,'<mark>$1</mark>')}
+function gSpeakSent(w){const sent=w.s;let recorded=false,attempts=0;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
+  $('#game').innerHTML=`<h2>Đọc to cả câu ${qNo()}</h2>
+    <div class="card stack" style="gap:8px"><div class="row" style="gap:10px;align-items:center"><span class="prompt-em" style="font-size:40px">${w.e}</span><span><b style="font-size:20px">${esc(w.w)}</b> ${ipaHTML(w)}<span class="muted">${esc(w.vi)}</span></span></div>
+      <div class="cap" id="ss-line" style="font-size:22px;text-align:left">${hiWord(sent,w.w)}</div>
+      <div class="row" style="justify-content:center"><button class="btn sm" id="ss-model">🔊 Nghe cả câu</button><button class="btn sm" id="ss-slow">🐢 Chậm</button><button class="btn sm ghost" id="ss-word">🔈 Nghe từ</button></div></div>
+    <div class="stack" style="align-items:center;gap:8px" id="sp-zone"><button class="mic" id="mic" aria-label="Bấm để nói">🎤</button><span class="muted" id="sp-hint">Nghe mẫu, rồi bấm micro và đọc <b>cả câu</b></span><span class="muted" style="font-size:12px;text-align:center">App nghe đến khi con đọc hết câu mới chấm. Giọng đọc được trình duyệt gửi đi để nhận dạng, app không lưu lại.</span></div>
+    <div id="after"></div><div class="row" style="justify-content:center"><button class="btn sm ghost" id="sp-skip">⏭ Bỏ qua</button></div>`;
+  const plain=sent.replace(/ – /g,'. ');
+  $('#ss-model').onclick=()=>speak(plain,.85);$('#ss-slow').onclick=()=>speak(plain,.6);$('#ss-word').onclick=()=>speak(w.w,.75);setTimeout(()=>speak(plain,.85),250);
+  $('#sp-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
+  const selfCheck=msg=>{$('#sp-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Bé bấm 🔊 Nghe cả câu, đọc to theo 3 lần. Bố mẹ hoặc thầy cô nghe và chọn giúp bé nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="ok">👍 Đọc tốt</button><button class="btn" id="again">🔁 Cần luyện thêm</button></div>`;
+    $('#ok').onclick=()=>{rec(true,'người lớn chấm');P.speakGood++;saveP();sNext()};$('#again').onclick=()=>{rec(false,'người lớn chấm');speak(plain,.7);sNext()}};
+  if(!voiceOK())return selfCheck('');
+  $('#mic').onclick=async()=>{const m=$('#mic');speechSynthesis.cancel();m.classList.add('rec');$('#sp-hint').textContent='Đang nghe… con đọc hết câu nhé';
+    try{const alts=await listenOnce();m.classList.remove('rec');attempts++;let best={pct:-1};alts.forEach(a=>{const d=wordDiff(plain,a);if(d.pct>best.pct)best={...d,heard:a}});
+      const wd=scoreSpeech(w.w,alts);const sc=Math.round(Math.max(0,best.pct)*100);const good=sc>=70;
+      $('#ss-line').innerHTML=best.html;$('#sp-hint').textContent=`Máy nghe được: “${best.heard}”`;
+      $('#after').innerHTML=`<div class="card stack" style="align-items:center;gap:6px"><div class="score" style="color:var(${good?'--good':'--bad'})">${sc}</div><b>${good?'Đọc cả câu tốt lắm!':'Gần được rồi, nghe lại và đọc thêm lần nữa nhé!'}</b><span class="muted" style="font-size:13px">Chữ xanh là từ đọc đúng, chữ đỏ là từ máy chưa nghe rõ. Từ vựng <b>${esc(w.w)}</b>: ${wd.sc>=70?'✓ đọc đúng':'✗ cần luyện thêm'}.</span>
+        ${good?'':`<div class="ipabox"><span>Từ khó</span>${ipaHTML(w)}<button class="btn sm" id="slowm">🐢 Nghe chậm cả câu</button></div>`}
+        <div class="row"><button class="btn" id="again">🔁 Đọc lại</button><button class="btn sun" id="nx">Tiếp →</button></div></div>`;
+      if(good){rec(attempts===1,'cả câu '+sc);if(attempts===1){P.speakGood++;saveP()}}else sWrongFx();
+      $('#slowm')&&($('#slowm').onclick=()=>speak(plain,.55));
+      $('#again').onclick=()=>{$('#after').innerHTML='';$('#ss-line').innerHTML=hiWord(sent,w.w);$('#sp-hint').textContent='Bấm micro và đọc cả câu';speak(plain,.85)};
+      $('#nx').onclick=()=>{rec(false,'cả câu '+sc);sNext()};
+    }catch(e){m.classList.remove('rec');if(micBlocked||e==='unsupported')selfCheck(micErrorText(e));else $('#sp-hint').textContent=micErrorText(e)}};
+}
 function gSpeak(){
-  const w=SESSION.words[SESSION.i];const SB=w.ps&&w.ps.length?buildTarget(w):null;let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
+  const w=SESSION.words[SESSION.i];if(SENT_SPEAK_LV.includes(w.lv||route.lv))return gSpeakSent(w);const SB=w.ps&&w.ps.length?buildTarget(w):null;let recorded=false;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
   $('#game').innerHTML=`<h2>Đọc to từ này ${qNo()}</h2>
     <div class="card stack" style="align-items:center;gap:8px"><div class="prompt-em">${w.e}</div><div class="letters" id="ltr">${esc(w.w)}</div>${ipaHTML(w)}<span class="muted">${esc(w.vi)}</span>
     <button class="btn sm" id="sp-model">🔊 Nghe mẫu</button>${SB?`<div class="fc-pat" style="width:100%"><b>💬 ${esc(SB.tgt)}</b>${SB.vi?`<span>${esc(SB.vi)}</span>`:''}</div>`:''}</div>
