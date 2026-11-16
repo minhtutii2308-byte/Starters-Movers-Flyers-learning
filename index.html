@@ -4502,15 +4502,25 @@ function voiceTexts(lv){const L=lvOf(lv);const out=new Set();const add=t=>{t=Str
   ["Great job!","Well done!","Try again!","Let's talk a little more. Six more questions!","Great! I'll read with this voice."].forEach(add);
   const seen=new Set();return [...out].filter(t=>{const k=vkey(t);if(seen.has(k))return false;seen.add(k);return true})}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Không tải được '+src));document.head.appendChild(s)})}
-let VG_WORKER=null;
-function vgWorker(){if(VG_WORKER)return VG_WORKER;const code=`import {KokoroTTS} from '${KOKORO_URL}';let tts=null;
+let VG_WORKER=null,VG_MAIN=null,VG_MODE='';
+const VG_WCODE=`let tts=null;
 self.onmessage=async e=>{const m=e.data;try{
- if(m.type==='load'){let dev='wasm',dt='q8';try{if(m.gpu&&self.navigator.gpu&&await self.navigator.gpu.requestAdapter()){dev='webgpu';dt='fp32'}}catch(x){}
-   tts=await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{dtype:dt,device:dev,progress_callback:p=>{if(p&&p.status==='progress')self.postMessage({type:'dl',file:p.file,loaded:p.loaded,total:p.total})}});self.postMessage({type:'ready',dev})}
+ if(m.type==='load'){const mod=await import(m.url);let dev='wasm',dt='q8';
+   try{if(m.gpu&&self.navigator.gpu&&await self.navigator.gpu.requestAdapter()){dev='webgpu';dt='fp32'}}catch(x){}
+   const opts=d=>({dtype:d.dt,device:d.dev,progress_callback:p=>{if(p&&p.status==='progress')self.postMessage({type:'dl',file:p.file,loaded:p.loaded,total:p.total})}});
+   try{tts=await mod.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',opts({dt,dev}))}catch(x){if(dev==='webgpu'){dev='wasm';dt='q8';tts=await mod.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',opts({dt,dev}))}else throw x}
+   self.postMessage({type:'ready',dev})}
  else if(m.type==='gen'){const a=await tts.generate(m.text,{voice:m.voice,speed:m.speed||1});const f=new Float32Array(a.audio);self.postMessage({type:'audio',id:m.id,sr:a.sampling_rate||24000,audio:f},[f.buffer])}
 }catch(err){self.postMessage({type:'err',id:m.id,msg:String(err&&err.message||err)})}};`;
-  VG_WORKER=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})),{type:'module'});return VG_WORKER}
-function vgCall(msg,wantType){const w=vgWorker();return new Promise((res,rej)=>{const h=e=>{const d=e.data;if(d.type==='dl'){VG_DL&&VG_DL(d);return}if(d.type==='err'){w.removeEventListener('message',h);rej(new Error(d.msg));return}if(d.type===wantType&&(d.id===undefined||d.id===msg.id)){w.removeEventListener('message',h);res(d)}};w.addEventListener('message',h);w.postMessage(msg)})}
+function vgWorker(){if(VG_WORKER)return VG_WORKER;VG_WORKER=new Worker(URL.createObjectURL(new Blob([VG_WCODE],{type:'text/javascript'})),{type:'module'});return VG_WORKER}
+/* chế độ dự phòng: chạy ngay trên trang (máy chặn Web Worker) */
+async function vgMainCall(msg){if(msg.type==='load'){const mod=await import(KOKORO_URL);VG_MAIN=await mod.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{dtype:'q8',device:'wasm',progress_callback:p=>{if(p&&p.status==='progress'&&VG_DL)VG_DL(p)}});return {type:'ready',dev:'wasm'}}
+  const a=await VG_MAIN.generate(msg.text,{voice:msg.voice,speed:msg.speed||1});return {type:'audio',id:msg.id,sr:a.sampling_rate||24000,audio:new Float32Array(a.audio)}}
+function vgCall(msg,wantType){if(VG_MODE==='main')return vgMainCall(msg);let w;try{w=vgWorker()}catch(e){VG_MODE='main';return vgMainCall(msg)}
+  return new Promise((res,rej)=>{const done=()=>{w.removeEventListener('message',h);w.removeEventListener('error',he)};
+    const h=e=>{const d=e.data;if(d.type==='dl'){VG_DL&&VG_DL(d);return}if(d.type==='err'){done();rej(new Error(d.msg));return}if(d.type===wantType&&(d.id===undefined||d.id===msg.id)){done();res(d)}};
+    const he=e=>{done();e.preventDefault&&e.preventDefault();VG_WORKER=null;VG_MODE='main';vgMainCall(msg).then(res,rej)};
+    w.addEventListener('message',h);w.addEventListener('error',he);w.postMessage(msg.type==='load'?{...msg,url:KOKORO_URL}:msg)})}
 let VG_DL=null,VG_STOP=false,VG_READY=false;
 function trimPad(f,sr){let s=0,e=f.length-1;const th=0.008;while(s<e&&Math.abs(f[s])<th)s++;while(e>s&&Math.abs(f[e])<th)e--;
   const lead=Math.floor(sr*.12),tail=Math.floor(sr*.08);s=Math.max(0,s-Math.floor(sr*.02));e=Math.min(f.length-1,e+Math.floor(sr*.04));
@@ -4539,8 +4549,8 @@ async function bindVoiceGen(){const st=$('#vg-st'),out=$('#vg-out');
   const ensure=async()=>{if(VG_READY)return;st.textContent='Đang tải công cụ…';if(!window.lamejs){for(const u of LAME_URLS){try{await loadScript(u);if(window.lamejs)break}catch(e){}}if(!window.lamejs)throw new Error('Không tải được bộ nén âm thanh (lamejs). Kiểm tra mạng rồi thử lại.')}
     VG_DL=d=>{if(d.total)st.textContent=`Đang tải mô hình AI (chỉ lần đầu): ${Math.round(d.loaded/1048576)}/${Math.round(d.total/1048576)} MB…`};
     const r=await vgCall({type:'load',gpu:true},'ready');VG_READY=true;st.textContent='✅ Mô hình AI đã sẵn sàng ('+(r.dev==='webgpu'?'card đồ họa, nhanh':'CPU')+').'};
-  $('#vg-try').onclick=async()=>{try{await ensure();const v=$('#vg-voice').value;const r=await vgCall({type:'gen',id:'try',text:"Hello! I'm Miss Tee. Let's learn English together. What's your favourite animal?",voice:v},'audio');
-    const mp3=toMp3(trimPad(r.audio,r.sr),r.sr);const a=ttsAudio();a.src=URL.createObjectURL(new Blob([mp3],{type:'audio/mpeg'}));a.playbackRate=1;a.play()}catch(e){st.innerHTML='❌ '+esc(e.message)+'<br><span class="muted">Hãy dùng Chrome hoặc Edge bản mới trên máy tính, và kiểm tra mạng.</span>'}};
+  $('#vg-try').onclick=async()=>{const bt=$('#vg-try');bt.disabled=true;bt.textContent='⏳ Đang chuẩn bị…';try{await ensure();st.textContent='Đang đọc thử…';const v=$('#vg-voice').value;const r=await vgCall({type:'gen',id:'try',text:"Hello! I'm Miss Tee. Let's learn English together. What's your favourite animal?",voice:v},'audio');
+    const mp3=toMp3(trimPad(r.audio,r.sr),r.sr);const a=ttsAudio();a.src=URL.createObjectURL(new Blob([mp3],{type:'audio/mpeg'}));a.playbackRate=1;await a.play();st.textContent='✅ Đang phát giọng thử. Nếu thích, tick trình độ rồi bấm Bắt đầu tạo.'}catch(e){st.innerHTML='❌ '+esc(e&&e.message||String(e))+'<br><span class="muted">Hãy dùng Chrome hoặc Edge bản mới trên máy tính, và kiểm tra mạng. Chụp dòng lỗi này gửi để được hỗ trợ.</span>'}bt.disabled=false;bt.textContent='▶ Nghe thử'};
   $('#vg-stop').onclick=()=>{VG_STOP=true;$('#vg-stop').disabled=true};
   $('#vg-go').onclick=async()=>{const lvs=[...document.querySelectorAll('[data-vgl]')].filter(x=>x.checked).map(x=>x.dataset.vgl);if(!lvs.length)return toast('Chọn ít nhất 1 trình độ');
     const voice=$('#vg-voice').value;VG_STOP=false;$('#vg-go').disabled=true;$('#vg-stop').hidden=false;$('#vg-stop').disabled=false;
