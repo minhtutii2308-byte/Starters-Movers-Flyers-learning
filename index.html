@@ -341,6 +341,7 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 .hbc{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card,#fff);font-size:14px;line-height:1.35;cursor:pointer}
 .hbc input{width:18px;height:18px;margin-top:1px;flex:none;accent-color:var(--lv)}
 .hbc:has(input:checked){border-color:var(--lv)}
+.vrow{padding:6px 8px;border-radius:10px;border:1.5px solid var(--line)}.vrow.on{border-color:var(--sun)}
 
 </style>
 </head>
@@ -2916,7 +2917,7 @@ const today=()=>ymd(new Date());
 const DAY=864e5,INTERVAL=[0,1,2,4,7,15];
 const uid=(n=8)=>Array.from(crypto.getRandomValues(new Uint8Array(n)),b=>'abcdefghjkmnpqrstuvwxyz23456789'[b%31]).join('');
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
-function setLv(lid){document.documentElement.style.setProperty('--lv',`var(${lvOf(lid).color})`)}
+function setLv(lid){document.documentElement.style.setProperty('--lv',`var(${lvOf(lid).color})`);try{if(RAW[lid]){CUR_LV=lid;vbLoad(lid)}}catch(e){}}
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const PLURAL={child:'children',foot:'feet',tooth:'teeth',person:'people',leaf:'leaves',mouse:'mice',knife:'knives',shelf:'shelves',tomato:'tomatoes',potato:'potatoes'};
 function plural(w){const l=w.toLowerCase();if(PLURAL[l])return PLURAL[l];if(/(s|sh|ch|x|z)$/.test(l))return w+'es';if(/[^aeiou]y$/.test(l))return w.slice(0,-1)+'ies';return w+'s'}
@@ -3103,24 +3104,77 @@ let VOICES=[];
 function loadVoices(){try{VOICES=speechSynthesis.getVoices()}catch(e){}}
 try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices}catch(e){}
 const stripEmoji=t=>String(t).replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}️‍⃣]/gu,'').replace(/\s+/g,' ').trim();
-const FEMALE=/female|woman|samantha|karen|serena|kate|libby|sonia|susan|hazel|zira|jenny|aria|ava|allison|victoria|moira|tessa|fiona|emma|amy|joanna|salli|kimberly|google uk english female|google us english/i;
-function pickVoice(){const en=VOICES.filter(v=>/^en/i.test(v.lang));return en.find(v=>/en-GB/i.test(v.lang)&&FEMALE.test(v.name))||en.find(v=>FEMALE.test(v.name))||en.find(v=>/en-GB/i.test(v.lang))||en[0]||null}
-function utter(text,rate){const u=new SpeechSynthesisUtterance(stripEmoji(text));const v=pickVoice();u.pitch=1.1;if(v)u.voice=v;u.lang=v?v.lang:'en-GB';u.rate=rate;return u}
+const FEMALE=/female|woman|samantha|karen|serena|kate|libby|sonia|susan|hazel|zira|jenny|aria|ava|allison|victoria|moira|tessa|fiona|emma|amy|joanna|salli|kimberly|michelle|zoe|nicky|evelyn|ana\b|sara|google us english|google uk english female|sfg|tpc|iob|iog/i;
+const MALE=/\b(guy|davis|andrew|brian|evan|tom|alex|fred|daniel|aaron|arthur|oliver|george|ryan|eric|roger|steffan|christopher|jason|tony|male)\b|en-us-x-(iol|iom)/i;
+const NOVELTY=/albert|bahh|bells|boing|bubbles|cellos|wobble|good news|bad news|jester|organ|superstar|trinoids|whisper|zarvox|junior|ralph|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i;
+function voiceScore(v){const n=v.name||'',l=(v.lang||'').replace('_','-');if(!/^en/i.test(l))return -999;let s=0;
+  if(/en-US/i.test(l))s+=30;else if(/en-GB/i.test(l))s+=5;else s+=0;
+  if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|nâng cao|cao cấp/i.test(n))s+=40;
+  if(/\b(ava|aria|jenny|emma|michelle|samantha|allison|susan|zoe|nicky|evelyn)\b/i.test(n))s+=25;if(/google us english/i.test(n))s+=28;
+  if(/en-us-x-(sfg|tpc|iob|iog)/i.test(n))s+=26;if(/network/i.test(n))s+=4;
+  if(FEMALE.test(n))s+=12;if(MALE.test(n))s-=45;if(NOVELTY.test(n))s-=200;if(/zira|kathy|victoria/i.test(n))s-=15;
+  return s}
+function rankedVoices(){return VOICES.filter(v=>/^en/i.test(v.lang)).map(v=>({v,s:voiceScore(v)})).filter(x=>x.s>-100).sort((a,b)=>b.s-a.s).map(x=>x.v)}
+function pickVoice(){let pref='';try{pref=P.voice}catch(e){}if(pref){const m=VOICES.find(v=>v.voiceURI===pref||v.name===pref);if(m)return m}return rankedVoices()[0]||null}
+function voiceLabel(v){return v?v.name.replace(/^Microsoft /,'').replace(/ - English \(United States\)/,'').replace(/Online \(Natural\)/,'(Natural)'):'Mặc định'}
+function voicePicker(){const list=rankedVoices().slice(0,12);const cur=pickVoice();const d=document.createElement('div');d.className='petphoto';d.setAttribute('role','dialog');
+  const tip=IS_IOS?'Muốn giọng tự nhiên hơn trên iPhone/iPad: <b>Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Anh</b> → tải giọng <b>Ava (Cao cấp)</b> hoặc <b>Samantha (Nâng cao)</b>, rồi mở lại app và chọn giọng đó ở đây.':/Android/i.test(UA)?'Muốn giọng tự nhiên hơn trên Android: <b>Cài đặt → Hệ thống → Ngôn ngữ → Chuyển văn bản sang lời nói → Dịch vụ của Google → Cài đặt → Cài đặt dữ liệu giọng nói → English (United States)</b> → tải giọng chất lượng cao, rồi chọn lại ở đây.':'Trên máy tính, giọng tự nhiên nhất thường là <b>Microsoft Ava / Jenny / Aria (Natural)</b> khi mở bằng trình duyệt <b>Microsoft Edge</b>, hoặc <b>Google US English</b> trên Chrome.';
+  d.innerHTML=`<div class="card stack" style="gap:8px;max-width:420px;width:100%;max-height:85vh;overflow:auto"><div class="row" style="justify-content:space-between"><b style="font-size:18px">🔊 Chọn giọng đọc</b><button class="btn sm ghost" id="vp-x">✕</button></div>
+    ${CLOUD_OK()?'<p class="note" style="margin:0">✅ Lớp đang dùng <b>giọng chung</b> do cô cài đặt, mọi máy nghe giống nhau. Danh sách dưới chỉ dùng khi mất mạng.</p>':''}<span class="muted" style="font-size:13px">App tự chọn giọng nữ Anh-Mỹ tự nhiên nhất có trên máy này. Bấm ▶ để nghe thử rồi chọn giọng con thích.</span>
+    ${list.length?list.map((v,i)=>`<div class="row vrow ${cur&&cur.name===v.name?'on':''}" style="justify-content:space-between;gap:6px"><span style="font-size:14px"><b>${esc(voiceLabel(v))}</b> <span class="muted">${esc(v.lang)}${i===0?' · gợi ý':''}</span></span><span class="row" style="gap:4px"><button class="btn sm" data-vt="${i}">▶</button><button class="btn sm ${cur&&cur.name===v.name?'':'pri'}" data-vs="${i}">${cur&&cur.name===v.name?'✓ Đang dùng':'Chọn'}</button></span></div>`).join(''):'<p class="note">Máy này chưa có giọng tiếng Anh. Hãy cài thêm theo hướng dẫn dưới đây.</p>'}
+    <p class="note" style="margin:0;font-size:13px">💡 ${tip}</p></div>`;
+  document.body.appendChild(d);d.querySelector('#vp-x').onclick=()=>d.remove();d.onclick=e=>{if(e.target===d)d.remove()};
+  const sample="Hello! I'm Miss Tee. Let's learn English together. What's your favourite animal?";
+  d.querySelectorAll('[data-vt]').forEach(b=>b.onclick=()=>{const v=list[+b.dataset.vt];stopSpeak();const u=new SpeechSynthesisUtterance(sample);u.voice=v;u.lang=v.lang;u.rate=.95;u.pitch=1;wakeAudio();setTimeout(()=>speechSynthesis.speak(u),200)});
+  d.querySelectorAll('[data-vs]').forEach(b=>b.onclick=()=>{const v=list[+b.dataset.vs];P.voice=v.voiceURI||v.name;saveP();d.remove();voicePicker();speak("Great! I'll read with this voice.")})}
+function utter(text,rate){const u=new SpeechSynthesisUtterance(stripEmoji(text));const v=pickVoice();u.pitch=1;if(v)u.voice=v;u.lang=v?v.lang:'en-US';u.rate=Math.min(1.05,rate*1.1);return u}
 /* Chống mất âm đầu: nhiều điện thoại (nhất là Android, tai nghe Bluetooth) tắt đường loa khi im lặng, nên chữ đầu bị nuốt.
    Trước khi đọc: đánh thức loa bằng một đoạn âm thanh im lặng, chờ một chút nếu loa vừa nghỉ hoặc vừa ngắt câu trước. */
 let ACX=null,LAST_TTS=0,TTS_T=0;
 function wakeAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ACX=ACX||new AC();if(ACX.state==='suspended')ACX.resume();const b=ACX.createBuffer(1,Math.floor(ACX.sampleRate*0.6),ACX.sampleRate);const src=ACX.createBufferSource();src.buffer=b;src.connect(ACX.destination);src.start()}catch(e){}}
 document.addEventListener('pointerdown',()=>{wakeAudio();try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch(e){}},{once:true,capture:true});
-function stopSpeak(){clearTimeout(TTS_T);try{speechSynthesis.cancel()}catch(e){}}
+function stopSpeak(){clearTimeout(TTS_T);try{speechSynthesis.cancel()}catch(e){}try{TTS_SEQ++;TTS_AUD&&TTS_AUD.pause()}catch(e){}}
 function ttsRun(list,rate,onErr){clearTimeout(TTS_T);let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel()}catch(e){}
   const idle=Date.now()-LAST_TTS>1200;wakeAudio();const go=()=>{try{list.forEach((t,i)=>{const u=utter(t,rate);u.onstart=()=>{LAST_TTS=Date.now()};u.onend=()=>{LAST_TTS=Date.now()};speechSynthesis.speak(u)});LAST_TTS=Date.now()}catch(e){onErr&&onErr()}};
   const d=(busy?200:0)+(idle?250:60);TTS_T=setTimeout(go,d)}
-function speak(text,rate=.85){ttsRun([text],rate,()=>toast('Thiết bị này chưa đọc to được'))}
-function speakSeq(texts,rate=.85){ttsRun(texts.filter(Boolean),rate)}
+
+/* ===== Giọng đọc đám mây (Google Cloud Text-to-Speech): mọi máy cùng một giọng người Mỹ tự nhiên =====
+   Cần CFG.ttsKey (xem README mục 11). Âm thanh được lưu lại trên máy (Cache Storage) nên mỗi câu chỉ tải 1 lần. */
+const TTS_VOICE=()=>CFG.ttsVoice||'en-US-Chirp3-HD-Aoede';
+const CLOUD_OK=()=>!!CFG.ttsKey&&!IN_FRAME&&!CLOUD_DEAD;let CLOUD_DEAD=false,CLOUD_ERR='';
+const TTS_MEM=new Map();let TTS_AUD=null,TTS_SEQ=0;
+function silentWav(){const n=800,b=new ArrayBuffer(44+n*2),d=new DataView(b);const w=(o,t)=>{for(let i=0;i<t.length;i++)d.setUint8(o+i,t.charCodeAt(i))};w(0,'RIFF');d.setUint32(4,36+n*2,true);w(8,'WAVE');w(12,'fmt ');d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,8000,true);d.setUint32(28,16000,true);d.setUint16(32,2,true);d.setUint16(34,16,true);w(36,'data');d.setUint32(40,n*2,true);return URL.createObjectURL(new Blob([b],{type:'audio/wav'}))}
+function ttsAudio(){if(!TTS_AUD){TTS_AUD=new Audio();TTS_AUD.preload='auto';TTS_AUD.setAttribute('playsinline','')}return TTS_AUD}
+document.addEventListener('pointerdown',()=>{try{const a=ttsAudio();a.src=silentWav();a.volume=0;const pr=a.play();pr&&pr.then(()=>{a.pause();a.volume=1}).catch(()=>{a.volume=1})}catch(e){}},{once:true,capture:true});
+function ttsKey(t,r){return TTS_VOICE()+'|'+r.toFixed(2)+'|'+t}
+async function ttsFetch(text,rate){const k=ttsKey(text,rate);if(TTS_MEM.has(k))return TTS_MEM.get(k);
+  const url='https://tts.local/'+encodeURIComponent(k);let cache=null;try{cache=await caches.open('yle-tts-v1');const hit=await cache.match(url);if(hit){const u=URL.createObjectURL(await hit.blob());TTS_MEM.set(k,u);return u}}catch(e){}
+  const body={input:{text},voice:{languageCode:'en-US',name:TTS_VOICE()},audioConfig:{audioEncoding:'MP3',speakingRate:rate}};
+  const r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+encodeURIComponent(CFG.ttsKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));if(!r.ok||!j.audioContent){const m=(j.error&&j.error.message)||('HTTP '+r.status);const e=new Error(m);e.fatal=r.status===400||r.status===403||r.status===401;throw e}
+  const bin=atob(j.audioContent);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);const blob=new Blob([arr],{type:'audio/mpeg'});
+  try{cache&&await cache.put(url,new Response(blob,{headers:{'Content-Type':'audio/mpeg'}}))}catch(e){}
+  const u=URL.createObjectURL(blob);TTS_MEM.set(k,u);return u}
+function cloudRate(rate){return Math.max(.6,Math.min(1.1,rate*1.12))}
+async function cloudRun(list,rate,fallback){const my=++TTS_SEQ;const a=ttsAudio();try{a.pause()}catch(e){}
+  for(const t0 of list){const t=stripEmoji(t0);if(!t)continue;let src;
+    try{src=await ttsFetch(t,cloudRate(rate))}catch(e){CLOUD_ERR=e.message;if(e.fatal)CLOUD_DEAD=true;if(my===TTS_SEQ)fallback();return}
+    if(my!==TTS_SEQ)return;
+    await new Promise(res=>{a.onended=res;a.onerror=res;a.src=src;const pr=a.play();pr&&pr.catch(()=>{fallback();res()})});
+    if(my!==TTS_SEQ)return}}
+function ttsPrefetch(texts){if(!CLOUD_OK())return;const q=[...new Set(texts.filter(Boolean).map(stripEmoji))].slice(0,40);(async()=>{for(const t of q){if(!CLOUD_OK())return;try{await ttsFetch(t,cloudRate(.85))}catch(e){return}}})()}
+function speak(text,rate=.85){try{if(vbHasAll([text])){stopSpeak();vbPlay([text],rate).then(ok=>{if(ok===false)ttsRun([text],rate)});return}}catch(e){}if(CLOUD_OK()){stopSpeak();cloudRun([text],rate,()=>ttsRun([text],rate));return}ttsRun([text],rate,()=>toast('Thiết bị này chưa đọc to được'))}
+function speakSeq(texts,rate=.85){const L=texts.filter(Boolean);try{if(L.length&&vbHasAll(L)){stopSpeak();vbPlay(L,rate).then(ok=>{if(ok===false)ttsRun(L,rate)});return}}catch(e){}if(CLOUD_OK()){stopSpeak();cloudRun(L,rate,()=>ttsRun(L,rate));return}ttsRun(L,rate)}
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let IN_FRAME=true;try{IN_FRAME=window.self!==window.top}catch(e){IN_FRAME=true}
 let micBlocked=IN_FRAME;
 const voiceOK=()=>!!SR&&!micBlocked;
+const UA=navigator.userAgent||'';const IN_APP=/Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|TikTok|musical_ly/i.test(UA);
+const IS_IOS=/iPhone|iPad|iPod/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function micWhy(){if(IN_FRAME)return '';if(IN_APP)return `Con đang mở app bên trong ${/Zalo/i.test(UA)?'Zalo':/Instagram/i.test(UA)?'Instagram':/TikTok|musical/i.test(UA)?'TikTok':'Facebook/Messenger'} nên micro không dùng được. Bấm dấu ⋯ ở góc trên → chọn “Mở bằng trình duyệt” (${IS_IOS?'Safari':'Chrome'}) để app chấm điểm giọng nói nhé.`;
+  if(!SR)return IS_IOS?'Trình duyệt này chưa hỗ trợ nhận giọng nói. Hãy mở link bằng Safari và cập nhật iOS (Cài đặt → Cài đặt chung → Cập nhật phần mềm).':'Trình duyệt này chưa hỗ trợ nhận giọng nói. Hãy mở link bằng Google Chrome.';
+  if(micBlocked)return 'Micro đang bị chặn. Bấm biểu tượng ổ khóa / “aA” cạnh thanh địa chỉ → cho phép Micro, rồi tải lại trang.';return ''}
+function inAppBanner(){if(!IN_APP||IN_FRAME)return '';return `<div class="note stack" style="gap:6px;margin:0;border-color:var(--bad)"><b>⚠️ Đang mở trong ${/Zalo/i.test(UA)?'Zalo':'ứng dụng khác'}: micro sẽ không hoạt động</b><span style="font-size:14px">Bấm dấu <b>⋯</b> ở góc trên bên phải → <b>Mở bằng trình duyệt</b> (${IS_IOS?'Safari':'Chrome'}). Hoặc sao chép link rồi dán vào ${IS_IOS?'Safari':'Chrome'}.</span><div><button class="btn sm" id="ia-copy">📋 Sao chép link app</button></div></div>`}
 /* Nghe giọng nói: nghe đến khi bé ngừng nói (không cắt quá sớm), hiện chữ đang nghe được, gom nhiều phương án */
 let LISTEN_CB=t=>{if(!t)return;const el=document.querySelector('#sp-hint,#y-hint,#sh-hint,#chat-live');if(el)el.textContent='🎧 '+t};
 function listenOnce(onInterim){onInterim=onInterim||LISTEN_CB;return new Promise((res,rej)=>{if(!SR||micBlocked)return rej('unsupported');let r;try{r=new SR()}catch(e){return rej('unsupported')}
@@ -3185,8 +3239,8 @@ function render(){
 function vHome(){
   const {cur,next}=petOf(P.stars);const due=dueList();const dp=duePats();
   const pct=next?Math.round((P.stars-cur[0])/(next[0]-cur[0])*100):100;
-  $('#view').innerHTML=`
-  <div class="row" style="justify-content:space-between"><h1>Chào ${esc(me().name)}! 👋</h1><button class="btn sm ghost" id="chg">✏️ Đổi tên</button></div>
+  $('#view').innerHTML=`${inAppBanner()}
+  <div class="row" style="justify-content:space-between"><h1>Chào ${esc(me().name)}! 👋</h1><span class="row" style="gap:6px"><button class="btn sm ghost" id="vpick" title="Chọn giọng đọc">🔊 Giọng đọc</button><button class="btn sm ghost" id="chg">✏️ Đổi tên</button></span></div>
   <section class="card pet">
     <button class="face petbtn" id="pet-shop" aria-label="Cửa hàng thú cưng">${petStageHTML(cur[1])}</button>
     <div class="stack" style="gap:6px;min-width:0">
@@ -3219,6 +3273,8 @@ function vHome(){
   $('#go-learn')&&($('#go-learn').onclick=()=>go({tab:'learn'}));
   $('#go-pats')&&($('#go-pats').onclick=()=>startPatSession(duePats()));
   $('#chg').onclick=()=>go({tab:'welcome'});
+  $('#vpick')&&($('#vpick').onclick=voicePicker);
+  $('#ia-copy')&&($('#ia-copy').onclick=()=>copyText(location.href.split('#')[0]));
   const toShop=()=>{route.shop=true;vShop();window.scrollTo(0,0)};$('#pet-buy')&&($('#pet-buy').onclick=toShop);$('#pet-shop')&&($('#pet-shop').onclick=toShop);$('#ev-go')&&($('#ev-go').onclick=()=>{SHOP_TAB='event';toShop()});
   $('#pet-chg')&&($('#pet-chg').onclick=()=>{const sec=document.querySelector('.card.pet');sec.classList.remove('pet');sec.innerHTML=`<div class="stack" style="gap:10px;width:100%"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Chọn thú cưng</h3><button class="btn sm ghost" id="pet-x">✕ Đóng</button></div>
     <p class="muted" style="margin:0;font-size:13px">Thú cưng lớn lên theo số ⭐ của con. Đổi loại thì không mất sao đâu!</p>
@@ -3315,6 +3371,7 @@ function startSession(words,label,max=5,opt={}){
   words=words.slice(0,max||words.length);if(!words.length)return toast('Chưa có từ để học');
   const stages=(opt.games||'clrpsw').split('').filter(k=>STAGE_BY[k]).map(k=>STAGE_BY[k]);if(!stages.length)stages.push(STAGE_BY.l);
   SESSION={lesson:opt.lesson||null,label,all:words,words:stages[0][0]==='cards'?[]:words.slice(),known:{},stages,stage:0,i:0,res:Object.fromEntries(words.map(w=>[w.id,0])),stars:0,streak:0,miss:0,items:[],hw:opt.hw||null,t0:Date.now(),finished:false};
+  try{ttsPrefetch(words.flatMap(w=>[w.w,w.s]))}catch(e){}
   route.tab='session';setLv(words[0].lv);renderSession();window.scrollTo(0,0);
 }
 function sHeader(){return `<div class="row" style="justify-content:space-between">${SESSION.hw?`<span class="pill wait">📮 Bài tập về nhà</span>`:'<button class="btn sm ghost" id="s-quit">✕ Thoát</button>'}<span class="chip" id="s-stars">⭐ +${SESSION.stars}</span></div>
@@ -3423,7 +3480,7 @@ function gSpeakSent(w){const sent=w.s;let recorded=false,attempts=0;const rec=(o
   $('#sp-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
   const selfCheck=msg=>{$('#sp-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Bé bấm 🔊 Nghe cả câu, đọc to theo 3 lần. Bố mẹ hoặc thầy cô nghe và chọn giúp bé nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="ok">👍 Đọc tốt</button><button class="btn" id="again">🔁 Cần luyện thêm</button></div>`;
     $('#ok').onclick=()=>{rec(true,'người lớn chấm');P.speakGood++;saveP();sNext()};$('#again').onclick=()=>{rec(false,'người lớn chấm');speak(plain,.7);sNext()}};
-  if(!voiceOK())return selfCheck('');
+  if(!voiceOK())return selfCheck(micWhy());
   $('#mic').onclick=async()=>{const m=$('#mic');stopSpeak();m.classList.add('rec');$('#sp-hint').textContent='Đang nghe… con đọc hết câu nhé';
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;let best={pct:-1};alts.forEach(a=>{const d=wordDiff(plain,a);if(d.pct>best.pct)best={...d,heard:a}});
       const wd=scoreSpeech(w.w,alts);const sc=Math.round(Math.max(0,best.pct)*100);const good=sc>=70;
@@ -3449,7 +3506,7 @@ function gSpeak(){
   let attempts=0;
   const selfCheck=msg=>{$('#sp-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Bé bấm 🔊 Nghe mẫu, đọc to theo 3 lần. Bố mẹ hoặc thầy cô nghe và chọn giúp bé nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="ok">👍 Đọc tốt</button><button class="btn" id="again">🔁 Cần luyện thêm</button></div>`;
     $('#ok').onclick=()=>{rec(true,'người lớn chấm');P.speakGood++;saveP();sNext()};$('#again').onclick=()=>{rec(false,'người lớn chấm');speak(w.w,.7);sNext()}};
-  if(!voiceOK())return selfCheck('');
+  if(!voiceOK())return selfCheck(micWhy());
   $('#mic').onclick=async()=>{const m=$('#mic');m.classList.add('rec');$('#sp-hint').textContent='Đang nghe…';
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;const r=scoreSpeech(w.w,alts);
       $('#ltr').innerHTML=letterMarks(w.w,r.tok||norm(r.heard).replace(/ /g,''));
@@ -3473,7 +3530,7 @@ function gSaySent(){
   $('#y-skip').onclick=()=>{rec(false,'bỏ qua');sNext()};
   const selfCheck=msg=>{$('#y-zone').innerHTML=`${msg?`<p class="note" style="margin:0;text-align:center">${esc(msg)}</p>`:''}<p class="note" style="margin:0;text-align:center">Con nghe mẫu rồi đọc to theo. Bố mẹ hoặc thầy cô nghe và chọn giúp con nhé.</p><div class="row" style="justify-content:center"><button class="btn pri" id="y-ok">👍 Đọc tốt</button><button class="btn" id="y-again">🔁 Cần luyện thêm</button></div>`;
     $('#y-ok').onclick=()=>{rec(true,'người lớn chấm');sNext()};$('#y-again').onclick=()=>{rec(false,'người lớn chấm');sNext()}};
-  if(!voiceOK())return selfCheck('');
+  if(!voiceOK())return selfCheck(micWhy());
   let attempts=0;
   $('#y-mic').onclick=async()=>{const m=$('#y-mic');m.classList.add('rec');$('#y-hint').textContent='Đang nghe…';
     try{const alts=await listenOnce();m.classList.remove('rec');attempts++;const r=matchAnswer(alts,[plain]);const good=r.sc>=70;
@@ -3953,8 +4010,17 @@ function tLibrary(){
   document.querySelectorAll('[data-lassign]').forEach(b=>b.onclick=()=>{const x=C.lib[b.dataset.lassign];route.preTopic=x.id;go({tview:'hw',teacherLv:x.lv})});
   document.querySelectorAll('[data-ldel]').forEach(b=>b.onclick=()=>{if(!b.dataset.armed){b.dataset.armed=1;b.textContent='Xóa?';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='🗑'}},3000);return}delete C.lib[b.dataset.ldel];saveC();toast('Đã xóa bài khỏi Thư viện');tLibrary()});
 }
+const CHIRP_F=['Aoede','Kore','Leda','Zephyr','Callirrhoe','Autonoe','Despina','Erinome','Laomedeia','Sulafat','Achernar','Gacrux','Pulcherrima','Vindemiatrix'];
+function ttsCard(){const on=!!CFG.ttsKey;return `<div class="card stack" style="gap:8px" id="ttscard"><h3 style="margin:0">🔊 Giọng đọc chung cho cả lớp</h3>
+  ${on?`<p style="margin:0;font-size:14px">Đang dùng giọng <b>${esc(TTS_VOICE())}</b> (Google Cloud). Mọi máy học sinh nghe cùng một giọng. Âm thanh được lưu trên máy nên mỗi câu chỉ tải một lần.</p>
+   <div class="row"><button class="btn sun" id="tts-test">▶ Nghe thử</button><span id="tts-st" class="muted" style="font-size:13px"></span></div>
+   <details><summary style="cursor:pointer;font-size:14px">Thử giọng nữ khác</summary><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${CHIRP_F.map(n=>`<button class="btn sm" data-tv2="en-US-Chirp3-HD-${n}">▶ ${n}</button>`).join('')}<button class="btn sm" data-tv2="en-US-Neural2-F">▶ Neural2-F (rẻ hơn)</button></div><p class="muted" style="font-size:13px;margin:6px 0 0">Thích giọng nào thì sửa dòng <code>ttsVoice</code> trong config.js trên GitHub thành tên giọng đó, ví dụ <code>ttsVoice: "en-US-Chirp3-HD-Kore"</code>.</p></details>`
+  :`<p style="margin:0;font-size:14px">Hiện mỗi máy dùng giọng đọc có sẵn của máy, nên giọng khác nhau. Để <b>mọi máy cùng một giọng nữ người Mỹ tự nhiên</b>, hãy kết nối Google Cloud Text-to-Speech theo <b>README mục 11</b> (làm một lần, miễn phí 1 triệu ký tự mỗi tháng), rồi thêm <code>ttsKey</code> vào config.js.</p>`}</div>`}
+function bindTtsCard(){const st=$('#tts-st');const test=async(voice)=>{const old=CFG.ttsVoice;if(voice)CFG.ttsVoice=voice;CLOUD_DEAD=false;CLOUD_ERR='';st&&(st.textContent='Đang tải…');
+    try{const u=await ttsFetch("Hello! I'm Miss Tee. Let's learn English together. What's your favourite animal?",cloudRate(.85));const a=ttsAudio();a.src=u;await a.play();st&&(st.textContent='✅ Kết nối tốt'+(voice?': '+voice:''))}catch(e){st&&(st.innerHTML='❌ '+esc(e.message||String(e)))}finally{CFG.ttsVoice=old}};
+  $('#tts-test')&&($('#tts-test').onclick=()=>test());document.querySelectorAll('[data-tv2]').forEach(b=>b.onclick=()=>test(b.dataset.tv2))}
 function tData(){
-  $('#tbody').innerHTML=`
+  $('#tbody').innerHTML=`${IN_FRAME?'':voiceGenCard()}${ttsCard()}
     <div class="card stack">
       <h3>Gửi nội dung tới học sinh</h3>
       <p class="muted" style="margin:0;font-size:13px">Chủ đề, từ vựng và video bạn thêm mới chỉ nằm trên máy này. Để học sinh thấy: bấm <b>Tải file content.json</b>, rồi tải file đó lên kho GitHub của app (thay file cũ). Sau 1–2 phút, máy học sinh sẽ nhận nội dung mới.</p>
@@ -3969,7 +4035,7 @@ function tData(){
       <h3>Sao lưu dữ liệu</h3>
       <div class="row"><button class="btn" id="x-exp">⬆ Xuất dữ liệu</button><button class="btn" id="x-imp">⬇ Nhập dữ liệu</button></div>
       <textarea id="x-box" placeholder="Dữ liệu JSON xuất ra sẽ hiện ở đây. Để nhập, dán JSON vào rồi bấm Nhập dữ liệu." hidden></textarea>
-    </div>`;
+    </div>`;bindTtsCard();if(!IN_FRAME)bindVoiceGen();
   $('#x-dl').onclick=()=>{const data=JSON.stringify(mergedCustom(),null,1);try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download='content.json';document.body.appendChild(a);a.click();a.remove();toast('Đã tải content.json')}catch(x){}const box=$('#x-box');box.hidden=false;box.value=data};
   $('#x-clear').onclick=e=>{if(!e.target.dataset.armed){e.target.dataset.armed=1;e.target.textContent='Bấm lần nữa để xóa bản nháp';return}C={topics:emptyTopics(),extra:{},videos:{},lib:C.lib||{},vlib:C.vlib||{},vhide:C.vhide||null};saveC();toast('Đã xóa bản nháp trên máy này');tData()};
   $('#x-key').onclick=()=>{save(K_TKEY,'');go({hwView:'__key'})};
@@ -4399,6 +4465,97 @@ function vShop(){const {cur}=petOf(P.stars);const evs=activeEvents();const evIte
     P.spent=(P.spent||0)+i.p;P.owned=(P.owned||[]).concat(i.id);P.wear=Object.assign({},P.wear,{[i.s]:i.id});saveP();confetti();vShop();petPhoto(i)});
   document.querySelectorAll('[data-wear]').forEach(b=>b.onclick=()=>{const i=itemById(b.dataset.wear);const W=Object.assign({},P.wear);W[i.s]=W[i.s]===i.id?null:i.id;P.wear=W;saveP();vShop()});
 }
+
+/* ===================== GIỌNG ĐỌC CHUNG MIỄN PHÍ (Kokoro AI, chạy ngay trong trình duyệt của giáo viên) =====================
+   Giáo viên tạo một lần trên máy tính → tải file audio-<trình độ>.bin → đưa lên GitHub cạnh index.html.
+   Học sinh chỉ tải file âm thanh nhỏ đó, mọi máy nghe cùng một giọng nữ người Mỹ. Không cần tài khoản, không mất tiền.
+   Định dạng .bin: [4 byte độ dài JSON][JSON {v,voice,lv,items:{key:[offset,len]}}][dữ liệu MP3 nối liền] */
+const VB={},VB_LOAD={};let CUR_LV='starters';
+function vkey(t){return stripEmoji(String(t||'')).toLowerCase().replace(/[‘’`]/g,"'").replace(/[^a-z0-9' ]+/g,' ').replace(/\s+/g,' ').trim()}
+async function vbLoad(lv){if(IN_FRAME||!lv||!RAW[lv])return null;if(VB[lv])return VB[lv];if(VB_LOAD[lv])return VB_LOAD[lv];
+  VB_LOAD[lv]=(async()=>{const url='audio-'+lv+'.bin';let buf=null,cache=null;
+    try{cache=await caches.open('yle-voice-v1')}catch(e){}
+    try{const head=await fetch(url,{method:'HEAD',cache:'no-store'});if(!head.ok){if(cache)await cache.delete(url);return null}
+      const tag=head.headers.get('etag')||head.headers.get('last-modified')||'';
+      if(cache){const hit=await cache.match(url);if(hit&&hit.headers.get('x-tag')===tag)buf=await hit.arrayBuffer()}
+      if(!buf){const r=await fetch(url+'?t='+encodeURIComponent(tag||Date.now()));if(!r.ok)return null;buf=await r.arrayBuffer();
+        try{cache&&await cache.put(url,new Response(buf.slice(0),{headers:{'Content-Type':'application/octet-stream','x-tag':tag}}))}catch(e){}}}
+    catch(e){try{const hit=cache&&await cache.match(url);if(hit)buf=await hit.arrayBuffer()}catch(x){}}
+    if(!buf)return null;try{const n=new DataView(buf).getUint32(0,true);const meta=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,4,n)));VB[lv]={meta,data:buf,base:4+n,urls:new Map()};return VB[lv]}catch(e){return null}})();
+  const r=await VB_LOAD[lv];if(!r)delete VB_LOAD[lv];return r}
+function vbFind(text){const k=vkey(text);if(!k)return null;const order=[CUR_LV,...Object.keys(VB).filter(x=>x!==CUR_LV)];
+  for(const lv of order){const b=VB[lv];if(!b)continue;const it=b.meta.items[k];if(it){let u=b.urls.get(k);if(!u){u=URL.createObjectURL(new Blob([new Uint8Array(b.data,b.base+it[0],it[1])],{type:'audio/mpeg'}));b.urls.set(k,u)}return u}}return null}
+function vbHasAll(list){return list.every(t=>!stripEmoji(t).trim()||vbFind(t))}
+async function vbPlay(list,rate){const my=++TTS_SEQ;const a=ttsAudio();try{a.pause()}catch(e){}
+  const pr=Math.max(.6,Math.min(1.15,(rate||.85)/.85));
+  for(const t of list){if(!stripEmoji(t).trim())continue;const u=vbFind(t);if(!u)continue;if(my!==TTS_SEQ)return;
+    const ok=await new Promise(res=>{a.onended=()=>res(true);a.onerror=()=>res(false);a.src=u;try{a.preservesPitch=true;a.webkitPreservesPitch=true}catch(e){}a.playbackRate=pr;const p=a.play();p&&p.catch(()=>res(false))});
+    if(!ok)return false;if(my!==TTS_SEQ)return true}return true}
+/* ---------- giáo viên: tạo file giọng đọc ---------- */
+const KOKORO_URL='https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
+const LAME_URLS=['https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js','https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js','https://unpkg.com/lamejs@1.2.1/lame.min.js'];
+const VG_VOICES=[['af_heart','Heart – ấm áp, tự nhiên (khuyên dùng)'],['af_bella','Bella – trong trẻo, vui tươi'],['af_nicole','Nicole – nhẹ nhàng'],['af_sarah','Sarah – rõ ràng']];
+function voiceTexts(lv){const L=lvOf(lv);const out=new Set();const add=t=>{t=String(t||'').replace(/\{name\}/g,NAME).trim();if(t&&vkey(t))out.add(t)};
+  for(const t of (L.topics||[])){for(const w of t.words){add(w.w);add(w.s);(w.ps||[]).forEach(p=>{add(p.en);add(p.en.replace(/ – /g,'. '));p.en.split(' – ').forEach(add)})}
+    (t.pats||[]).forEach(p=>{add(p.en);p.en.split(' – ').forEach(add)});
+    try{(dlgOf(t)||[]).forEach(d=>{add(d.q);(d.ans||[]).slice(0,2).forEach(a=>{if(!String(a).startsWith('~'))add(a)});if(d.re)add(d.re)})}catch(e){}}
+  ["Great job!","Well done!","Try again!","Let's talk a little more. Six more questions!","Great! I'll read with this voice."].forEach(add);
+  const seen=new Set();return [...out].filter(t=>{const k=vkey(t);if(seen.has(k))return false;seen.add(k);return true})}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Không tải được '+src));document.head.appendChild(s)})}
+let VG_WORKER=null;
+function vgWorker(){if(VG_WORKER)return VG_WORKER;const code=`import {KokoroTTS} from '${KOKORO_URL}';let tts=null;
+self.onmessage=async e=>{const m=e.data;try{
+ if(m.type==='load'){let dev='wasm',dt='q8';try{if(m.gpu&&self.navigator.gpu&&await self.navigator.gpu.requestAdapter()){dev='webgpu';dt='fp32'}}catch(x){}
+   tts=await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{dtype:dt,device:dev,progress_callback:p=>{if(p&&p.status==='progress')self.postMessage({type:'dl',file:p.file,loaded:p.loaded,total:p.total})}});self.postMessage({type:'ready',dev})}
+ else if(m.type==='gen'){const a=await tts.generate(m.text,{voice:m.voice,speed:m.speed||1});const f=new Float32Array(a.audio);self.postMessage({type:'audio',id:m.id,sr:a.sampling_rate||24000,audio:f},[f.buffer])}
+}catch(err){self.postMessage({type:'err',id:m.id,msg:String(err&&err.message||err)})}};`;
+  VG_WORKER=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})),{type:'module'});return VG_WORKER}
+function vgCall(msg,wantType){const w=vgWorker();return new Promise((res,rej)=>{const h=e=>{const d=e.data;if(d.type==='dl'){VG_DL&&VG_DL(d);return}if(d.type==='err'){w.removeEventListener('message',h);rej(new Error(d.msg));return}if(d.type===wantType&&(d.id===undefined||d.id===msg.id)){w.removeEventListener('message',h);res(d)}};w.addEventListener('message',h);w.postMessage(msg)})}
+let VG_DL=null,VG_STOP=false,VG_READY=false;
+function trimPad(f,sr){let s=0,e=f.length-1;const th=0.008;while(s<e&&Math.abs(f[s])<th)s++;while(e>s&&Math.abs(f[e])<th)e--;
+  const lead=Math.floor(sr*.12),tail=Math.floor(sr*.08);s=Math.max(0,s-Math.floor(sr*.02));e=Math.min(f.length-1,e+Math.floor(sr*.04));
+  const out=new Float32Array(lead+(e-s+1)+tail);out.set(f.subarray(s,e+1),lead);return out}
+function toMp3(f,sr){const enc=new lamejs.Mp3Encoder(1,sr,48);const pcm=new Int16Array(f.length);for(let i=0;i<f.length;i++){const v=Math.max(-1,Math.min(1,f[i]));pcm[i]=v<0?v*0x8000:v*0x7fff}
+  const parts=[];for(let i=0;i<pcm.length;i+=1152){const b=enc.encodeBuffer(pcm.subarray(i,i+1152));if(b.length)parts.push(new Uint8Array(b))}const end=enc.flush();if(end.length)parts.push(new Uint8Array(end));
+  const n=parts.reduce((a,p)=>a+p.length,0);const out=new Uint8Array(n);let o=0;parts.forEach(p=>{out.set(p,o);o+=p.length});return out}
+function packBundle(lv,voice,clips){const items={};let off=0;const keys=Object.keys(clips);keys.forEach(k=>{items[k]=[off,clips[k].length];off+=clips[k].length});
+  const meta=new TextEncoder().encode(JSON.stringify({v:1,voice,lv,made:Date.now(),items}));const out=new Uint8Array(4+meta.length+off);new DataView(out.buffer).setUint32(0,meta.length,true);out.set(meta,4);
+  let o=4+meta.length;keys.forEach(k=>{out.set(clips[k],o);o+=clips[k].length});return out}
+/* nhớ các câu đã tạo (IndexedDB) để tắt máy giữa chừng vẫn làm tiếp được */
+function vgDB(){return new Promise((res,rej)=>{const r=indexedDB.open('yle-voicegen',1);r.onupgradeneeded=()=>r.result.createObjectStore('clips');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function vgGet(db,k){return new Promise(res=>{const t=db.transaction('clips').objectStore('clips').get(k);t.onsuccess=()=>res(t.result||null);t.onerror=()=>res(null)})}
+async function vgPut(db,k,v){return new Promise(res=>{const t=db.transaction('clips','readwrite').objectStore('clips').put(v,k);t.onsuccess=()=>res();t.onerror=()=>res()})}
+function voiceGenCard(){return `<div class="card stack" style="gap:8px" id="vgcard"><h3 style="margin:0">🎙️ Giọng đọc chung miễn phí (AI Kokoro)</h3>
+  <p style="margin:0;font-size:14px">Tạo một lần trên <b>máy tính</b> (Chrome hoặc Edge), app dùng AI <b>Kokoro</b> chạy ngay trong trình duyệt của cô để đọc toàn bộ từ và câu bằng <b>giọng nữ người Mỹ tự nhiên</b>. Xong, cô tải file về và đưa lên GitHub: <b>mọi máy học sinh nghe cùng một giọng, không cần tài khoản, không mất tiền</b>.</p>
+  <div id="vg-live" class="muted" style="font-size:13px">Đang kiểm tra file giọng đọc trên GitHub…</div>
+  <label style="font-size:14px">Giọng: <select id="vg-voice">${VG_VOICES.map(([v,n])=>`<option value="${v}">${esc(n)}</option>`).join('')}</select> <button class="btn sm" id="vg-try">▶ Nghe thử</button></label>
+  <div class="stack" style="gap:4px">${LEVELS.map(L=>`<label class="hbc"><input type="checkbox" data-vgl="${L.id}"> <b>${esc(L.name)}</b> <span class="muted" data-vgn="${L.id}"></span></label>`).join('')}</div>
+  <div class="row"><button class="btn sun" id="vg-go">🎙️ Bắt đầu tạo</button><button class="btn" id="vg-stop" hidden>⏸ Tạm dừng</button></div>
+  <div id="vg-st" style="font-size:14px"></div><div id="vg-out" class="stack" style="gap:6px"></div>
+  <p class="note" style="margin:0;font-size:13px">⏱ Lần đầu app tải mô hình AI khoảng 90 MB. Mỗi trình độ mất khoảng 10–30 phút tùy máy, cứ để máy chạy (đừng đóng tab). Tắt giữa chừng thì lần sau bấm lại, app làm tiếp phần còn thiếu.<br>📤 Xong mỗi trình độ, bấm <b>📥 Tải file</b> rồi trên GitHub chọn <b>Add file → Upload files</b> → kéo file <code>audio-….bin</code> vào (cùng chỗ với index.html) → <b>Commit changes</b>.</p></div>`}
+async function bindVoiceGen(){const st=$('#vg-st'),out=$('#vg-out');
+  LEVELS.forEach(L=>{const n=voiceTexts(L.id).length;const el=document.querySelector(`[data-vgn="${L.id}"]`);if(el)el.textContent=`${n} câu/từ`});
+  (async()=>{const live=[];for(const L of LEVELS){try{const r=await fetch('audio-'+L.id+'.bin',{method:'HEAD',cache:'no-store'});if(r.ok)live.push(L.name)}catch(e){}}const el=$('#vg-live');if(el)el.innerHTML=live.length?`✅ Đã có giọng chung cho: <b>${live.map(esc).join(', ')}</b>. Trình độ khác vẫn dùng giọng của máy.`:'Chưa có file giọng đọc nào trên GitHub. Mỗi máy đang dùng giọng có sẵn của máy.'})();
+  const ensure=async()=>{if(VG_READY)return;st.textContent='Đang tải công cụ…';if(!window.lamejs){for(const u of LAME_URLS){try{await loadScript(u);if(window.lamejs)break}catch(e){}}if(!window.lamejs)throw new Error('Không tải được bộ nén âm thanh (lamejs). Kiểm tra mạng rồi thử lại.')}
+    VG_DL=d=>{if(d.total)st.textContent=`Đang tải mô hình AI (chỉ lần đầu): ${Math.round(d.loaded/1048576)}/${Math.round(d.total/1048576)} MB…`};
+    const r=await vgCall({type:'load',gpu:true},'ready');VG_READY=true;st.textContent='✅ Mô hình AI đã sẵn sàng ('+(r.dev==='webgpu'?'card đồ họa, nhanh':'CPU')+').'};
+  $('#vg-try').onclick=async()=>{try{await ensure();const v=$('#vg-voice').value;const r=await vgCall({type:'gen',id:'try',text:"Hello! I'm Miss Tee. Let's learn English together. What's your favourite animal?",voice:v},'audio');
+    const mp3=toMp3(trimPad(r.audio,r.sr),r.sr);const a=ttsAudio();a.src=URL.createObjectURL(new Blob([mp3],{type:'audio/mpeg'}));a.playbackRate=1;a.play()}catch(e){st.innerHTML='❌ '+esc(e.message)+'<br><span class="muted">Hãy dùng Chrome hoặc Edge bản mới trên máy tính, và kiểm tra mạng.</span>'}};
+  $('#vg-stop').onclick=()=>{VG_STOP=true;$('#vg-stop').disabled=true};
+  $('#vg-go').onclick=async()=>{const lvs=[...document.querySelectorAll('[data-vgl]')].filter(x=>x.checked).map(x=>x.dataset.vgl);if(!lvs.length)return toast('Chọn ít nhất 1 trình độ');
+    const voice=$('#vg-voice').value;VG_STOP=false;$('#vg-go').disabled=true;$('#vg-stop').hidden=false;$('#vg-stop').disabled=false;
+    try{await ensure();const db=await vgDB();
+      for(const lv of lvs){const texts=voiceTexts(lv);const clips={};let done=0,t0=Date.now(),made=0;
+        for(const t of texts){if(VG_STOP)break;const k=vkey(t);const dk=voice+'|'+k;let mp3=await vgGet(db,dk);
+          if(!mp3){const r=await vgCall({type:'gen',id:dk,text:t.replace(/ – /g,'. '),voice},'audio');mp3=toMp3(trimPad(r.audio,r.sr),r.sr);await vgPut(db,dk,mp3);made++}
+          clips[k]=mp3;done++;const el=(Date.now()-t0)/1000;const eta=made?Math.round(el/made*(texts.length-done)/60):0;
+          if(done%3===0||done===texts.length)st.textContent=`${lvOf(lv).name}: đang đọc ${done}/${texts.length}${made>2?` · còn khoảng ${eta} phút`:''}…`}
+        if(VG_STOP){st.textContent=`⏸ Đã tạm dừng ở ${lvOf(lv).name} (${done}/${texts.length}). Bấm Bắt đầu tạo để làm tiếp.`;break}
+        const bin=packBundle(lv,voice,clips);const url=URL.createObjectURL(new Blob([bin],{type:'application/octet-stream'}));
+        const row=document.createElement('div');row.className='row';row.innerHTML=`<a class="btn pri" href="${url}" download="audio-${lv}.bin">📥 Tải file audio-${lv}.bin</a><span class="muted" style="font-size:13px">${lvOf(lv).name} · ${texts.length} câu/từ · ${(bin.length/1048576).toFixed(1)} MB</span>`;out.appendChild(row);
+        st.textContent=`✅ Xong ${lvOf(lv).name}.`}
+    }catch(e){st.innerHTML='❌ '+esc(e.message)+'<br><span class="muted">Hãy dùng Chrome hoặc Edge bản mới trên máy tính.</span>'}
+    $('#vg-go').disabled=false;$('#vg-stop').hidden=true}}
 
 /* ===================== BOOT ===================== */
 render();
