@@ -19,7 +19,7 @@ body{margin:0}
 /* Layout: one-column app shell like an exercise notebook, sticky top bar, tab bar fixed at the bottom; each level owns a colour */
 :root{
   --paper:#F1F6F2; --card:#FFFFFF; --ink:#1E2A25; --muted:#5B6962; --line:#D6E1D9;
-  --gs1:#B8336F; --pu1:#7A4FD0; --pu2:#0E8F8C; --pu3:#C24A2C; --pu4:#3F5BB8; --starters:#2B9A57; --movers:#2C7CCB; --flyers:#D9741A; --sun:#F2B52A; --sun-ink:#5A3D00;
+  --gs1:#B8336F; --gs6:#1F7A8C; --gs7:#5B7F1E; --pu1:#7A4FD0; --pu2:#0E8F8C; --pu3:#C24A2C; --pu4:#3F5BB8; --starters:#2B9A57; --movers:#2C7CCB; --flyers:#D9741A; --sun:#F2B52A; --sun-ink:#5A3D00;
   --good:#2B9A57; --bad:#D04545; --soft:#E6EFE8; --shadow:0 2px 0 rgba(30,42,37,.08);
   --f-display:"Grandstander","Baloo 2","Comic Sans MS",system-ui,sans-serif;
   --f-meme:"Anton",Impact,"Arial Black",sans-serif;
@@ -28,11 +28,11 @@ body{margin:0}
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#131B17; --card:#1C2621; --ink:#E7EEE9; --muted:#9BA9A1; --line:#2D3A33;
-  --gs1:#E7679F; --pu1:#A88BF0; --pu2:#3CC4C0; --pu3:#EE7C5E; --pu4:#7C93E8; --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
+  --gs1:#E7679F; --gs6:#4FB3C7; --gs7:#9CC75A; --pu1:#A88BF0; --pu2:#3CC4C0; --pu3:#EE7C5E; --pu4:#7C93E8; --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
   --good:#4CC27D; --bad:#F06B6B; --soft:#24302A; --shadow:0 2px 0 rgba(0,0,0,.3); color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#131B17; --card:#1C2621; --ink:#E7EEE9; --muted:#9BA9A1; --line:#2D3A33;
-  --gs1:#E7679F; --pu1:#A88BF0; --pu2:#3CC4C0; --pu3:#EE7C5E; --pu4:#7C93E8; --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
+  --gs1:#E7679F; --gs6:#4FB3C7; --gs7:#9CC75A; --pu1:#A88BF0; --pu2:#3CC4C0; --pu3:#EE7C5E; --pu4:#7C93E8; --starters:#4CC27D; --movers:#5BA3EF; --flyers:#F29B48; --sun:#F6C64F; --sun-ink:#2A1D00;
   --good:#4CC27D; --bad:#F06B6B; --soft:#24302A; --shadow:0 2px 0 rgba(0,0,0,.3); color-scheme:dark}
 [hidden]{display:none!important}
 html,body{height:100%}
@@ -343,11 +343,13 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 .hbc:has(input:checked){border-color:var(--lv)}
 .vrow{padding:6px 8px;border-radius:10px;border:1.5px solid var(--line)}.vrow.on{border-color:var(--sun)}
 
+.gram .gitem{border-left:4px solid var(--gs6);padding:4px 0 4px 12px}.gram .gitem p{margin:4px 0 6px;font-size:14px}.gram .geg{display:flex;flex-direction:column;gap:2px;font-size:15px}
+
 </style>
 </head>
 <body>
 <header class="top"><div class="in">
-  <div class="brand">YLE Video Words<small>Thẻ từ · Luyện 4 kỹ năng · Trò chuyện · Global Success 1 · Power Up 1–4 · Starters · Movers · Flyers</small></div>
+  <div class="brand">YLE Video Words<small>Thẻ từ · Luyện 4 kỹ năng · Trò chuyện · Global Success 1, 6, 7 · Power Up 1–4 · Starters · Movers · Flyers</small></div>
   <span class="chip" title="Sao"><span aria-hidden="true">⭐</span><span id="hdr-stars">0</span></span>
   <span class="chip" title="Chuỗi ngày học"><span aria-hidden="true">🔥</span><span id="hdr-streak">0</span></span>
 </div></header>
@@ -365,7 +367,7 @@ nav.tabs button{font-size:11px;padding-left:2px;padding-right:2px}
 
 <script>
 /* ===================== DATA: từ vựng (từ|emoji|nghĩa|câu), mẫu câu (câu|nghĩa), hội thoại (thầy cô hỏi|đáp án 1;đáp án 2;~mở đầu chấp nhận|nghĩa câu hỏi) ===================== */
-function T(id,name,vi,icon,words,pats,dlg){return {id,name,vi,icon,words,pats,dlg}}
+function T(id,name,vi,icon,words,pats,dlg,gram){return {id,name,vi,icon,words,pats,dlg,gram}}
 const RAW={
 gs1:{name:'Global Success 1',cefr:'Lớp 1',color:'--gs1',topics:[
 T('u1','Unit 1: In the school playground','Ở sân trường','🛝',`ball|⚽|quả bóng|I have a ball.
@@ -590,6 +592,901 @@ I wash my hands.|Tớ rửa tay.`,
 `Where is your bed? 🛏️|It's in my bedroom.;In my bedroom.;~It's in|Giường của con ở đâu?
 Do you wash your hands? 🧼|Yes, I do.;No, I don't.|Con có rửa tay không?
 Where is your mother?|She's in the kitchen.;~She's in;In the kitchen.|Mẹ con đang ở đâu?`)
+]},
+gs6:{name:'Global Success 6',cefr:'Lớp 6 · A1–A2',color:'--gs6',tpl:'flyers',topics:[
+T('u1','Unit 1: My new school','Trường mới của em','🏫',`school bag|🎒|cặp sách|My school bag is very heavy today.
+pencil sharpener|✏️|gọt bút chì|Can I borrow your pencil sharpener?
+rubber|🧽|cục tẩy|I need a rubber to correct my mistake.
+calculator|🧮|máy tính (cầm tay)|We use a calculator in maths lessons.
+compass|📐|com-pa|I draw a circle with my compass.
+notebook|📓|vở ghi|I write new words in my notebook.
+uniform|👕|đồng phục|We wear our uniform on Mondays.
+classmate|🧑‍🤝‍🧑|bạn cùng lớp|My classmates are very friendly.
+boarding school|🏫|trường nội trú|Students live and study at a boarding school.
+swimming pool|🏊|bể bơi|Our school has a big swimming pool.
+art|🎨|nghệ thuật, môn mĩ thuật|I have art on Thursdays.
+science|🔬|khoa học|We do experiments in science lessons.
+history|📜|lịch sử|We learn about the past in history.
+homework|📝|bài tập về nhà|I always do my homework after dinner.
+activity|🤸|hoạt động|Our school has many outdoor activities.
+favourite|❤️|được yêu thích|English is my favourite subject.
+international|🌍|quốc tế|It's an international school.
+interview|🎤|phỏng vấn|Miss Nguyet is interviewing Duy.
+knock|🚪|gõ (cửa)|Please knock on the door before you come in.
+remember|💭|nhớ|I always remember my new teachers' names.
+share|🤝|chia sẻ|I share my books with my classmates.
+help|🙋|giúp đỡ|My friends often help me with maths.
+smart|👔|bảnh bao, gọn gàng|You look smart in your new uniform.`,
+`I usually walk to school with my friends.|Tớ thường đi bộ đến trường với các bạn.
+She always does her homework after dinner.|Bạn ấy luôn làm bài tập sau bữa tối.
+We have English on Mondays and Wednesdays.|Chúng tớ học tiếng Anh vào thứ Hai và thứ Tư.
+He doesn't like physics, but he likes science.|Bạn ấy không thích vật lí nhưng thích khoa học.
+Do you study vocabulary every day?|Bạn có học từ vựng mỗi ngày không?
+I sometimes play football at break time.|Thỉnh thoảng tớ chơi bóng đá vào giờ ra chơi.
+My new school is big and beautiful.|Trường mới của tớ to và đẹp.
+Students at a boarding school live at school.|Học sinh trường nội trú sống ở trường.`,
+`What's your new school like?|~It's;~My school is;~My new school is|Trường mới của con như thế nào?
+What's your favourite subject?|~My favourite subject is;~I like;~It's|Môn học con thích nhất là gì?
+How do you go to school?|~I walk;~I go;~I ride;~By|Con đi học bằng gì?
+How often do you do your homework?|~I always;~I usually;~I often;~Every day|Con có hay làm bài tập về nhà không?`,
+`Thì hiện tại đơn|Diễn tả thói quen, việc lặp lại, sự thật. Với he/she/it, động từ thêm -s/-es (go → goes, study → studies). Câu phủ định và câu hỏi dùng do/does.|I live in Ha Noi.;She studies English every day.;He doesn't like maths.;Do you like your new school? – Yes, I do.
+Trạng từ chỉ tần suất|always (luôn luôn) > usually > often > sometimes > rarely > never. Đứng trước động từ thường, sau động từ to be.|I always get up early.;She is never late for school.;We sometimes play badminton.`),
+T('u2','Unit 2: My house','Ngôi nhà của em','🏠',`living room|🛋️|phòng khách|We watch TV in the living room.
+bedroom|🛏️|phòng ngủ|My bedroom is small but nice.
+kitchen|🍳|nhà bếp|My mum is cooking in the kitchen.
+bathroom|🛁|phòng tắm|The bathroom is next to my bedroom.
+hall|🚪|sảnh, hành lang|There is a lamp in the hall.
+town house|🏘️|nhà phố|We live in a town house in Hai Phong.
+country house|🏡|nhà ở vùng quê|My grandparents live in a country house.
+flat|🏢|căn hộ|My aunt lives in a flat in the city.
+furniture|🪑|đồ đạc trong nhà|There is a lot of furniture in the living room.
+lamp|💡|cái đèn|There is a lamp on the desk.
+sofa|🛋️|ghế sofa|The cat is sleeping on the sofa.
+wardrobe|🚪|tủ đựng quần áo|My clothes are in the wardrobe.
+chest of drawers|🗄️|tủ có ngăn kéo|My socks are in the chest of drawers.
+cupboard|🗄️|tủ đựng bát đĩa, quần áo|The bowls are in the cupboard.
+shelf|📚|kệ, giá|There are many books on the shelf.
+dishwasher|🍽️|máy rửa bát|We have a dishwasher in the kitchen.
+cooker|🍲|bếp|There is a cooker in the kitchen.
+sink|🚰|bồn rửa bát|The dirty cups are in the sink.
+fridge|🧊|tủ lạnh|There is some milk in the fridge.
+department store|🏬|cửa hàng bách hoá|We go to the department store on Sundays.
+crazy|🤪|kì lạ, lạ thường|It's a crazy house hotel in Da Lat.
+strange|❓|kì lạ|What a strange house!
+between|↔️|ở giữa|The bed is between the lamp and the wardrobe.
+next to|➡️|bên cạnh|The sofa is next to the TV.
+in front of|⬆️|ở đằng trước|There is a garden in front of my house.`,
+`There is a big sofa in the living room.|Có một chiếc sofa lớn trong phòng khách.
+There are four rooms in my house.|Có bốn phòng trong nhà tớ.
+Is there a dishwasher in your kitchen?|Trong bếp nhà bạn có máy rửa bát không?
+Are there any posters in your bedroom?|Trong phòng ngủ của bạn có áp phích nào không?
+The cat is under the table.|Con mèo ở dưới gầm bàn.
+The lamp is between the bed and the wardrobe.|Cái đèn ở giữa giường và tủ quần áo.
+This is Mi's bedroom.|Đây là phòng ngủ của Mi.
+My parents' house is in the countryside.|Nhà của bố mẹ tớ ở vùng quê.`,
+`Where do you live?|~I live in;~I live at;~In|Con sống ở đâu?
+What type of house do you live in?|~I live in;~It's a;~A|Con sống trong kiểu nhà nào?
+How many rooms are there in your house?|~There are;~There is;~It has|Nhà con có bao nhiêu phòng?
+What's your favourite room? Why?|~My favourite room is;~I like;~It's|Con thích phòng nào nhất? Vì sao?`,
+`Sở hữu cách ('s)|Thêm 's sau danh từ chỉ người để nói "của ai". Danh từ số nhiều tận cùng -s chỉ thêm dấu '.|This is Nam's bedroom.;My sister's bag is pink.;My parents' car is new.
+There is / There are|There is + danh từ số ít; There are + danh từ số nhiều. Câu hỏi: Is there…? / Are there…?|There is a fridge in the kitchen.;There are two bedrooms.;Are there any chairs? – Yes, there are.
+Giới từ chỉ vị trí|in (trong), on (trên), under (dưới), next to (cạnh), behind (sau), in front of (trước), between (giữa).|The cat is behind the sofa.;The picture is on the wall.;The desk is next to the window.`),
+T('u3','Unit 3: My friends','Bạn bè của em','👫',`appearance|🪞|ngoại hình|Tell me about her appearance.
+personality|💭|tính cách|What's his personality like?
+cheek|😊|má|She has round cheeks.
+shoulder|🤷|vai|He has broad shoulders.
+slim|🧍|mảnh khảnh|My best friend is tall and slim.
+active|🏃|năng động|Mai is very active. She loves sports.
+careful|🧐|cẩn thận|Phong is careful. He checks his work twice.
+caring|🤗|chu đáo, biết quan tâm|My sister is caring. She looks after me.
+clever|🧠|thông minh|Lan is clever. She is good at maths.
+confident|😎|tự tin|He is confident when he speaks English.
+creative|🎨|sáng tạo|She is creative. She draws beautiful pictures.
+friendly|😊|thân thiện|My new classmates are very friendly.
+funny|😂|vui tính, hài hước|Duy is funny. He always makes us laugh.
+hard-working|📚|chăm chỉ|Mi is hard-working. She studies a lot.
+kind|💕|tốt bụng|Our teacher is kind to everyone.
+loving|❤️|giàu tình yêu thương|My grandma is very loving.
+shy|🙈|xấu hổ, nhút nhát|He is shy, so he doesn't talk much.
+picnic|🧺|chuyến dã ngoại|We are having a picnic in the park.
+summer camp|⛺|trại hè|I am going to a summer camp this July.
+best friend|🫶|bạn thân nhất|My best friend has short black hair.`,
+`She has long black hair and big eyes.|Bạn ấy có mái tóc đen dài và đôi mắt to.
+He is tall and slim.|Bạn ấy cao và mảnh khảnh.
+My best friend is kind and funny.|Bạn thân nhất của tớ tốt bụng và hài hước.
+What does she look like?|Bạn ấy trông như thế nào?
+What is he like? – He's clever and creative.|Bạn ấy là người thế nào? – Bạn ấy thông minh và sáng tạo.
+I am reading a book now.|Bây giờ tớ đang đọc sách.
+They are having a picnic in the park.|Họ đang đi dã ngoại ở công viên.
+Are you going to the summer camp this weekend?|Cuối tuần này bạn có đi trại hè không?`,
+`Who is your best friend?|~My best friend is;~It's;~She is;~He is|Bạn thân nhất của con là ai?
+What does your best friend look like?|~She has;~He has;~She is;~He is|Bạn thân của con trông như thế nào?
+What is your best friend like?|~She is;~He is;~She's;~He's|Bạn thân của con có tính cách thế nào?
+What are you doing this weekend?|~I am;~I'm;~We are;~We're|Cuối tuần này con định làm gì?`,
+`Thì hiện tại tiếp diễn|am/is/are + V-ing: diễn tả việc đang xảy ra ngay lúc nói, hoặc kế hoạch đã sắp xếp trong tương lai gần.|I am doing my homework now.;She is wearing a blue dress.;We are visiting the museum tomorrow.
+Mô tả ngoại hình: be / have|Dùng be + tính từ (tall, slim, short) và have / has + đặc điểm (long hair, big eyes).|He is tall.;She has curly hair.;They have round faces.`),
+T('u4','Unit 4: My neighbourhood','Khu phố của em','🏘️',`neighbourhood|🏘️|khu phố, hàng xóm|My neighbourhood is quiet and friendly.
+art gallery|🖼️|phòng trưng bày nghệ thuật|There is a famous art gallery in my city.
+cathedral|⛪|nhà thờ lớn|The old cathedral is very beautiful.
+railway station|🚉|ga tàu hoả|The railway station is near my house.
+square|🏛️|quảng trường|There are many people in the square.
+temple|🛕|ngôi đền|There is an old temple in my neighbourhood.
+workshop|🔧|phân xưởng|My uncle works in a workshop.
+suburb|🏡|khu ngoại ô|I live in a quiet suburb.
+turning|↪️|chỗ rẽ|Take the second turning on the left.
+busy|🚗|nhộn nhịp, náo nhiệt|The streets are very busy in the morning.
+noisy|🔊|ồn ào|The city centre is noisy.
+quiet|🤫|yên tĩnh|My street is quiet at night.
+crowded|👥|đông đúc|The market is crowded at weekends.
+famous|⭐|nổi tiếng|Hoi An is famous for its old houses.
+faraway|🗺️|xa xôi|I want to visit faraway places.
+narrow|↔️|hẹp|The streets in the old town are narrow.
+modern|🏙️|hiện đại|My city has many modern buildings.
+historic|🏯|cổ kính, có tính lịch sử|Hoi An is a historic town.
+sandy|🏖️|có cát|There are sandy beaches near my home.
+outdoor|🌳|ngoài trời|We love outdoor activities.
+cross|🚸|băng qua|Cross the road and go straight on.
+dislike|👎|không thích|I dislike the noisy streets.
+finally|🏁|cuối cùng|Finally, turn right and it's on your left.`,
+`Let's go to the art gallery.|Chúng mình đi phòng trưng bày nghệ thuật đi.
+The city is noisier than the countryside.|Thành phố ồn ào hơn vùng quê.
+My neighbourhood is more beautiful than yours.|Khu phố của tớ đẹp hơn khu của bạn.
+Excuse me, where's the post office?|Xin lỗi, bưu điện ở đâu ạ?
+Go straight. Then take the first turning on the left.|Đi thẳng. Rồi rẽ trái ở chỗ rẽ đầu tiên.
+It's opposite the bakery.|Nó ở đối diện tiệm bánh.
+What do you like about your neighbourhood?|Bạn thích gì ở khu phố của mình?
+The streets are narrow and crowded.|Đường phố hẹp và đông đúc.`,
+`What is your neighbourhood like?|~It's;~My neighbourhood is;~It is|Khu phố của con như thế nào?
+What do you like about your neighbourhood?|~I like;~I love;~It's|Con thích điều gì ở khu phố mình?
+Is there a park near your house?|Yes, there is.;No, there isn't.;~There is|Gần nhà con có công viên không?
+Which is quieter, the city or the countryside?|~The countryside is;~The city is;~The countryside|Nơi nào yên tĩnh hơn, thành phố hay vùng quê?`,
+`So sánh hơn của tính từ|Tính từ ngắn: thêm -er + than (tall → taller, big → bigger, busy → busier). Tính từ dài: more + tính từ + than. Đặc biệt: good → better, bad → worse.|My street is narrower than yours.;The city is more exciting than the village.;This park is better than that one.
+Hỏi và chỉ đường|Excuse me, where is…? / How can I get to…? Trả lời: Go straight, turn left / right, take the first turning, it's on your left / opposite / next to…|Excuse me, how can I get to the museum?;Turn left. It's next to the bank.`),
+T('u5','Unit 5: Natural wonders of Viet Nam','Kì quan thiên nhiên Việt Nam','⛰️',`natural wonder|🏞️|kì quan thiên nhiên|Ha Long Bay is a natural wonder of Viet Nam.
+landscape|🌄|phong cảnh|The landscape here is amazing.
+scenery|🖼️|cảnh vật|We love the beautiful scenery.
+island|🏝️|hòn đảo|There are many islands in Ha Long Bay.
+mountain|⛰️|ngọn núi|Fansipan is a very high mountain.
+mountain range|🏔️|dãy núi|Hoang Lien Son is a long mountain range.
+mount|🗻|núi|Mount Fansipan is in Lao Cai.
+waterfall|💦|thác nước|Ban Gioc Waterfall is beautiful.
+cave|🕳️|hang động|Phong Nha has many big caves.
+desert|🏜️|sa mạc|It's very hot in the desert.
+river|🏞️|sông|The Mekong is a long river.
+forest|🌳|rừng|There are many animals in the forest.
+beach|🏖️|bãi biển|Let's go to the beach this summer.
+rock|🪨|tảng đá|Don't climb on the wet rocks.
+amazing|🤩|tuyệt vời|The view from the top is amazing.
+man-made|🏗️|nhân tạo|The lake is man-made.
+boat|⛵|con thuyền|We travel around the bay by boat.
+backpack|🎒|ba lô|Put your things in your backpack.
+compass|🧭|la bàn|Bring a compass so you don't get lost.
+plaster|🩹|băng gạc y tế|I put a plaster on my cut finger.
+suncream|🧴|kem chống nắng|You must bring suncream to the beach.
+sleeping bag|🛌|túi ngủ|We need a sleeping bag for camping.
+show|🎭|trình diễn|We watched a water puppet show.
+litter|🗑️|xả rác|You mustn't litter at natural wonders.
+join in|🙌|tham gia|You can join in many activities there.`,
+`Ha Long Bay is a natural wonder of Viet Nam.|Vịnh Hạ Long là một kì quan thiên nhiên của Việt Nam.
+You must bring a map and a compass.|Bạn phải mang theo bản đồ và la bàn.
+You mustn't litter in the forest.|Bạn không được xả rác trong rừng.
+There are many islands in the bay.|Có nhiều hòn đảo trong vịnh.
+I need some water and a sleeping bag.|Tớ cần ít nước và một túi ngủ.
+How many caves are there in Phong Nha?|Ở Phong Nha có bao nhiêu hang động?
+Let's go there by boat.|Chúng mình đến đó bằng thuyền nhé.
+The scenery is amazing!|Phong cảnh tuyệt vời quá!`,
+`Which natural wonder would you like to visit?|~I'd like to visit;~I would like to visit;~I want to visit|Con muốn đến thăm kì quan thiên nhiên nào?
+What must you bring for a camping trip?|~I must bring;~We must bring;~I need|Đi cắm trại con phải mang theo gì?
+What mustn't you do at a natural wonder?|~You mustn't;~We mustn't;~I mustn't|Ở kì quan thiên nhiên, con không được làm gì?`,
+`Danh từ đếm được / không đếm được|Danh từ đếm được có số ít, số nhiều (an island, two islands). Danh từ không đếm được không thêm -s (water, scenery, suncream).|There are two waterfalls.;We need some water.;How many islands are there?
+Must / mustn't|must + V: phải làm (bắt buộc). mustn't + V: không được làm (cấm).|You must follow the rules.;You mustn't swim here.;We must bring suncream.`),
+T('u6','Unit 6: Our Tet holiday','Tết của chúng mình','🧧',`Tet|🧧|Tết|Tet is the most important holiday in Viet Nam.
+celebrate|🎉|tổ chức, kỉ niệm|We celebrate Tet with our family.
+decorate|🎊|trang hoàng|We decorate our house with peach flowers.
+peach flower|🌸|hoa đào|People in the North buy peach flowers.
+apricot flower|🌼|hoa mai|People in the South love apricot flowers.
+lucky money|🧧|tiền lì xì|Children get lucky money at Tet.
+firework|🎆|pháo hoa|We watch fireworks on New Year's Eve.
+family gathering|👨‍👩‍👧‍👦|sum họp gia đình|Tet is a time for family gatherings.
+relative|👵|họ hàng|We visit our relatives at Tet.
+wish|🙏|lời chúc, ước|I wish you a happy new year.
+luck|🍀|điều may mắn|Good luck in the new year!
+fun|🥳|niềm vui|We have a lot of fun at Tet.
+cheer|🥂|chúc mừng|People cheer at midnight.
+welcome|🤗|chào đón|We welcome the new year together.
+behave|😇|cư xử|Children should behave well at Tet.
+throw|🤾|ném, vứt|You shouldn't throw rubbish on the street.
+strike|🕛|(đồng hồ) điểm|We cheer when the clock strikes twelve.
+mochi rice cake|🍡|bánh gạo mochi|Japanese people eat mochi rice cakes at New Year.
+banh chung|🟩|bánh chưng|We make banh chung before Tet.
+shopping|🛍️|mua sắm|We go shopping for new clothes before Tet.
+clean|🧹|dọn dẹp|We clean our house before Tet.
+break|💔|làm vỡ|You shouldn't break things at Tet.`,
+`You should clean your house before Tet.|Bạn nên dọn dẹp nhà trước Tết.
+Children shouldn't break things at Tet.|Trẻ em không nên làm vỡ đồ vào dịp Tết.
+We buy some peach flowers.|Chúng tớ mua ít hoa đào.
+Do you have any lucky money?|Bạn có tiền lì xì nào không?
+I don't have any sweets.|Tớ không có viên kẹo nào.
+Happy New Year! I wish you good health.|Chúc mừng năm mới! Chúc bạn sức khoẻ.
+We visit our grandparents on the first day of Tet.|Chúng tớ thăm ông bà vào mùng Một Tết.
+What do you do at Tet?|Bạn làm gì vào dịp Tết?`,
+`What do you usually do at Tet?|~I usually;~I;~We usually;~We|Con thường làm gì vào dịp Tết?
+What should children do at Tet?|~Children should;~We should;~They should;~You should|Trẻ em nên làm gì vào dịp Tết?
+What shouldn't you do at Tet?|~You shouldn't;~We shouldn't;~I shouldn't;~Children shouldn't|Con không nên làm gì vào dịp Tết?
+Say a New Year's wish to me!|~Happy New Year;~I wish you;~Good luck|Hãy chúc cô một câu năm mới nào!`,
+`Should / shouldn't|should + V: nên làm (lời khuyên). shouldn't + V: không nên làm.|You should get up early.;You shouldn't eat too many sweets.;Should I wear new clothes? – Yes, you should.
+Some / any|some dùng trong câu khẳng định (và lời mời). any dùng trong câu phủ định và câu hỏi.|My mother bought some fruits.;I don't have any lucky money.;Are there any flowers?`),
+T('u7','Unit 7: Television','Truyền hình','📺',`programme|📺|chương trình|My favourite programme is on at eight.
+channel|📡|kênh truyền hình|VTV3 is a popular channel.
+cartoon|🐭|phim hoạt hình|I like watching cartoons.
+animated film|🎞️|phim hoạt hình|Coco is a famous animated film.
+comedy|😂|phim hài|We watch a comedy every Saturday.
+game show|🎲|trò chơi truyền hình|My dad loves game shows.
+talent show|🎤|chương trình tìm kiếm tài năng|She sings in a talent show.
+the news|📰|thời sự|My parents watch the news at seven.
+sports programme|⚽|chương trình thể thao|My brother watches sports programmes.
+character|🦸|nhân vật|Tom is my favourite character.
+viewer|👀|người xem|The programme has millions of viewers.
+TV guide|🗒️|lịch phát sóng truyền hình|Let's check the TV guide.
+clip|🎬|đoạn phim ngắn|We watched a funny clip about cats.
+dolphin|🐬|cá heo|The film is about a clever dolphin.
+live|🔴|(truyền) trực tiếp|The match is live on TV.
+popular|🔥|phổ biến, được ưa thích|Cartoons are popular with children.
+educational|🎓|mang tính giáo dục|This programme is educational.
+cute|🥰|xinh xắn, dễ thương|The little panda is so cute.
+funny|🤣|buồn cười|The film is very funny.
+clever|🧠|khôn ngoan|The clever mouse always wins.
+compete|🏆|thi đấu|Teams compete in the quiz show.
+educate|📖|giáo dục|Good programmes educate children.`,
+`What's your favourite TV programme?|Chương trình truyền hình yêu thích của bạn là gì?
+When is it on? – It's on at 8 p.m.|Nó chiếu lúc nào? – Lúc 8 giờ tối.
+Which channel is it on?|Nó chiếu trên kênh nào?
+How often do you watch TV?|Bạn có hay xem ti vi không?
+I like cartoons because they're funny.|Tớ thích phim hoạt hình vì chúng buồn cười.
+I like comedies, but my sister likes the news.|Tớ thích phim hài, nhưng em gái tớ thích thời sự.
+The film was boring, so I turned off the TV.|Bộ phim chán nên tớ tắt ti vi.
+Who is your favourite character?|Nhân vật yêu thích của bạn là ai?`,
+`What's your favourite TV programme?|~My favourite programme is;~My favourite TV programme is;~I like;~It's|Chương trình truyền hình yêu thích của con là gì?
+Why do you like it?|~Because;~I like it because;~It's|Vì sao con thích nó?
+How many hours a day do you watch TV?|~I watch;~About;~One;~Two|Mỗi ngày con xem ti vi mấy tiếng?
+Who is your favourite cartoon character?|~My favourite character is;~It's;~I like|Nhân vật hoạt hình con yêu thích là ai?`,
+`Từ để hỏi (Wh-questions)|What (cái gì), Where (ở đâu), When (khi nào), Who (ai), Why (tại sao), How (thế nào), How many / How often…|What's on TV tonight?;Where do you watch it?;Why do you like it? – Because it's funny.
+Liên từ and, but, so|and: thêm ý; but: ý trái ngược; so: chỉ kết quả. Dùng để nối hai mệnh đề thành câu ghép.|I like cartoons and my brother likes them too.;The film is long, but it's interesting.;I was tired, so I went to bed early.`),
+T('u8','Unit 8: Sports and games','Thể thao và trò chơi','⚽',`aerobics|🤸|thể dục nhịp điệu|My mum does aerobics every morning.
+badminton|🏸|cầu lông|We play badminton after school.
+volleyball|🏐|bóng chuyền|They play volleyball on the beach.
+table tennis|🏓|bóng bàn|Do you play table tennis?
+karate|🥋|môn võ karate|My brother does karate twice a week.
+chess|♟️|cờ vua|Chess is a clever game.
+cycling|🚴|đạp xe|Cycling is good for your health.
+marathon|🏃|cuộc chạy ma-ra-tông|He ran a marathon last year.
+tournament|🏆|giải đấu|Our school had a football tournament.
+competition|🥇|cuộc thi|She won the swimming competition.
+racket|🎾|cái vợt|I need a new racket.
+goggles|🥽|kính bơi|Wear your goggles in the pool.
+ball|⚽|quả bóng|Kick the ball to me!
+equipment|🏋️|thiết bị, dụng cụ|The gym has a lot of equipment.
+gym|🏋️|phòng tập thể dục|My dad goes to the gym on Sundays.
+sporty|🏅|dáng thể thao, mê thể thao|My sister is very sporty.
+fit|💪|khoẻ mạnh|Swimming keeps you fit.
+fantastic|🤩|tuyệt vời|It was a fantastic match!
+congratulation|🎉|lời chúc mừng|Congratulations! You won!
+score|🥅|ghi bàn|He scored two goals.
+shoot|🎯|sút, bắn|Shoot the ball into the goal!
+take place|📅|diễn ra|The Olympics take place every four years.
+career|💼|sự nghiệp|Pelé had a long football career.
+last|⏱️|kéo dài|The match lasts ninety minutes.`,
+`I play football with my friends.|Tớ chơi bóng đá với các bạn.
+She does karate and goes swimming.|Bạn ấy tập karate và đi bơi.
+I played badminton yesterday.|Hôm qua tớ đã chơi cầu lông.
+Did you watch the match last night?|Tối qua bạn có xem trận đấu không?
+He didn't go cycling last Sunday.|Chủ nhật trước bạn ấy không đi đạp xe.
+Don't forget your goggles!|Đừng quên kính bơi nhé!
+Stand up and do some exercise.|Đứng dậy và tập thể dục một chút nào.
+Congratulations! You did a great job!|Chúc mừng! Bạn làm tốt lắm!`,
+`What sport do you play?|~I play;~I do;~I go;~I like|Con chơi môn thể thao nào?
+What did you do last weekend?|~I played;~I went;~I watched;~I did;~I visited|Cuối tuần trước con đã làm gì?
+What equipment do you need for badminton?|~I need;~You need;~We need;~A racket|Chơi cầu lông con cần những dụng cụ gì?
+Who is your favourite sports star?|~My favourite sports star is;~It's;~I like|Ngôi sao thể thao con yêu thích là ai?`,
+`Thì quá khứ đơn|Diễn tả việc đã xảy ra và kết thúc trong quá khứ. Động từ có quy tắc thêm -ed (play → played); bất quy tắc phải học thuộc (go → went, do → did). Phủ định / câu hỏi dùng did.|I visited my grandparents last week.;She went swimming yesterday.;Did you win? – Yes, I did.
+Câu mệnh lệnh|Dùng động từ nguyên mẫu để yêu cầu, ra lệnh. Phủ định: Don't + V.|Stand up, please.;Listen to the teacher.;Don't run near the pool.`),
+T('u9','Unit 9: Cities of the world','Các thành phố trên thế giới','🌆',`city|🏙️|thành phố|Sydney is a beautiful city.
+landmark|🗽|địa danh nổi tiếng|Big Ben is a famous landmark in London.
+tower|🗼|tháp|The Eiffel Tower is in Paris.
+palace|🏰|cung điện|The Royal Palace is in Stockholm.
+Royal Palace|👑|Cung điện Hoàng gia|We visited the Royal Palace in Sweden.
+Times Square|🌃|Quảng trường Thời đại|Times Square is in New York.
+city map|🗺️|bản đồ thành phố|Let's look at the city map.
+postcard|💌|bưu thiếp|I sent my friend a postcard from Bangkok.
+floating market|🛶|chợ nổi|Cai Rang is a famous floating market.
+stall|🏪|gian hàng|There are many stalls at the market.
+street food|🍜|thức ăn đường phố|Bangkok is famous for its street food.
+river bank|🏞️|bờ sông|We walked along the river bank.
+shell|🐚|vỏ sò|I found a pretty shell on the beach.
+helmet|⛑️|mũ bảo hiểm|You must wear a helmet on a motorbike.
+rent|🔑|thuê|We rented bikes in Amsterdam.
+crowded|👥|đông đúc|Tokyo is very crowded.
+helpful|🙋|sẵn sàng giúp đỡ|The people there are very helpful.
+delicious|😋|ngon|The street food was delicious.
+exciting|🎢|thú vị, sôi động|New York is an exciting city.
+weather|🌦️|thời tiết|The weather in London is often rainy.
+holiday|🧳|kì nghỉ|We had a great holiday in Sydney.`,
+`This is my hat. That hat is yours.|Đây là mũ của tớ. Cái mũ kia là của bạn.
+Is this his postcard? – No, it's hers.|Đây có phải bưu thiếp của bạn ấy (nam) không? – Không, của bạn ấy (nữ).
+Our city is big, and their city is small.|Thành phố của chúng tớ lớn, còn thành phố của họ nhỏ.
+Have you ever been to Paris?|Bạn đã bao giờ đến Paris chưa?
+Sydney is famous for its Opera House.|Sydney nổi tiếng với Nhà hát Opera.
+The weather was sunny and warm.|Thời tiết nắng và ấm.
+I'm having a great time in Bangkok.|Tớ đang có khoảng thời gian tuyệt vời ở Bangkok.
+What's the weather like there?|Thời tiết ở đó thế nào?`,
+`Which city would you like to visit?|~I'd like to visit;~I would like to visit;~I want to visit|Con muốn đến thăm thành phố nào?
+What is the city famous for?|~It's famous for;~It is famous for;~The|Thành phố đó nổi tiếng về điều gì?
+What landmark do you know?|~I know;~The;~Big Ben;~The Eiffel Tower|Con biết địa danh nổi tiếng nào?
+What's the weather like in your city today?|~It's;~It is;~The weather is|Hôm nay thời tiết ở thành phố của con thế nào?`,
+`Tính từ sở hữu|my, your, his, her, its, our, their + danh từ: của tôi, của bạn…|This is my school bag.;Her city is very old.;Their house is near the river.
+Đại từ sở hữu|mine, yours, his, hers, ours, theirs: thay cho "tính từ sở hữu + danh từ", không có danh từ theo sau.|This book is mine.;Is this pen yours?;The red bike is hers.`),
+T('u10','Unit 10: Our houses in the future','Ngôi nhà tương lai','🏠',`appliance|🔌|thiết bị (gia dụng)|A fridge is a useful appliance.
+smart TV|📺|ti vi thông minh|We will have a smart TV in every room.
+washing machine|🧺|máy giặt|The washing machine washes our clothes.
+dishwasher|🍽️|máy rửa bát|A dishwasher will wash the dishes for us.
+electric cooker|🍳|bếp điện|My mum cooks on an electric cooker.
+fridge|🧊|tủ lạnh|My fridge will tell me what food to buy.
+computer|💻|máy vi tính|I use a computer to do my homework.
+robot|🤖|người máy|A robot will clean our house.
+cottage|🛖|nhà tranh|I'd like to live in a cottage in the mountains.
+skyscraper|🏙️|nhà chọc trời|My future house will be a skyscraper.
+houseboat|🚤|nhà thuyền|We might live in a houseboat on the river.
+UFO|🛸|vật thể bay không xác định|My house might be a UFO!
+helicopter|🚁|máy bay trực thăng|I'll fly to school by helicopter.
+ocean|🌊|đại dương|My dream house will be under the ocean.
+space|🚀|vũ trụ|People might live in space in the future.
+location|📍|địa điểm|What will its location be?
+hi-tech|💡|công nghệ cao|It will be a hi-tech house.
+wireless|📶|không dây|We will have wireless TVs.
+solar energy|☀️|năng lượng mặt trời|Our house will use solar energy.
+housework|🧹|công việc nhà|Robots will do the housework.
+look after|🧸|trông nom, chăm sóc|A robot might look after my little sister.
+dry|💨|làm khô|The machine will wash and dry our clothes.
+outside|🌳|bên ngoài|There will be a big garden outside.
+super|🌟|siêu|It will be a super house!`,
+`My house will be in the mountains.|Ngôi nhà của tớ sẽ ở trên núi.
+It will have a swimming pool and a big garden.|Nó sẽ có một bể bơi và một khu vườn lớn.
+Robots will do the housework.|Người máy sẽ làm việc nhà.
+We won't have a washing machine.|Chúng tớ sẽ không có máy giặt.
+Will you live in a UFO? – No, I won't.|Bạn sẽ sống trong UFO chứ? – Không.
+We might live on the Moon.|Chúng ta có thể sẽ sống trên Mặt Trăng.
+It might have a smart TV.|Nó có thể sẽ có một chiếc ti vi thông minh.
+What will your house be like?|Ngôi nhà của bạn sẽ như thế nào?`,
+`What type of house will you live in in the future?|~I will live in;~I'll live in;~I might live in;~It will be|Trong tương lai con sẽ sống trong kiểu nhà nào?
+Where will your house be?|~It will be;~It'll be;~My house will be;~It might be|Ngôi nhà của con sẽ ở đâu?
+What appliances will you have?|~I will have;~I'll have;~It will have;~I might have|Con sẽ có những thiết bị nào?
+What will a robot do for you?|~It will;~It'll;~A robot will;~It might|Người máy sẽ làm gì giúp con?`,
+`Thì tương lai đơn (will)|will + V: diễn tả việc sẽ xảy ra trong tương lai, dự đoán. Phủ định: won't + V. Câu hỏi: Will + S + V?|I will live in a big house.;It won't be cheap.;Will you have a robot? – Yes, I will.
+Might (khả năng trong tương lai)|might + V: có thể sẽ (không chắc chắn bằng will).|We might live with robots.;It might rain tomorrow.;They might not come.`),
+T('u11','Unit 11: Our greener world','Thế giới xanh hơn','♻️',`environment|🌳|môi trường|We must protect the environment.
+go green|🌿|sống xanh|Let's go green to help our planet.
+reduce|⬇️|giảm|Reduce the use of plastic bags.
+reuse|🔁|tái sử dụng|We reuse old bottles as flower pots.
+recycle|♻️|tái chế|We recycle paper and cans.
+reusable|🛍️|có thể dùng lại|Use reusable bags when you go shopping.
+recycling bin|🗑️|thùng rác tái chế|Put the cans in the recycling bin.
+rubbish|🚮|rác|Don't throw rubbish on the ground.
+plastic bag|🛍️|túi ni lông|Plastic bags are bad for the environment.
+bottle|🍾|cái chai|We can reuse this bottle.
+container|🫙|đồ đựng|Keep your food in a container.
+pick up|🤏|nhặt (rác)|We pick up rubbish in the park.
+wrap|🎁|gói, bọc|Wrap the gift in old newspaper.
+instead of|🔄|thay cho|Walk instead of going by car.
+charity|💝|từ thiện|We give old clothes to charity.
+be in need|🙏|cần (giúp đỡ)|Some children may be in need of help.
+exchange|🔃|trao đổi|Let's exchange old books with friends.
+fair|🎪|hội chợ|We sell old things at the school fair.
+do a survey|📋|thực hiện khảo sát|Let's do a survey about recycling.
+tip|💡|mẹo|Here are some green tips.
+president|🧑‍💼|chủ tịch|She is the president of the Green Club.
+air pollution|🏭|ô nhiễm không khí|Cars cause air pollution.
+energy|⚡|năng lượng|Turn off the lights to save energy.`,
+`If we recycle more, we will help the environment.|Nếu chúng ta tái chế nhiều hơn, chúng ta sẽ giúp môi trường.
+If you use reusable bags, you will reduce rubbish.|Nếu bạn dùng túi tái sử dụng, bạn sẽ giảm rác thải.
+Turn off the lights when you leave the room.|Tắt đèn khi ra khỏi phòng.
+I have a bottle. The bottle is made of glass.|Tớ có một cái chai. Cái chai được làm bằng thuỷ tinh.
+Walk to school instead of going by car.|Hãy đi bộ đến trường thay vì đi ô tô.
+We should reduce, reuse and recycle.|Chúng ta nên giảm thiểu, tái sử dụng và tái chế.
+Be careful! Don't throw rubbish into the river.|Cẩn thận! Đừng vứt rác xuống sông.
+What can you do to go green?|Bạn có thể làm gì để sống xanh?`,
+`What do you do to help the environment?|~I;~We;~I recycle;~I reuse;~I turn off|Con làm gì để bảo vệ môi trường?
+What will happen if we recycle more?|~If we recycle more;~We will;~It will;~There will be|Điều gì sẽ xảy ra nếu chúng ta tái chế nhiều hơn?
+What can you reuse at home?|~I can reuse;~We can reuse;~Bottles;~Old|Ở nhà con có thể tái sử dụng những gì?`,
+`Mạo từ a / an / the|a / an: nói đến vật lần đầu, chưa xác định (an trước nguyên âm). the: vật đã nhắc đến hoặc đã xác định.|I have a dog. The dog is very friendly.;She eats an apple every day.;The sun is hot.
+Câu điều kiện loại 1|If + hiện tại đơn, S + will + V: diễn tả điều có thể xảy ra trong tương lai nếu có điều kiện.|If it rains, we will stay at home.;If we plant more trees, the air will be cleaner.`),
+T('u12','Unit 12: Robots','Người máy','🤖',`robot|🤖|người máy|This robot can talk and sing.
+home robot|🏠|người máy gia đình|A home robot can do the housework.
+teaching robot|👩‍🏫|người máy dạy học|A teaching robot can help us learn English.
+worker robot|🏗️|người máy công nhân|Worker robots can build houses.
+doctor robot|🩺|người máy bác sĩ|A doctor robot can help sick people.
+space robot|🛰️|người máy vũ trụ|Space robots can work on other planets.
+space station|🛰️|trạm vũ trụ|Robots can build a space station.
+planet|🪐|hành tinh|Robots can explore other planets.
+do the dishes|🍽️|rửa bát|My robot can do the dishes.
+do the washing|🧺|giặt giũ|He can do the washing for me.
+iron|👔|là, ủi|Can your robot iron clothes?
+water|🪴|tưới nước|The robot waters the plants every day.
+repair|🔧|sửa chữa|This robot can repair broken machines.
+put away|📦|cất, dọn|It can put away my toys.
+pick|🍎|hái|The robot picks fruit in the garden.
+look after|👶|chăm sóc|It can look after children.
+guard|💂|người canh gác|The robot works as a guard.
+understand|💡|hiểu|Robots can't understand our feelings.
+feelings|💖|cảm xúc|Robots don't have feelings.
+height|📏|chiều cao|What's the robot's height?
+weight|⚖️|trọng lượng|Its weight is fifty kilograms.
+age|🎂|tuổi|What's your age?
+price|🏷️|giá|What's the price of this robot?
+useful|👍|hữu ích|Robots are very useful.
+broken|💔|bị hỏng|My bike is broken.
+choice|✅|sự lựa chọn|You have three choices.`,
+`Robots can do the dishes.|Người máy có thể rửa bát.
+It can't understand our feelings.|Nó không thể hiểu cảm xúc của chúng ta.
+Can your robot iron clothes? – Yes, it can.|Người máy của bạn có thể là quần áo không? – Có.
+This is the biggest robot in the world.|Đây là người máy to nhất thế giới.
+Doctor robots are the most useful.|Người máy bác sĩ là hữu ích nhất.
+My robot is smaller than yours.|Người máy của tớ nhỏ hơn của bạn.
+I think robots will be very useful.|Tớ nghĩ người máy sẽ rất hữu ích.
+I agree. / I don't agree.|Tớ đồng ý. / Tớ không đồng ý.`,
+`What can a home robot do?|~It can;~A home robot can;~They can|Người máy gia đình có thể làm gì?
+What would you like your robot to do?|~I'd like it to;~I would like it to;~I want it to;~I'd like my robot to|Con muốn người máy của mình làm gì?
+Which robot is the most useful?|~I think;~The;~Doctor robots;~Home robots|Theo con, người máy nào hữu ích nhất?
+Do you think robots can understand our feelings?|~I think;~No;~Yes;~I don't think|Con có nghĩ người máy hiểu được cảm xúc không?`,
+`So sánh nhất của tính từ ngắn|the + tính từ-est (tall → the tallest, big → the biggest, happy → the happiest). Đặc biệt: good → the best, bad → the worst. Tính từ dài: the most + tính từ.|He is the tallest boy in my class.;This is the biggest robot.;It's the most useful robot.
+Can / can't (khả năng)|can + V: có thể làm được; can't + V: không thể.|Robots can lift heavy things.;They can't play football.;Can it talk? – Yes, it can.`)
+]},
+gs7:{name:'Global Success 7',cefr:'Lớp 7 · A2',color:'--gs7',tpl:'flyers',topics:[
+T('u1','Unit 1: Hobbies','Sở thích','🎨',`hobby|🎯|sở thích|My hobby is collecting stamps.
+gardening|🌱|làm vườn|My grandpa enjoys gardening.
+horse riding|🏇|cưỡi ngựa|Horse riding is an unusual hobby.
+jogging|🏃|chạy bộ thư giãn|I go jogging in the park every morning.
+making models|🛠️|làm mô hình|My brother loves making models.
+dollhouse|🏠|nhà búp bê|She made a dollhouse from cardboard.
+cardboard|📦|bìa các tông|We need some cardboard and glue.
+glue|🧴|keo dán, hồ|Put some glue on the paper.
+collecting stamps|✉️|sưu tầm tem|Collecting stamps is a popular hobby.
+building dollhouses|🏡|làm nhà búp bê|Building dollhouses needs a lot of patience.
+playing the guitar|🎸|chơi đàn ghi-ta|I enjoy playing the guitar.
+yoga|🧘|yoga|My mum does yoga to relax.
+insect|🐞|côn trùng|He collects pictures of insects.
+bug|🐛|con bọ|There's a bug on the leaf.
+benefit|👍|lợi ích|Gardening has many benefits.
+maturity|🌳|sự trưởng thành|Hobbies can help with maturity.
+patient|⏳|kiên nhẫn|You must be patient when you make models.
+popular|🔥|được nhiều người ưa thích|Football is a popular hobby.
+responsibility|🫡|sự chịu trách nhiệm|Gardening teaches us responsibility.
+stress|😫|sự căng thẳng|Yoga helps reduce stress.
+unusual|🦄|khác thường|Do you have an unusual hobby?
+valuable|💎|quý giá|Old stamps can be valuable.
+belong to|🏷️|thuộc về|These books belong to my sister.
+take on|💪|nhận thêm|She wants to take on more work in the garden.
+set|🌇|(mặt trời) lặn|We go jogging when the sun sets.`,
+`My hobby is gardening.|Sở thích của tớ là làm vườn.
+I like playing the guitar in my free time.|Tớ thích chơi ghi-ta lúc rảnh.
+She loves making models.|Bạn ấy rất thích làm mô hình.
+He enjoys collecting stamps.|Bạn ấy thích sưu tầm tem.
+They hate doing housework.|Họ ghét làm việc nhà.
+What do you do in your free time?|Lúc rảnh bạn làm gì?
+How often do you go jogging?|Bạn có hay đi chạy bộ không?
+Gardening helps us become more patient.|Làm vườn giúp chúng ta kiên nhẫn hơn.`,
+`What's your hobby?|~My hobby is;~I like;~I love;~I enjoy|Sở thích của con là gì?
+When did you start your hobby?|~I started;~When I was;~Last;~Two years ago|Con bắt đầu sở thích này khi nào?
+What do you do in your free time?|~I;~In my free time|Lúc rảnh con làm gì?
+What are the benefits of your hobby?|~It helps;~It makes;~It's;~It is|Sở thích của con có lợi ích gì?`,
+`Thì hiện tại đơn (ôn tập)|Diễn tả thói quen, sở thích, sự thật. Với he/she/it, động từ thêm -s/-es.|My father goes jogging every morning.;She doesn't like horse riding.;Does he collect stamps? – Yes, he does.
+Động từ chỉ sự yêu thích + V-ing|like, love, enjoy, hate, don't like + V-ing: thích / rất thích / ghét làm gì.|I love building dollhouses.;He enjoys gardening.;We don't like getting up early.`),
+T('u2','Unit 2: Healthy living','Sống khoẻ','🥗',`health|💪|sức khoẻ|Exercise is good for your health.
+healthy|🥦|khoẻ mạnh, lành mạnh|Eat healthy food every day.
+fit|🏋️|gọn gàng, cân đối|Keep fit by doing exercise.
+acne|😣|mụn trứng cá|Many teenagers have acne.
+pimple|🔴|mụn|Don't pop your pimples.
+pop|👆|nặn (mụn)|You shouldn't pop pimples.
+sunburn|🌞|sự cháy nắng|Wear a hat to avoid sunburn.
+chapped|👄|nứt nẻ|My lips are chapped in winter.
+lip balm|💄|son dưỡng môi|Use lip balm for chapped lips.
+skin condition|🧴|tình trạng da|Wash your face to keep a good skin condition.
+eye drops|💧|thuốc nhỏ mắt|My eyes are dry, so I use eye drops.
+dim|🔅|lờ mờ, không đủ sáng|Don't read in dim light.
+disease|🦠|bệnh|Healthy food helps prevent disease.
+virus|🧫|vi rút|Wash your hands to avoid viruses.
+vitamin|💊|vitamin|Fruit has a lot of vitamins.
+protein|🍗|chất đạm|Fish and eggs give us protein.
+fat|🧈|chất béo, mỡ|Don't eat too much fat.
+tofu|⬜|đậu phụ|Tofu is made from soybeans.
+soybean|🫘|đậu nành|Soybeans are good for your health.
+indoors|🏠|trong nhà|Don't stay indoors all day.
+outdoor activity|🌳|hoạt động ngoài trời|Do more outdoor activities.
+affect|⚠️|ảnh hưởng đến|Junk food affects your health.
+avoid|🚫|tránh|Avoid eating too many sweets.
+sleep|😴|ngủ|You should sleep eight hours a day.`,
+`Eat more fruit and vegetables.|Ăn nhiều trái cây và rau hơn.
+You should wash your face twice a day.|Bạn nên rửa mặt hai lần một ngày.
+I do exercise every morning.|Sáng nào tớ cũng tập thể dục.
+Don't stay up late.|Đừng thức khuya.
+My lips are chapped.|Môi tớ bị nứt nẻ.
+Use lip balm and drink more water.|Hãy dùng son dưỡng và uống nhiều nước hơn.
+Healthy food helps us stay fit.|Thức ăn lành mạnh giúp chúng ta khoẻ mạnh.
+I wear a hat when I go out in the sun.|Tớ đội mũ khi ra ngoài nắng.`,
+`What do you do to stay healthy?|~I;~I eat;~I do;~I play;~I drink|Con làm gì để giữ sức khoẻ?
+How many hours do you sleep a day?|~I sleep;~About;~Eight;~Seven;~Nine|Mỗi ngày con ngủ mấy tiếng?
+What should you do if you have sunburn?|~I should;~You should;~We should|Bị cháy nắng thì con nên làm gì?
+What healthy food do you like?|~I like;~I love;~I eat|Con thích món ăn lành mạnh nào?`,
+`Câu đơn|Câu đơn có một chủ ngữ và một động từ chính (một mệnh đề). Có thể có nhiều chủ ngữ hoặc nhiều động từ nối bằng and.|I do exercise every day.;Mai and Lan eat a lot of vegetables.;He washes his face and goes to bed.
+Lời khuyên về sức khoẻ|Dùng câu mệnh lệnh (Eat… / Don't…) hoặc should / shouldn't + V để khuyên.|Drink more water.;Don't eat too much fast food.;You should go to bed early.`),
+T('u3','Unit 3: Community service','Hoạt động cộng đồng','🤝',`community|🏘️|cộng đồng|We help people in our community.
+community service|🤝|hoạt động cộng đồng|Our class does community service every month.
+volunteer|🙋|tình nguyện, tình nguyện viên|I volunteer at the library on Sundays.
+donate|🎁|cho, tặng|We donated books to poor children.
+clean-up activity|🧹|hoạt động dọn dẹp|We joined a clean-up activity at the beach.
+collect|🗑️|thu gom|We collected rubbish in the park.
+plant|🌳|trồng (cây)|Our club planted trees last spring.
+tutor|📚|dạy kèm|I tutor young children in maths.
+elderly|👴|cao tuổi|We visited elderly people last week.
+nursing home|🏥|viện dưỡng lão|We sang songs at the nursing home.
+orphanage|🧒|trại trẻ mồ côi|They gave toys to children at the orphanage.
+homeless|🏚️|vô gia cư|We cooked food for homeless people.
+flooded|🌊|bị lũ lụt|We sent clothes to flooded areas.
+mountainous|⛰️|vùng núi|Children in mountainous areas need warm clothes.
+rural area|🌾|vùng nông thôn|We help children in rural areas.
+board game|🎲|trò chơi trên bàn cờ|We played board games with the children.
+exchange|🔃|trao đổi|Let's exchange old books for new ones.
+develop|📈|phát triển|Volunteering develops our skills.
+skill|🛠️|kĩ năng|I learnt new skills at the club.
+teenager|🧑|thanh thiếu niên|Many teenagers do volunteer work.
+proud|😊|tự hào|I feel proud when I help others.
+provide|📦|cung cấp|They provide food for poor people.
+nursing|💉|điều dưỡng, chăm sóc|She wants to study nursing.
+recycle|♻️|tái chế|We recycled bottles to raise money.`,
+`We collected rubbish in the park last Sunday.|Chủ nhật trước chúng tớ đã nhặt rác ở công viên.
+They donated books and clothes to the orphanage.|Họ đã tặng sách và quần áo cho trại trẻ mồ côi.
+Did you volunteer last summer? – Yes, I did.|Hè vừa rồi bạn có đi tình nguyện không? – Có.
+I didn't go to the nursing home yesterday.|Hôm qua tớ không đến viện dưỡng lão.
+We planted trees along the streets.|Chúng tớ đã trồng cây dọc các con phố.
+I feel proud when I help people.|Tớ thấy tự hào khi giúp đỡ mọi người.
+What community activities did you do?|Bạn đã tham gia hoạt động cộng đồng nào?
+Volunteering helps us develop new skills.|Tình nguyện giúp chúng ta phát triển kĩ năng mới.`,
+`What community activities did you do last summer?|~I;~We;~I helped;~We collected;~I volunteered|Hè vừa rồi con đã tham gia hoạt động cộng đồng nào?
+How do you feel when you help people?|~I feel;~I'm;~I am;~Happy|Con cảm thấy thế nào khi giúp đỡ người khác?
+What can students do for their community?|~We can;~Students can;~They can|Học sinh có thể làm gì cho cộng đồng?`,
+`Thì quá khứ đơn|Diễn tả việc đã xảy ra và kết thúc trong quá khứ (yesterday, last week, … ago). Có quy tắc: V-ed; bất quy tắc: go → went, do → did, give → gave. Phủ định / câu hỏi: did.|We cleaned the beach last month.;They gave food to homeless people.;Did you join the activity? – No, I didn't.`),
+T('u4','Unit 4: Music and arts','Âm nhạc và nghệ thuật','🎵',`music|🎶|âm nhạc|I listen to music every evening.
+concert|🎤|buổi hoà nhạc|We went to a concert last night.
+anthem|🇻🇳|bài quốc ca|We sing the national anthem on Monday mornings.
+composer|🎼|nhà soạn nhạc|Van Cao was a famous composer.
+compose|✍️|soạn (nhạc)|He composed many beautiful songs.
+country music|🤠|nhạc đồng quê|My dad likes country music.
+folk music|🪕|nhạc dân gian|Folk music is different from pop music.
+musical instrument|🎻|nhạc cụ|Can you play a musical instrument?
+perform|🎭|biểu diễn|The band performed at our school.
+performance|👏|buổi biểu diễn|The performance was amazing.
+puppet|🧸|con rối|The puppets are made of wood.
+water puppetry|🎎|múa rối nước|Water puppetry is a Vietnamese art.
+originate|🌱|bắt nguồn|Water puppetry originated in the Red River Delta.
+character|🦸|nhân vật|The puppets show many characters.
+control|🕹️|điều khiển|The artists control the puppets from behind.
+exhibition|🖼️|cuộc triển lãm|There is a painting exhibition at the museum.
+gallery|🏛️|phòng trưng bày tranh|Let's visit the art gallery.
+photography|📷|nhiếp ảnh|My sister is interested in photography.
+portrait|🖼️|bức chân dung|She painted a portrait of her mother.
+sculpture|🗿|tác phẩm điêu khắc|This sculpture is very old.
+prefer|⚖️|thích hơn|I prefer painting to singing.
+painting|🎨|bức tranh, hội hoạ|I like painting in my free time.`,
+`My painting is different from yours.|Bức tranh của tớ khác bức tranh của bạn.
+Your picture is like a photo.|Bức tranh của bạn giống như một tấm ảnh.
+Folk music isn't as popular as pop music.|Nhạc dân gian không phổ biến bằng nhạc pop.
+This song is as beautiful as that one.|Bài hát này hay như bài kia.
+I prefer music to art.|Tớ thích âm nhạc hơn mĩ thuật.
+Which musical instrument can you play?|Bạn chơi được nhạc cụ nào?
+Water puppetry is a traditional art in Viet Nam.|Múa rối nước là một nghệ thuật truyền thống ở Việt Nam.
+Let's go to the concert this weekend.|Cuối tuần này chúng mình đi xem hoà nhạc nhé.`,
+`Do you prefer music or art?|~I prefer;~I like;~Music;~Art|Con thích âm nhạc hay mĩ thuật hơn?
+Can you play a musical instrument?|~Yes, I can;~No, I can't;~I can play|Con có chơi được nhạc cụ nào không?
+What kind of music do you like?|~I like;~I love;~My favourite|Con thích thể loại nhạc nào?
+Have you ever seen water puppetry?|~Yes;~No;~I have;~I haven't|Con đã từng xem múa rối nước chưa?`,
+`So sánh: like, different from, (not) as … as|be like: giống như; be different from: khác với; (not) as + tính từ + as: (không) bằng.|His voice is like a singer's voice.;My painting is different from his.;Art is as interesting as music.;This song isn't as long as that one.`),
+T('u5','Unit 5: Food and drink','Đồ ăn và thức uống','🍜',`dish|🍲|món ăn|Pho is a famous Vietnamese dish.
+noodles|🍜|mì, phở|I have noodles for breakfast.
+beef|🥩|thịt bò|Pho is made with beef or chicken.
+pork|🍖|thịt lợn|My mum cooks pork with eggs.
+eel|🐍|con lươn|Eel soup is a speciality of Nghe An.
+shrimp|🦐|con tôm|We need some shrimps for the spring rolls.
+spring roll|🌯|nem rán|Spring rolls are very delicious.
+omelette|🍳|trứng tráng|I can make an omelette.
+pancake|🥞|bánh kếp|We have pancakes with honey.
+soup|🥣|xúp, canh|Would you like some soup?
+pie|🥧|bánh nướng|My grandma bakes an apple pie.
+toast|🍞|bánh mì nướng|I eat toast with butter.
+butter|🧈|bơ|Put some butter on the bread.
+flour|🌾|bột|We need two cups of flour.
+onion|🧅|củ hành|Cut the onion into small pieces.
+pepper|🌶️|hạt tiêu|Add some salt and pepper.
+salt|🧂|muối|Don't put too much salt in it.
+sauce|🥫|nước sốt|This fish sauce is very good.
+ingredient|🥕|thành phần, nguyên liệu|What are the ingredients?
+recipe|📃|công thức nấu ăn|My mum has a recipe for beef noodle soup.
+tablespoon|🥄|thìa canh|Add two tablespoons of sugar.
+teaspoon|🥄|thìa cà phê|Add a teaspoon of salt.
+fried|🍤|được chiên, rán|I love fried chicken.
+roast|🍗|quay, nướng|We had roast chicken for dinner.
+juice|🧃|nước ép|Orange juice is my favourite drink.
+lemonade|🍋|nước chanh|Would you like a glass of lemonade?
+mineral water|💧|nước khoáng|Can I have a bottle of mineral water?
+green tea|🍵|trà xanh|My grandpa drinks green tea every morning.`,
+`How much flour do we need?|Chúng ta cần bao nhiêu bột?
+How many eggs do you want?|Bạn muốn bao nhiêu quả trứng?
+We need some beef and a lot of noodles.|Chúng ta cần ít thịt bò và nhiều bánh phở.
+There are lots of vegetables in the fridge.|Có nhiều rau trong tủ lạnh.
+Would you like some lemonade? – Yes, please.|Bạn uống chút nước chanh nhé? – Vâng.
+How much is a bowl of pho?|Một bát phở bao nhiêu tiền?
+First, cut the onion. Then, fry the eggs.|Đầu tiên, thái hành. Sau đó, rán trứng.
+My favourite dish is spring rolls.|Món ăn yêu thích của tớ là nem rán.`,
+`What's your favourite dish?|~My favourite dish is;~I like;~I love;~It's|Món ăn yêu thích của con là gì?
+What do you usually have for breakfast?|~I usually have;~I have;~I eat;~I usually eat|Bữa sáng con thường ăn gì?
+How do you make an omelette?|~First;~You need;~We need|Làm món trứng tráng như thế nào?
+What would you like to drink?|~I'd like;~I would like;~Some;~A glass of|Con muốn uống gì?`,
+`Some, a lot of, lots of|Dùng với danh từ đếm được số nhiều và không đếm được. some: một vài, một ít; a lot of / lots of: nhiều.|We need some eggs.;There is a lot of milk in the fridge.;He eats lots of vegetables.
+How much / How many|How many + danh từ đếm được số nhiều; How much + danh từ không đếm được (và hỏi giá).|How many bananas do we need?;How much butter is there?;How much is the pie?`),
+T('u6','Unit 6: A visit to a school','Thăm một ngôi trường','🏫',`lower secondary school|🏫|trường trung học cơ sở|I study at a lower secondary school.
+entrance exam|📝|kì thi đầu vào|She passed the entrance exam.
+gifted|🌟|năng khiếu|It's a school for gifted students.
+talented|🏅|tài năng|He is a talented student.
+well-known|⭐|nổi tiếng|It's a well-known school in Ha Noi.
+facility|🏢|cơ sở vật chất, tiện nghi|The school has modern facilities.
+laboratory|🔬|phòng thí nghiệm|We do experiments in the laboratory.
+library|📚|thư viện|There are many books in the library.
+projector|📽️|máy chiếu|Our classroom has a projector.
+equipment|🖥️|đồ dùng, thiết bị|The school has new sports equipment.
+resource|📖|tài nguyên, nguồn tài liệu|The library has a lot of resources.
+private|🔐|tư, riêng|My cousin goes to a private school.
+royal|👑|thuộc hoàng gia|The Temple of Literature was a royal school.
+midterm|📅|giữa học kì|We have midterm tests in October.
+outdoor|🌳|ngoài trời|We have outdoor activities on Fridays.
+extra|➕|thêm|We have extra classes in the afternoon.
+service|🙋|dịch vụ|The school has a good bus service.
+share|🤝|chia sẻ|I share a desk with Mai.
+school garden|🌻|vườn trường|We grow vegetables in the school garden.
+celebrate|🎉|kỉ niệm, tổ chức|Our school celebrates its birthday in November.`,
+`My school is in the centre of the city.|Trường tớ ở trung tâm thành phố.
+Classes start at seven o'clock.|Các lớp học bắt đầu lúc bảy giờ.
+We have English on Monday.|Chúng tớ học tiếng Anh vào thứ Hai.
+The school was built in 1995.|Trường được xây năm 1995.
+The library is on the second floor.|Thư viện ở tầng hai.
+We have a school trip in the summer.|Chúng tớ có chuyến đi của trường vào mùa hè.
+There is a projector in every classroom.|Có một máy chiếu ở mỗi lớp học.
+Our school has a big laboratory.|Trường chúng tớ có phòng thí nghiệm lớn.`,
+`What's the name of your school?|~My school is;~It's;~It is;~The name is|Trường con tên là gì?
+Where is your school?|~It's in;~It's on;~It's near;~It is|Trường con ở đâu?
+What facilities does your school have?|~It has;~My school has;~There is;~There are|Trường con có những cơ sở vật chất nào?
+What time do your classes start?|~They start at;~At;~Classes start at|Các lớp học của con bắt đầu lúc mấy giờ?`,
+`Giới từ chỉ thời gian|at + giờ (at 7 o'clock); on + ngày, thứ (on Monday, on 2nd September); in + tháng, năm, mùa, buổi (in May, in 2022, in the morning).|We have a test on Friday.;The school year starts in September.;I get up at six.
+Giới từ chỉ nơi chốn|in (trong), on (trên, ở tầng), at (tại một điểm), next to, opposite, between…|The library is on the first floor.;My school is in Hue.;Meet me at the school gate.`),
+T('u7','Unit 7: Traffic','Giao thông','🚦',`traffic jam|🚗|tắc đường|There is always a traffic jam at rush hour.
+traffic rule|📏|luật giao thông|We must obey traffic rules.
+obey traffic rules|✅|tuân theo luật giao thông|Everyone should obey traffic rules.
+road sign|🪧|biển báo giao thông|Look at the road sign before you turn.
+traffic light|🚦|đèn giao thông|Stop when the traffic light is red.
+signal|↪️|tín hiệu|Give a signal before you turn left.
+zebra crossing|🦓|vạch kẻ sang đường|Cross the street at the zebra crossing.
+pavement|🚶|vỉa hè|Walk on the pavement.
+pedestrian|🚶‍♀️|người đi bộ|Pedestrians must cross at the zebra crossing.
+passenger|🧳|hành khách|Passengers must wear seatbelts.
+seatbelt|🔒|dây an toàn|Always wear your seatbelt in the car.
+helmet|⛑️|mũ bảo hiểm|You must wear a helmet when you ride a motorbike.
+vehicle|🚌|phương tiện giao thông|There are too many vehicles in the city.
+lane|🛣️|làn đường|Cycle in the bike lane.
+handlebars|🚲|tay lái xe đạp|Hold the handlebars with both hands.
+bumpy|🪨|nhiều ổ gà, lồi lõm|The road to my village is bumpy.
+distance|📏|khoảng cách|What's the distance from your house to school?
+safety|🛡️|sự an toàn|Safety comes first.
+fine|💸|phạt (tiền)|The police fined him for speeding.
+plane|✈️|máy bay|We went to Da Nang by plane.
+fly|🛫|bay, đi máy bay|I'd like to fly to Phu Quoc.
+roof|🏠|nóc xe, mái nhà|Don't sit on the roof of a train.`,
+`It's about two kilometres from my house to school.|Từ nhà tớ đến trường khoảng hai ki-lô-mét.
+How far is it from your house to school?|Từ nhà bạn đến trường bao xa?
+You should wear a helmet.|Bạn nên đội mũ bảo hiểm.
+You shouldn't ride too fast.|Bạn không nên đi quá nhanh.
+Always stop at the red light.|Luôn dừng lại khi đèn đỏ.
+Cross the street at the zebra crossing.|Sang đường ở vạch kẻ cho người đi bộ.
+I usually go to school by bike.|Tớ thường đi học bằng xe đạp.
+There is a traffic jam on this road.|Có tắc đường trên con đường này.`,
+`How do you go to school?|~I go;~I walk;~I ride;~By;~My mum takes me|Con đi học bằng gì?
+How far is it from your house to school?|~It's about;~It's;~It is;~About|Từ nhà con đến trường bao xa?
+What traffic rules do you know?|~We must;~We should;~You must;~You should;~Wear|Con biết những luật giao thông nào?
+What should cyclists do?|~They should;~Cyclists should;~They must|Người đi xe đạp nên làm gì?`,
+`It chỉ khoảng cách|Dùng It + be + about + khoảng cách + from … to …. Câu hỏi: How far is it from … to …?|It's about 500 metres from my house to the market.;It is not very far.;How far is it from Ha Noi to Hai Phong?
+Should / shouldn't|should + V: nên; shouldn't + V: không nên (đưa ra lời khuyên).|We should obey traffic rules.;You shouldn't play on the street.;Should I wear a helmet? – Yes, you should.`),
+T('u8','Unit 8: Films','Phim ảnh','🎬',`film|🎞️|bộ phim|What film did you watch last night?
+comedy|😂|phim hài|I like comedies because they're funny.
+documentary|🌍|phim tài liệu|We watched a documentary about animals.
+fantasy|🧚|phim giả tưởng|Harry Potter is a fantasy film.
+horror film|👻|phim kinh dị|I don't like horror films.
+science fiction|🚀|phim khoa học viễn tưởng|He loves science fiction films.
+director|🎬|đạo diễn|Who is the director of the film?
+acting|🎭|diễn xuất|The acting was great.
+star|⭐|đóng vai chính|Who stars in the film?
+review|📝|bài phê bình (phim)|I read a review of the film.
+poster|🖼️|áp phích|Look at the film poster.
+must-see|👀|bộ phim nên xem|It's a must-see film!
+survey|📋|cuộc khảo sát|We did a survey about favourite films.
+twin|👯|đứa trẻ sinh đôi|The film is about twins.
+wizard|🧙|phù thuỷ|The young wizard goes to a magic school.
+confusing|😵|khó hiểu, gây bối rối|The story was confusing.
+dull|😑|buồn tẻ|The film was dull, so I fell asleep.
+enjoyable|😊|thú vị|It was an enjoyable film.
+frightening|😱|làm sợ hãi|The horror film was frightening.
+gripping|🤩|hấp dẫn|It's a gripping film.
+moving|🥲|cảm động|The ending was very moving.
+scary|😨|đáng sợ|The film is too scary for children.
+shocking|😲|gây sốc|The ending was shocking.
+violent|💥|bạo lực|I don't like violent films.
+funny|🤣|buồn cười|The comedy was really funny.`,
+`Although the film was long, I enjoyed it.|Mặc dù bộ phim dài, tớ vẫn thích nó.
+Though it's a horror film, it isn't very scary.|Dù là phim kinh dị, nó không đáng sợ lắm.
+The film was gripping. However, the ending was sad.|Bộ phim rất hấp dẫn. Tuy nhiên, kết thúc lại buồn.
+What kind of film is it? – It's a comedy.|Đó là loại phim gì? – Đó là phim hài.
+Who stars in the film?|Ai đóng vai chính trong phim?
+What's it about?|Phim nói về điều gì?
+I think it's a must-see film.|Tớ nghĩ đó là bộ phim nên xem.
+Let's go to the cinema on Saturday.|Thứ Bảy chúng mình đi xem phim nhé.`,
+`What kind of films do you like?|~I like;~I love;~My favourite|Con thích thể loại phim nào?
+What was the last film you watched?|~I watched;~It was;~The last film|Bộ phim gần nhất con xem là gì?
+What did you think of it?|~I think;~It was;~I thought|Con thấy bộ phim đó thế nào?
+Do you like horror films? Why?|~Yes;~No;~I like;~I don't like|Con có thích phim kinh dị không? Vì sao?`,
+`Although / though và however|although / though + mệnh đề: mặc dù (nối hai ý trái ngược trong một câu). However: tuy nhiên (đứng đầu câu thứ hai, sau đó có dấu phẩy).|Although it was raining, we went to the cinema.;The film was long. However, it was interesting.;Though he is young, he is a good actor.`),
+T('u9','Unit 9: Festivals around the world','Lễ hội trên thế giới','🎉',`festival|🎊|lễ hội|Tet is the biggest festival in Viet Nam.
+Mid-Autumn Festival|🏮|Tết Trung thu|Children love the Mid-Autumn Festival.
+Easter|🐣|Lễ Phục sinh|Children look for eggs at Easter.
+Thanksgiving|🦃|Lễ Tạ ơn|Americans eat turkey at Thanksgiving.
+Cannes Film Festival|🎬|Liên hoan phim Cannes|The Cannes Film Festival is in France.
+parade|🎺|cuộc diễu hành|We watched a parade in the street.
+float|🚚|xe diễu hành|There were many beautiful floats.
+costume|🎭|trang phục|They wear colourful costumes.
+fireworks display|🎆|màn bắn pháo hoa|We watched the fireworks display at midnight.
+folk dance|💃|điệu múa dân gian|They performed a folk dance.
+feast|🍽️|bữa tiệc|We had a big feast with our family.
+candy|🍬|kẹo|Children get candy at Halloween.
+carve|🎃|chạm, khắc|We carve pumpkins at Halloween.
+decorate|🎀|trang trí|We decorate the house with lanterns.
+decoration|🪅|đồ trang trí|The decorations look beautiful.
+symbol|🔣|biểu tượng|The lantern is a symbol of the festival.
+prosperity|💰|sự thịnh vượng|People wish for prosperity at Tet.
+take part in|🙋|tham gia|We take part in many activities.
+feature|🌟|có (tiết mục) đặc biệt|The festival features music and dancing.
+disappointing|😞|đáng thất vọng|The weather was disappointing.
+disappointment|😔|sự thất vọng|To our disappointment, it rained.
+Dutch|🇳🇱|thuộc Hà Lan|Dutch people celebrate King's Day.
+Netherlands|🌷|nước Hà Lan|The flower festival is in the Netherlands.
+lantern|🏮|đèn lồng|I made a star lantern.`,
+`Do you like the Mid-Autumn Festival? – Yes, I do.|Bạn có thích Tết Trung thu không? – Có.
+Is Easter in April? – Yes, it is.|Lễ Phục sinh vào tháng Tư phải không? – Đúng.
+Did you watch the fireworks? – No, I didn't.|Bạn có xem pháo hoa không? – Không.
+Can you see the parade from here?|Từ đây bạn có thấy cuộc diễu hành không?
+Where is the festival held?|Lễ hội được tổ chức ở đâu?
+When do people celebrate it?|Mọi người tổ chức lễ hội đó khi nào?
+What do people do at the festival?|Mọi người làm gì trong lễ hội?
+We carve pumpkins and eat candy.|Chúng tớ khắc bí ngô và ăn kẹo.`,
+`What's your favourite festival?|~My favourite festival is;~I like;~It's;~I love|Lễ hội yêu thích của con là gì?
+When is it?|~It's in;~It's on;~It is;~In|Lễ hội đó diễn ra khi nào?
+What do people do at the festival?|~People;~They;~We|Mọi người làm gì trong lễ hội đó?
+Did you join any festival last year?|~Yes;~No;~I joined;~I went|Năm ngoái con có tham gia lễ hội nào không?`,
+`Câu hỏi Yes / No|Đảo trợ động từ (be, do/does/did, can, will…) lên trước chủ ngữ. Trả lời: Yes, S + trợ động từ. / No, S + trợ động từ + not.|Is it a big festival? – Yes, it is.;Do they wear costumes? – Yes, they do.;Did you see the parade? – No, I didn't.;Can we go there? – Yes, we can.`),
+T('u10','Unit 10: Energy sources','Nguồn năng lượng','⚡',`energy|⚡|năng lượng|We should save energy.
+energy source|🔋|nguồn năng lượng|Wind is a clean energy source.
+electricity|💡|điện năng|Don't waste electricity.
+solar|☀️|thuộc mặt trời|Solar energy is renewable.
+solar panel|🔆|tấm pin mặt trời|There are solar panels on our roof.
+panel|🟦|tấm ghép|The panel collects energy from the sun.
+wind|🌬️|gió|Wind energy is clean.
+hydro|💧|thuộc về nước|Hydro energy comes from water.
+nuclear|☢️|thuộc hạt nhân|Nuclear energy can be dangerous.
+coal|⚫|than đá|Coal is a non-renewable energy source.
+renewable|♻️|có thể tái tạo|Wind and sun are renewable sources.
+non-renewable|⛽|không thể tái tạo|Oil is non-renewable.
+available|✅|sẵn có|Solar energy is available everywhere.
+limited|⏳|có hạn|Coal is limited.
+produce|🏭|sản xuất|Solar panels produce electricity.
+reduce|⬇️|giảm|We can reduce our electricity bills.
+replace|🔄|thay thế|Replace old bulbs with LED bulbs.
+light bulb|💡|bóng đèn|Turn off the light bulb when you leave.
+tap|🚰|vòi nước|Turn off the tap when you brush your teeth.
+overheat|🔥|làm quá nóng|Don't overheat your room.
+overcool|🥶|làm quá lạnh|Don't overcool your room.
+warm|🌡️|làm cho ấm lên|The sun warms the water.
+syllable|🔤|âm tiết|The word "energy" has three syllables.
+source|🌊|nguồn|The sun is a great source of energy.`,
+`We are using too much electricity.|Chúng ta đang dùng quá nhiều điện.
+My family is saving energy now.|Gia đình tớ đang tiết kiệm năng lượng.
+They are building a wind farm.|Họ đang xây một trang trại điện gió.
+Are you watching TV? – No, I'm not.|Bạn đang xem ti vi à? – Không.
+Turn off the lights when you leave the room.|Tắt đèn khi rời khỏi phòng.
+Solar energy is renewable and clean.|Năng lượng mặt trời có thể tái tạo và sạch.
+Coal is limited and it causes pollution.|Than đá có hạn và gây ô nhiễm.
+We should use energy-saving light bulbs.|Chúng ta nên dùng bóng đèn tiết kiệm năng lượng.`,
+`What do you do to save energy?|~I;~I turn off;~We;~I use|Con làm gì để tiết kiệm năng lượng?
+What renewable energy sources do you know?|~Solar;~Wind;~I know;~Hydro|Con biết những nguồn năng lượng tái tạo nào?
+What are you doing now?|~I am;~I'm|Bây giờ con đang làm gì?`,
+`Thì hiện tại tiếp diễn|am / is / are + V-ing: diễn tả hành động đang xảy ra lúc nói hoặc trong khoảng thời gian hiện tại.|We are learning about energy sources.;She is turning off the lights.;Is he using solar energy now? – Yes, he is.`),
+T('u11','Unit 11: Travelling in the future','Đi lại trong tương lai','🚀',`means of transport|🚗|phương tiện đi lại|What means of transport will we use?
+mode of travel|🧭|phương thức đi lại|Walking is a healthy mode of travel.
+driverless|🚘|không người lái|Driverless cars will be popular.
+autopilot|🤖|lái tự động|The plane is on autopilot.
+eco-friendly|🌿|thân thiện với môi trường|Bikes are eco-friendly.
+economical|💰|tiết kiệm (nhiên liệu)|This car is very economical.
+hyperloop|🚄|hệ thống tàu siêu tốc|The hyperloop will be very fast.
+skyTran|🚝|tàu điện trên không|SkyTran will help us avoid traffic jams.
+bamboo-copter|🚁|chong chóng tre|I'd like to fly with a bamboo-copter.
+teleporter|✨|thiết bị dịch chuyển tức thời|A teleporter will take us anywhere in seconds.
+solowheel|🛞|xe một bánh tự cân bằng|A solowheel is small and light.
+walkcar|🛹|ô tô tự hành dùng chân|You can carry a walkcar in your bag.
+solar-powered ship|🚢|tàu chạy bằng năng lượng mặt trời|A solar-powered ship doesn't need petrol.
+run on|⛽|chạy bằng (nhiên liệu)|These buses run on electricity.
+fume|💨|khói|Car fumes make the air dirty.
+pedal|🚲|đạp (xe)|Pedal faster!
+sail|⛵|đi thuyền buồm|We will sail across the sea.
+appear|✨|xuất hiện|New vehicles will appear soon.
+disappear|💨|biến mất|Traffic jams might disappear.
+comfortable|🛋️|thoải mái|Flying cars will be comfortable.
+convenient|👌|thuận tiện|A teleporter will be very convenient.
+function|⚙️|chức năng|What are its functions?
+safe|🛡️|an toàn|Driverless cars will be safe.`,
+`People will travel by flying cars.|Mọi người sẽ đi lại bằng ô tô bay.
+Driverless cars won't need drivers.|Ô tô không người lái sẽ không cần tài xế.
+Will we use teleporters? – Yes, we will.|Chúng ta sẽ dùng thiết bị dịch chuyển chứ? – Có.
+This bike is mine. That one is yours.|Chiếc xe đạp này là của tớ. Chiếc kia là của bạn.
+Is this helmet his or hers?|Cái mũ bảo hiểm này của bạn nam hay bạn nữ?
+Our car is old, but theirs is new.|Ô tô của chúng tớ cũ, còn của họ thì mới.
+It will run on solar energy.|Nó sẽ chạy bằng năng lượng mặt trời.
+I think bikes will still be popular.|Tớ nghĩ xe đạp vẫn sẽ phổ biến.`,
+`How will people travel in the future?|~People will;~They will;~We will;~By|Trong tương lai, con người sẽ đi lại bằng gì?
+Which means of transport would you like to use?|~I'd like to use;~I would like;~I want to use;~I'd like|Con muốn dùng phương tiện nào?
+Why will it be popular?|~Because;~It will be;~It's|Vì sao nó sẽ phổ biến?
+Is this pencil yours?|~Yes, it's mine;~Yes, it is;~No, it isn't;~No|Cây bút chì này là của con phải không?`,
+`Thì tương lai đơn|will + V: sẽ (dự đoán, việc trong tương lai). Phủ định won't; câu hỏi Will + S + V?|We will travel by hyperloop.;Cars won't use petrol.;Will it be safe? – Yes, it will.
+Đại từ sở hữu|mine, yours, his, hers, ours, theirs thay cho tính từ sở hữu + danh từ.|That flying car is theirs.;This seat is mine.;Is this skateboard yours?`),
+T('u12','Unit 12: English-speaking countries','Các nước nói tiếng Anh','🌏',`English-speaking country|🗣️|nước nói tiếng Anh|Australia is an English-speaking country.
+the UK|🇬🇧|Vương quốc Anh|London is the capital of the UK.
+the USA|🇺🇸|Hoa Kì|New York is in the USA.
+Canada|🇨🇦|nước Ca-na-đa|Canada is very cold in winter.
+Australia|🇦🇺|nước Úc|Kangaroos live in Australia.
+New Zealand|🇳🇿|nước Niu Di-lân|New Zealand is near Australia.
+capital|🏙️|thủ đô|Ottawa is the capital of Canada.
+castle|🏰|lâu đài|There are many castles in Scotland.
+tower|🗼|tháp|The Tower of London is very old.
+coastline|🏖️|đường bờ biển|Canada has a very long coastline.
+landscape|🏞️|phong cảnh|New Zealand has beautiful landscapes.
+island country|🏝️|đảo quốc|New Zealand is an island country.
+culture|🎭|nền văn hoá|I want to learn about British culture.
+native|🌿|bản địa|The Maori are native people of New Zealand.
+local|🏘️|thuộc địa phương|We tried the local food.
+ancient|🏛️|cổ, lâu đời|Edinburgh has an ancient castle.
+historic|📜|thuộc về lịch sử|London has many historic buildings.
+kilt|👗|váy truyền thống của đàn ông Scotland|Scottish men wear kilts at festivals.
+tattoo|🖊️|hình xăm|Some Maori people have tattoos.
+penguin|🐧|chim cánh cụt|You can see penguins in New Zealand.
+shining|✨|chói chang, sáng|The shining beaches are beautiful.
+sunset|🌅|hoàng hôn|We watched the sunset on the beach.
+amazing|🤩|tuyệt vời|The view was amazing.
+amazement|😮|sự kinh ngạc|We looked at the castle in amazement.
+symbol|🍁|biểu tượng|The maple leaf is a symbol of Canada.`,
+`The USA is a big country.|Hoa Kì là một đất nước rộng lớn.
+I saw a castle. The castle was very old.|Tớ đã thấy một lâu đài. Lâu đài đó rất cổ.
+He has an English friend.|Bạn ấy có một người bạn người Anh.
+The Thames flows through London.|Sông Thames chảy qua London.
+What's the capital of Australia? – It's Canberra.|Thủ đô của Úc là gì? – Là Canberra.
+English is spoken in many countries.|Tiếng Anh được nói ở nhiều nước.
+Which country would you like to visit?|Bạn muốn đến thăm nước nào?
+Canada is famous for its maple leaves.|Ca-na-đa nổi tiếng với lá phong.`,
+`Which English-speaking country would you like to visit?|~I'd like to visit;~I would like to visit;~I want to visit|Con muốn đến thăm nước nói tiếng Anh nào?
+What's the capital of the UK?|It's London.;London.;~It's London|Thủ đô của Vương quốc Anh là gì?
+What is Australia famous for?|~It's famous for;~Australia is famous for;~Kangaroos|Nước Úc nổi tiếng về điều gì?
+What do you know about New Zealand?|~New Zealand;~It's;~It is;~I know|Con biết gì về Niu Di-lân?`,
+`Mạo từ a / an / the|a / an: vật chưa xác định, nhắc lần đầu (an trước nguyên âm). the: vật đã xác định, đã nhắc đến, duy nhất; dùng với tên sông, biển, một số nước (the UK, the USA). Không dùng mạo từ trước tên hầu hết các nước, thành phố.|I have an uncle in Canada.;We visited a castle. The castle was beautiful.;The Thames is a river in London.;Australia is a big country.`)
 ]},
 pu1:{name:'Power Up 1',cefr:'Pre A1',color:'--pu1',tpl:'starters',topics:[
 T('u0','Hello: Numbers and colours','Chào bạn: Số đếm và màu sắc','🌈',`red|🔴|màu đỏ|My bag is red.
@@ -2713,7 +3610,9 @@ You're ready! I'm sure you'll do well!|Con sẵn sàng rồi! Cô chắc con s�
 };
 
 /* ===================== PHIÊN ÂM IPA (giọng Anh – Anh) ===================== */
-const IPA_RAW=`actor ˈæktə|address əˈdres|airport ˈeəpɔːt|already ɔːlˈredi|anything ˈeniθɪŋ|arm ɑːm|armchair ˈɑːmtʃeə|arrive əˈraɪv|artist ˈɑːtɪst|astronaut ˈæstrənɔːt|autumn ˈɔːtəm
+const IPA_RAW=`belong to bɪˈlɒŋ tə|benefit ˈbenɪfɪt|bug bʌɡ|cardboard ˈkɑːdbɔːd|dollhouse ˈdɒlhaʊs|gardening ˈɡɑːdnɪŋ|glue ɡluː|horse riding ˈhɔːs raɪdɪŋ|insect ˈɪnsekt|jogging ˈdʒɒɡɪŋ|making models ˈmeɪkɪŋ ˈmɒdlz|maturity məˈtʃʊərəti|patient ˈpeɪʃnt|popular ˈpɒpjələ|responsibility rɪˌspɒnsəˈbɪləti|set set|stress stres|take on teɪk ɒn|unusual ʌnˈjuːʒuəl|valuable ˈvæljuəbl|yoga ˈjəʊɡə|acne ˈækni|affect əˈfekt|avoid əˈvɔɪd|chapped tʃæpt|dim dɪm|disease dɪˈziːz|eye drops ˈaɪ drɒps|fat fæt|fit fɪt|health helθ|healthy ˈhelθi|indoors ˌɪnˈdɔːz|lip balm ˈlɪp bɑːm|pimple ˈpɪmpl|pop pɒp|protein ˈprəʊtiːn|skin condition skɪn kənˈdɪʃn|soybean ˈsɔɪbiːn|sunburn ˈsʌnbɜːn|tofu ˈtəʊfuː|virus ˈvaɪrəs|vitamin ˈvɪtəmɪn|board game ˈbɔːd ɡeɪm|collect kəˈlekt|community kəˈmjuːnəti|community service kəˌmjuːnəti ˈsɜːvɪs|develop dɪˈveləp|donate dəʊˈneɪt|elderly ˈeldəli|exchange ɪksˈtʃeɪndʒ|flooded ˈflʌdɪd|homeless ˈhəʊmləs|mountainous ˈmaʊntənəs|nursing ˈnɜːsɪŋ|nursing home ˈnɜːsɪŋ həʊm|orphanage ˈɔːfənɪdʒ|plant plɑːnt|proud praʊd|provide prəˈvaɪd|rural area ˈrʊərəl ˈeəriə|skill skɪl|teenager ˈtiːneɪdʒə|tutor ˈtjuːtə|volunteer ˌvɒlənˈtɪə|anthem ˈænθəm|character ˈkærəktə|compose kəmˈpəʊz|composer kəmˈpəʊzə|concert ˈkɒnsət|control kənˈtrəʊl|country music ˈkʌntri mjuːzɪk|exhibition ˌeksɪˈbɪʃn|folk music ˈfəʊk mjuːzɪk|gallery ˈɡæləri|musical instrument ˌmjuːzɪkl ˈɪnstrəmənt|originate əˈrɪdʒɪneɪt|perform pəˈfɔːm|performance pəˈfɔːməns|photography fəˈtɒɡrəfi|portrait ˈpɔːtreɪt|prefer prɪˈfɜː|puppet ˈpʌpɪt|sculpture ˈskʌlptʃə|water puppetry ˈwɔːtə ˈpʌpɪtri|beef biːf|butter ˈbʌtə|dish dɪʃ|eel iːl|flour flaʊə|fried fraɪd|green tea ˌɡriːn ˈtiː|ingredient ɪnˈɡriːdiənt|juice dʒuːs|lemonade ˌleməˈneɪd|mineral water ˈmɪnərəl wɔːtə|noodles ˈnuːdlz|omelette ˈɒmlət|onion ˈʌnjən|pancake ˈpænkeɪk|pepper ˈpepə|pie paɪ|pork pɔːk|recipe ˈresəpi|roast rəʊst|salt sɔːlt|sauce sɔːs|shrimp ʃrɪmp|soup suːp|spring roll sprɪŋ rəʊl|tablespoon ˈteɪblspuːn|teaspoon ˈtiːspuːn|toast təʊst|celebrate ˈselɪbreɪt|entrance exam ˈentrəns ɪɡˈzæm|equipment ɪˈkwɪpmənt|extra ˈekstrə|facility fəˈsɪləti|gifted ˈɡɪftɪd|laboratory ləˈbɒrətri|lower secondary school ˈləʊə ˈsekəndri skuːl|midterm ˌmɪdˈtɜːm|outdoor ˈaʊtdɔː|private ˈpraɪvət|projector prəˈdʒektə|resource rɪˈsɔːs|royal ˈrɔɪəl|service ˈsɜːvɪs|share ʃeə|talented ˈtæləntɪd|well-known ˌwelˈnəʊn|bumpy ˈbʌmpi|distance ˈdɪstəns|fine faɪn|fly flaɪ|handlebars ˈhændlbɑːz|lane leɪn|obey traffic rules əˈbeɪ ˈtræfɪk ruːlz|passenger ˈpæsɪndʒə|pavement ˈpeɪvmənt|pedestrian pəˈdestriən|plane pleɪn|road sign ˈrəʊd saɪn|traffic sign ˈtræfɪk saɪn|roof ruːf|safety ˈseɪfti|seatbelt ˈsiːtbelt|signal ˈsɪɡnəl|traffic jam ˈtræfɪk dʒæm|traffic rule ˈtræfɪk ruːl|vehicle ˈviːəkl|zebra crossing ˌziːbrə ˈkrɒsɪŋ|acting ˈæktɪŋ|comedy ˈkɒmədi|confusing kənˈfjuːzɪŋ|director dɪˈrektə|documentary ˌdɒkjəˈmentri|dull dʌl|enjoyable ɪnˈdʒɔɪəbl|fantasy ˈfæntəsi|frightening ˈfraɪtnɪŋ|gripping ˈɡrɪpɪŋ|horror film ˈhɒrə fɪlm|moving ˈmuːvɪŋ|must-see ˌmʌstˈsiː|poster ˈpəʊstə|review rɪˈvjuː|scary ˈskeəri|science fiction ˈsaɪəns ˈfɪkʃn|shocking ˈʃɒkɪŋ|star stɑː|survey ˈsɜːveɪ|twin twɪn|violent ˈvaɪələnt|wizard ˈwɪzəd|candy ˈkændi|cannes film festival kæn fɪlm ˈfestɪvl|carve kɑːv|costume ˈkɒstjuːm|decorate ˈdekəreɪt|decoration ˌdekəˈreɪʃn|disappointing ˌdɪsəˈpɔɪntɪŋ|disappointment ˌdɪsəˈpɔɪntmənt|dutch dʌtʃ|easter ˈiːstə|feast fiːst|feature ˈfiːtʃə|fireworks display ˈfaɪəwɜːks dɪˈspleɪ|float fləʊt|folk dance ˈfəʊk dɑːns|mid-autumn festival ˌmɪdˈɔːtəm ˈfestɪvl|netherlands ˈneðələndz|parade pəˈreɪd|prosperity prɒˈsperəti|symbol ˈsɪmbl|take part in ˈteɪk pɑːt ɪn|thanksgiving ˌθæŋksˈɡɪvɪŋ|available əˈveɪləbl|electricity ɪˌlekˈtrɪsəti|energy ˈenədʒi|hydro ˈhaɪdrəʊ|light bulb ˈlaɪt bʌlb|limited ˈlɪmɪtɪd|non-renewable ˌnɒnrɪˈnjuːəbl|nuclear ˈnjuːkliə|overcool ˌəʊvəˈkuːl|overheat ˌəʊvəˈhiːt|panel ˈpænl|produce prəˈdjuːs|reduce rɪˈdjuːs|renewable rɪˈnjuːəbl|replace rɪˈpleɪs|solar ˈsəʊlə|source sɔːs|syllable ˈsɪləbl|tap tæp|warm wɔːm|appear əˈpɪə|autopilot ˈɔːtəʊpaɪlət|bamboo-copter ˌbæmˈbuːˈkɒptə|comfortable ˈkʌmftəbl|convenient kənˈviːniənt|disappear ˌdɪsəˈpɪə|driverless ˈdraɪvələs|eco-friendly ˌiːkəʊˈfrendli|economical ˌiːkəˈnɒmɪkl|fume fjuːm|function ˈfʌŋkʃn|hyperloop ˈhaɪpəluːp|mode of travel məʊd əv ˈtrævl|pedal ˈpedl|run on rʌn ɒn|sail seɪl|skytran ˈskaɪtræn|solar-powered ship ˌsəʊləˈpaʊəd ʃɪp|solowheel ˈsəʊləʊwiːl|walkcar ˈwɔːkkɑː|teleporter ˈtelɪpɔːtə|amazement əˈmeɪzmənt|amazing əˈmeɪzɪŋ|ancient ˈeɪnʃənt|australia ɒˈstreɪliə|canada ˈkænədə|capital ˈkæpɪtl|castle ˈkɑːsl|coastline ˈkəʊstlaɪn|culture ˈkʌltʃə|historic hɪˈstɒrɪk|island country ˈaɪlənd ˈkʌntri|kilt kɪlt|landscape ˈlændskeɪp|local ˈləʊkl|native ˈneɪtɪv|new zealand ˌnjuː ˈziːlənd|penguin ˈpeŋɡwɪn|shining ˈʃaɪnɪŋ|sunset ˈsʌnset|tattoo təˈtuː|the usa ðə ˌjuːesˈeɪ|tower ˈtaʊə|hobby ˈhɒbi|collecting stamps kəˈlektɪŋ stæmps|building dollhouses ˈbɪldɪŋ ˈdɒlhaʊzɪz|playing the guitar ˈpleɪɪŋ ðə ɡɪˈtɑː|outdoor activity ˈaʊtdɔːr ækˈtɪvəti|sleep sliːp|recycle ˌriːˈsaɪkl|music ˈmjuːzɪk|painting ˈpeɪntɪŋ|library ˈlaɪbrəri|school garden skuːl ˈɡɑːdn|traffic light ˈtræfɪk laɪt|helmet ˈhelmɪt|film fɪlm|festival ˈfestɪvl|lantern ˈlæntən|energy source ˈenədʒi sɔːs|solar panel ˈsəʊlə ˈpænl|wind wɪnd|coal kəʊl|means of transport miːnz əv ˈtrænspɔːt|safe seɪf|english-speaking country ˌɪŋɡlɪʃˈspiːkɪŋ ˈkʌntri|symbol ˈsɪmbl|funny ˈfʌni|clean-up activity ˈkliːnʌp ækˈtɪvəti|the uk ðə ˌjuːˈkeɪ
+pencil sharpener ˈpensl ˈʃɑːpənə|homework ˈhəʊmwɜːk|best friend best frend|neighbourhood ˈneɪbəhʊd|modern ˈmɒdn|historic hɪˈstɒrɪk|scenery ˈsiːnəri|sleeping bag ˈsliːpɪŋ bæɡ|tet tet|peach flower piːtʃ ˈflaʊə|apricot flower ˈeɪprɪkɒt ˈflaʊə|clean kliːn|break breɪk|the news ðə njuːz|cycling ˈsaɪklɪŋ|weather ˈweðə|holiday ˈhɒlədeɪ|skyscraper ˈskaɪskreɪpə|houseboat ˈhaʊsbəʊt|air pollution eə pəˈluːʃn|energy ˈenədʒi|home robot həʊm ˈrəʊbɒt|teaching robot ˈtiːtʃɪŋ ˈrəʊbɒt|worker robot ˈwɜːkə ˈrəʊbɒt|understand ˌʌndəˈstænd|hard-working ˌhɑːdˈwɜːkɪŋ|man-made ˌmænˈmeɪd|hi-tech ˌhaɪˈtek|activity ækˈtɪvəti|art ɑːt|boarding school ˈbɔːdɪŋ skuːl|calculator ˈkælkjuleɪtə|classmate ˈklɑːsmeɪt|compass ˈkʌmpəs|favourite ˈfeɪvərɪt|help help|international ˌɪntəˈnæʃnəl|interview ˈɪntəvjuː|knock nɒk|remember rɪˈmembə|share ʃeə|smart smɑːt|swimming pool ˈswɪmɪŋ puːl|between bɪˈtwiːn|chest of drawers ˌtʃest əv ˈdrɔːz|cooker ˈkʊkə|country house ˌkʌntri ˈhaʊs|crazy ˈkreɪzi|cupboard ˈkʌbəd|department store dɪˈpɑːtmənt stɔː|dishwasher ˈdɪʃwɒʃə|flat flæt|furniture ˈfɜːnɪtʃə|hall hɔːl|in front of ɪn frʌnt əv|next to ˈnekst tə|shelf ʃelf|sink sɪŋk|strange streɪndʒ|town house ˈtaʊn haʊs|wardrobe ˈwɔːdrəʊb|active ˈæktɪv|appearance əˈpɪərəns|careful ˈkeəfl|caring ˈkeərɪŋ|cheek tʃiːk|clever ˈklevə|confident ˈkɒnfɪdənt|creative kriˈeɪtɪv|friendly ˈfrendli|funny ˈfʌni|kind kaɪnd|loving ˈlʌvɪŋ|personality ˌpɜːsəˈnæləti|shoulder ˈʃəʊldə|shy ʃaɪ|slim slɪm|art gallery ɑːt ˈɡæləri|busy ˈbɪzi|cathedral kəˈθiːdrəl|cross krɒs|dislike dɪsˈlaɪk|famous ˈfeɪməs|faraway ˈfɑːrəweɪ|finally ˈfaɪnəli|narrow ˈnærəʊ|outdoor ˈaʊtdɔː|railway station ˈreɪlweɪ ˈsteɪʃn|sandy ˈsændi|square skweə|suburb ˈsʌbɜːb|turning ˈtɜːnɪŋ|workshop ˈwɜːkʃɒp|amazing əˈmeɪzɪŋ|backpack ˈbækpæk|boat bəʊt|desert ˈdezət|island ˈaɪlənd|join in dʒɔɪn ɪn|landscape ˈlændskeɪp|litter ˈlɪtə|mount maʊnt|mountain range ˈmaʊntən ˌreɪndʒ|natural wonder ˈnætʃrəl ˈwʌndə|plaster ˈplɑːstə|rock rɒk|show ʃəʊ|suncream ˈsʌnkriːm|waterfall ˈwɔːtəfɔːl|behave bɪˈheɪv|celebrate ˈselɪbreɪt|cheer tʃɪə|decorate ˈdekəreɪt|family gathering ˈfæməli ˈɡæðərɪŋ|firework ˈfaɪəwɜːk|fun fʌn|luck lʌk|lucky money ˈlʌki ˈmʌni|mochi rice cake ˈməʊtʃi raɪs keɪk|relative ˈrelətɪv|strike straɪk|temple ˈtempl|throw θrəʊ|welcome ˈwelkəm|wish wɪʃ|animated film ˈænɪmeɪtɪd fɪlm|cartoon kɑːˈtuːn|channel ˈtʃænl|character ˈkærəktə|clip klɪp|comedy ˈkɒmədi|compete kəmˈpiːt|cute kjuːt|dolphin ˈdɒlfɪn|educate ˈedʒukeɪt|educational ˌedʒuˈkeɪʃənl|tv guide ˌtiːˈviː ɡaɪd|live laɪv|programme ˈprəʊɡræm|talent show ˈtælənt ʃəʊ|viewer ˈvjuːə|aerobics eəˈrəʊbɪks|career kəˈrɪə|competition ˌkɒmpəˈtɪʃn|congratulation kənˌɡrætʃəˈleɪʃn|equipment ɪˈkwɪpmənt|fantastic fænˈtæstɪk|fit fɪt|goggles ˈɡɒɡlz|gym dʒɪm|karate kəˈrɑːti|last lɑːst|marathon ˈmærəθən|racket ˈrækɪt|score skɔː|shoot ʃuːt|sporty ˈspɔːti|take place ˈteɪk pleɪs|tournament ˈtʊənəmənt|river bank ˈrɪvə bæŋk|crowded ˈkraʊdɪd|floating market ˈfləʊtɪŋ ˈmɑːkɪt|helpful ˈhelpfl|helmet ˈhelmɪt|landmark ˈlændmɑːk|city map ˈsɪti mæp|palace ˈpæləs|postcard ˈpəʊstkɑːd|rent rent|royal palace ˈrɔɪəl ˈpæləs|shell ʃel|stall stɔːl|street food ˈstriːt fuːd|times square ˌtaɪmz ˈskweə|tower ˈtaʊə|appliance əˈplaɪəns|cottage ˈkɒtɪdʒ|dry draɪ|electric cooker ɪˈlektrɪk ˈkʊkə|helicopter ˈhelɪkɒptə|housework ˈhaʊswɜːk|location ləʊˈkeɪʃn|look after lʊk ˈɑːftə|ocean ˈəʊʃn|outside ˌaʊtˈsaɪd|solar energy ˌsəʊlə ˈenədʒi|space speɪs|super ˈsuːpə|type taɪp|ufo ˌjuːefˈəʊ|washing machine ˈwɒʃɪŋ məˈʃiːn|wireless ˈwaɪələs|be in need bi ɪn niːd|charity ˈtʃærəti|container kənˈteɪnə|do a survey du ə ˈsɜːveɪ|environment ɪnˈvaɪrənmənt|exchange ɪksˈtʃeɪndʒ|fair feə|go green ɡəʊ ɡriːn|instead of ɪnˈsted əv|pick up pɪk ʌp|president ˈprezɪdənt|recycle ˌriːˈsaɪkl|recycling bin ˌriːˈsaɪklɪŋ bɪn|reduce rɪˈdjuːs|reuse ˌriːˈjuːz|reusable ˌriːˈjuːzəbl|rubbish ˈrʌbɪʃ|tip tɪp|wrap ræp|age eɪdʒ|broken ˈbrəʊkən|choice tʃɔɪs|do the dishes duː ðə ˈdɪʃɪz|do the washing duː ðə ˈwɒʃɪŋ|feelings ˈfiːlɪŋz|guard ɡɑːd|height haɪt|iron ˈaɪən|pick pɪk|planet ˈplænɪt|price praɪs|put away pʊt əˈweɪ|repair rɪˈpeə|robot ˈrəʊbɒt|space station speɪs ˈsteɪʃn|useful ˈjuːsfl|water ˈwɔːtə|weight weɪt
+actor ˈæktə|address əˈdres|airport ˈeəpɔːt|already ɔːlˈredi|anything ˈeniθɪŋ|arm ɑːm|armchair ˈɑːmtʃeə|arrive əˈraɪv|artist ˈɑːtɪst|astronaut ˈæstrənɔːt|autumn ˈɔːtəm
 backpack ˈbækpæk|badminton ˈbædmɪntən|bag bæɡ|balloon bəˈluːn|baseball ˈbeɪsbɔːl|basketball ˈbɑːskɪtbɔːl|bathroom ˈbɑːθruːm|bedroom ˈbedruːm|begin bɪˈɡɪn|bike baɪk|bird bɜːd|biscuit ˈbɪskɪt|blanket ˈblæŋkɪt|bookcase ˈbʊkkeɪs|bookshop ˈbʊkʃɒp|bored bɔːd|bottle ˈbɒtl|bowl bəʊl|box bɒks|bread bred|breakfast ˈbrekfəst|bridge brɪdʒ|broken ˈbrəʊkən|brother ˈbrʌðə|burn bɜːn|bus bʌs|butter ˈbʌtə|butterfly ˈbʌtəflaɪ
 café ˈkæfeɪ|cafe ˈkæfeɪ|cake keɪk|calendar ˈkælɪndə|camera ˈkæmərə|camp kæmp|candy ˈkændi|car kɑː|carrot ˈkærət|cartoon kɑːˈtuːn|castle ˈkɑːsl|cave keɪv|cd ˌsiːˈdiː|channel ˈtʃænl|cheese tʃiːz|chemist ˈkemɪst|chess tʃes|chicken ˈtʃɪkɪn|child tʃaɪld|children ˈtʃɪldrən|chocolate ˈtʃɒklət|chopsticks ˈtʃɒpstɪks|class klɑːs|classroom ˈklɑːsruːm|clock klɒk|close kləʊz|clothes kləʊðz|cloud klaʊd|cloudy ˈklaʊdi|clown klaʊn|coat kəʊt|coconut ˈkəʊkənʌt|coffee ˈkɒfi|cold kəʊld|competition ˌkɒmpəˈtɪʃn|computer kəmˈpjuːtə|concert ˈkɒnsət|conversation ˌkɒnvəˈseɪʃn|cough kɒf|countryside ˈkʌntrisaɪd|cousin ˈkʌzn|cow kaʊ|crocodile ˈkrɒkədaɪl|crown kraʊn|cup kʌp|cupboard ˈkʌbəd|cut kʌt
 dad dæd|dark dɑːk|daughter ˈdɔːtə|decide dɪˈsaɪd|delicious dɪˈlɪʃəs|desert ˈdezət|dining room ˈdaɪnɪŋ ruːm|dinner ˈdɪnə|doctor ˈdɒktə|dog dɒɡ|dolphin ˈdɒlfɪn|downstairs ˌdaʊnˈsteəz|draw drɔː|dress up ˌdres ˈʌp|drink drɪŋk|drum drʌm|duck dʌk|during ˈdjʊərɪŋ
@@ -2886,10 +3785,13 @@ let LEVELS=[],WORDS={};
 function parseWords(text,lv,tp){return String(text||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [w,e,vi,s]=l.split('|').map(x=>(x||'').trim());return {id:lv+'/'+tp+'/'+w.toLowerCase(),w,e:e||'🔤',vi:vi||'',s:s||'',lv,tp}}).filter(x=>x.w)}
 function parsePats(t){return String(t||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim()}}).filter(p=>p.en)}
 function parseDlg(t,rx){const R=String(rx||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim()}});return String(t||'').replace(/\{name\}/g,NAME).split('\n').map(l=>l.trim()).filter(Boolean).map((l,i)=>{const [q,a,vi]=l.split('|');return {q:(q||'').trim(),ans:(a||'').split(';').map(x=>x.trim()).filter(Boolean),vi:(vi||'').trim(),re:R[i]||null}}).filter(d=>d.q&&d.ans.length)}
+function parseGram(t){return String(t||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [n,ex,eg]=l.split('|');return {n:(n||'').trim(),ex:(ex||'').trim(),eg:(eg||'').split(';').map(x=>x.trim()).filter(Boolean)}}).filter(g=>g.n)}
+function gramHTML(T){if(!T.gram||!T.gram.length)return '';return `<div class="card stack gram" style="gap:10px"><h3>📘 Ngữ pháp trọng tâm</h3>${T.gram.map((g,i)=>`<div class="gitem"><b>${esc(g.n)}</b><p>${esc(g.ex)}</p><div class="geg">${g.eg.map((e,j)=>`<div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm ghost" data-geg="${i}|${j}" aria-label="Nghe ví dụ">🔊</button><span lang="en">${esc(e)}</span></div>`).join('')}</div></div>`).join('')}</div>`}
+function bindGram(T){document.querySelectorAll('[data-geg]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.geg.split('|').map(Number);const e=T.gram[i].eg[j];speak(e.replace(/ – /g,'. '))})}
 function buildData(){
   LEVELS=[];WORDS={};const MC=mergedCustom();
   for(const [lid,L] of Object.entries(RAW)){
-    const topics=L.topics.map(t=>({id:t.id,name:t.name,vi:t.vi,icon:t.icon,words:parseWords(t.words,lid,t.id),pats:parsePats(t.pats),dlg:parseDlg(t.dlg,typeof REACT!=='undefined'?REACT[lid+'/'+t.id]:''),custom:false}));
+    const topics=L.topics.map(t=>({id:t.id,name:t.name,vi:t.vi,icon:t.icon,words:parseWords(t.words,lid,t.id),pats:parsePats(t.pats),dlg:parseDlg(t.dlg,typeof REACT!=='undefined'?REACT[lid+'/'+t.id]:''),gram:parseGram(t.gram),custom:false}));
     (MC.topics[lid]||[]).forEach(t=>topics.push({id:t.id,name:t.name,vi:t.vi||'',icon:t.icon||'📘',words:(t.words||[]).map(w=>({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})),pats:parsePats(t.pats),dlg:parseDlg(t.dlg),custom:true}));
     topics.forEach(t=>{(MC.extra[lid+'/'+t.id]||[]).forEach(w=>{if(!t.words.some(x=>x.w.toLowerCase()===w.w.toLowerCase()))t.words.push({...w,e:w.e||'🔤',lv:lid,tp:t.id,id:lid+'/'+t.id+'/'+w.w.toLowerCase()})});t.words.forEach(w=>WORDS[w.id]=w)});
     topics.forEach(t=>{const tpl=String(((typeof TPL!=='undefined'&&TPL[lid])||{})[t.id]||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [en,vi,ws]=l.split('|');return {en:(en||'').trim(),vi:(vi||'').trim(),ws:(ws||'*').split(',').map(x=>x.trim().toLowerCase())}});
@@ -3314,6 +4216,7 @@ function vTopic(){
     <div class="lessons">${lessonsOf(T).map((ws,k)=>{const d=lessonDone(T,k);const next=!d&&lessonsOf(T).findIndex((_,j)=>!lessonDone(T,j))===k;return `<button class="lesson ${d?'done':''} ${next?'next':''}" data-les="${k}"><div class="row" style="justify-content:space-between"><b>Bài ${k+1}</b>${d?`<span class="pill ok">✓ ${Math.round(d.pct*100)}%</span>`:next?'<span class="pill wait">Học tiếp</span>':''}</div><div class="les-em" aria-hidden="true">${ws.map(w=>w.e).join(' ')}</div><span class="muted" style="font-size:13px">${ws.map(w=>esc(w.w)).join(', ')}</span></button>`}).join('')}</div>
     <div class="row"><button class="btn big" id="talk">💬 Luyện nói với ${NAME}</button></div></div>
     ${topicFbCard(T)}
+    ${gramHTML(T)}
     ${patsHTML(T)}
     <h3>Từ vựng (${T.words.length})</h3>
     <div class="words">${T.words.map(w=>`<article class="word">
@@ -3324,7 +4227,7 @@ function vTopic(){
     </article>`).join('')}</div>
   </section>`;
   $('#back').onclick=()=>T.lib?go({tab:'teacher',tview:'lib',tp:null}):go({tp:null});
-  document.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>startLesson(T,+b.dataset.les));
+  document.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>startLesson(T,+b.dataset.les));bindGram(T);
   $('#talk').onclick=()=>{CHAT.lv=L.id;CHAT.tp=T.id;CHAT.msgs=[];go({tab:'chat'});dlgStart()};
   bindPats(T);bindFb();
   document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>{const w=WORDS[b.dataset.say];speakSeq([w.w,w.ps&&w.ps.length?w.ps[0].en:w.s])});
@@ -3465,7 +4368,7 @@ function gBuild(){
   $('#b-skip').onclick=()=>{if(!done)sRecord('build',w,false,'bỏ qua');sNext()};
   draw();
 }
-const SENT_SPEAK_LV=['pu3','pu4','movers','flyers'];
+const SENT_SPEAK_LV=['gs6','gs7','pu3','pu4','movers','flyers'];
 function hiWord(sent,word){const re=new RegExp('\\b('+wordForms(word).map(reEsc).join('|')+')\\b','i');return esc(sent).replace(re,'<mark>$1</mark>')}
 function gSpeakSent(w){const sent=w.s;let recorded=false,attempts=0;const rec=(ok,note)=>{if(!recorded){recorded=true;sRecord('speak',w,ok,note)}};
   $('#game').innerHTML=`<h2>Đọc to cả câu ${qNo()}</h2>
@@ -4498,6 +5401,7 @@ const VG_VOICES=[['af_heart','Heart – ấm áp, tự nhiên (khuyên dùng)'],
 function voiceTexts(lv){const L=lvOf(lv);const out=new Set();const add=t=>{t=String(t||'').replace(/\{name\}/g,NAME).trim();if(t&&vkey(t))out.add(t)};
   for(const t of (L.topics||[])){for(const w of t.words){add(w.w);add(w.s);(w.ps||[]).forEach(p=>{add(p.en);add(p.en.replace(/ – /g,'. '));p.en.split(' – ').forEach(add)})}
     (t.pats||[]).forEach(p=>{add(p.en);p.en.split(' – ').forEach(add)});
+    (t.gram||[]).forEach(g=>g.eg.forEach(e=>{add(e.replace(/ – /g,'. '))}));
     try{(dlgOf(t)||[]).forEach(d=>{add(d.q);(d.ans||[]).slice(0,2).forEach(a=>{if(!String(a).startsWith('~'))add(a)});if(d.re)add(d.re)})}catch(e){}}
   ["Great job!","Well done!","Try again!","Let's talk a little more. Six more questions!","Great! I'll read with this voice."].forEach(add);
   const seen=new Set();return [...out].filter(t=>{const k=vkey(t);if(seen.has(k))return false;seen.add(k);return true})}
